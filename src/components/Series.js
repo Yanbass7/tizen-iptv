@@ -24,6 +24,10 @@ const Series = ({ isActive }) => {
   const seriesRef = useRef([]);
   const containerRef = useRef(null);
 
+  // Detectar ambiente Tizen TV
+  const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
   const API_BASE_URL = 'https://rota66.bar/player_api.php';
   const API_CREDENTIALS = 'username=zBB82J&password=AMeDHq';
 
@@ -149,6 +153,9 @@ const Series = ({ isActive }) => {
 
   // Função para reproduzir série diretamente (primeira temporada, primeiro episódio)
   const handleSeriesSelect = useCallback(async (series) => {
+    console.log('🎬 Série selecionada:', series);
+    console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
+    
     try {
       // Tentar carregar informações da série para reproduzir primeiro episódio
       const response = await fetch(
@@ -164,21 +171,48 @@ const Series = ({ isActive }) => {
           // URL com .mp4 para usar com HTML5 player
           const streamUrl = `https://rota66.bar/series/zBB82J/AMeDHq/${firstEpisode.id || firstEpisode.stream_id}.mp4`;
           
-          const playEvent = new CustomEvent('playContent', {
-            detail: {
-              streamUrl,
-              streamInfo: {
-                name: `${series.name} - S${String(firstSeason).padStart(2, '0')}E${String(firstEpisode.episode_num || 1).padStart(2, '0')} - ${firstEpisode.title || firstEpisode.name || 'Episódio'}`,
-                type: 'series',
-                category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Série',
-                description: firstEpisode.plot || firstEpisode.info?.plot || series.plot || 'Descrição não disponível',
-                year: series.releasedate || 'N/A',
-                rating: series.rating || firstEpisode.rating || 'N/A',
-                poster: series.cover || series.stream_icon
-              }
-            }
-          });
-          window.dispatchEvent(playEvent);
+          const streamInfo = {
+            name: `${series.name} - S${String(firstSeason).padStart(2, '0')}E${String(firstEpisode.episode_num || 1).padStart(2, '0')} - ${firstEpisode.title || firstEpisode.name || 'Episódio'}`,
+            type: 'series',
+            category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Série',
+            description: firstEpisode.plot || firstEpisode.info?.plot || series.plot || 'Descrição não disponível',
+            year: series.releasedate || 'N/A',
+            rating: series.rating || firstEpisode.rating || 'N/A',
+            poster: series.cover || series.stream_icon
+          };
+          
+          // Para Tizen TV, usar configuração específica que força player interno
+          if (isTizenTV) {
+            console.log('📺 Configuração Tizen TV ativada para série');
+            
+            const playEvent = new CustomEvent('playContent', {
+              detail: {
+                streamUrl,
+                streamInfo: {
+                  ...streamInfo,
+                  // Flags específicas para Tizen TV
+                  forceTizenPlayer: true,
+                  preventBrowserRedirect: true,
+                  useInternalPlayer: true
+                }
+              },
+              bubbles: false,
+              cancelable: false
+            });
+            
+            setTimeout(() => {
+              console.log('📺 Disparando evento playContent para Tizen TV (série)');
+              window.dispatchEvent(playEvent);
+            }, 100);
+            
+          } else {
+            console.log('💻 Configuração padrão ativada para série');
+            
+            const playEvent = new CustomEvent('playContent', {
+              detail: { streamUrl, streamInfo }
+            });
+            window.dispatchEvent(playEvent);
+          }
         }
       }
     } catch (error) {
@@ -194,12 +228,39 @@ const Series = ({ isActive }) => {
         type: 'series'
       };
 
-      const playEvent = new CustomEvent('playContent', {
-        detail: { streamUrl, streamInfo }
-      });
-      window.dispatchEvent(playEvent);
+      // Para Tizen TV, usar configuração específica no fallback também
+      if (isTizenTV) {
+        console.log('📺 Configuração Tizen TV ativada para série (fallback)');
+        
+        const playEvent = new CustomEvent('playContent', {
+          detail: { 
+            streamUrl, 
+            streamInfo: {
+              ...streamInfo,
+              forceTizenPlayer: true,
+              preventBrowserRedirect: true,
+              useInternalPlayer: true
+            }
+          },
+          bubbles: false,
+          cancelable: false
+        });
+        
+        setTimeout(() => {
+          console.log('📺 Disparando evento playContent para Tizen TV (série fallback)');
+          window.dispatchEvent(playEvent);
+        }, 100);
+        
+      } else {
+        console.log('💻 Configuração padrão ativada para série (fallback)');
+        
+        const playEvent = new CustomEvent('playContent', {
+          detail: { streamUrl, streamInfo }
+        });
+        window.dispatchEvent(playEvent);
+      }
     }
-  }, [selectedCategory, categories, API_BASE_URL, API_CREDENTIALS]);
+  }, [selectedCategory, categories, API_BASE_URL, API_CREDENTIALS, isTizenTV, isDevelopment]);
 
   // Calcular séries da página atual
   const getCurrentPageSeries = useCallback(() => {

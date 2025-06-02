@@ -1,3 +1,39 @@
+/* ==========================================================================
+   RESET CSS ESPECÍFICO PARA TIZEN 8.0
+   ========================================================================== */
+
+/* Reset otimizado para Tizen 8 */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+div, span, p, h1, h2, h3, h4, h5, h6, button, img {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+}
+
+/* Force o box-sizing com prefixos para Tizen 8 */
+* {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL - OTIMIZADO PARA PERFORMANCE
+   ========================================================================== */
+
 /* Layout principal das séries */
 .series-container {
   width: 100%;
@@ -8,9 +44,12 @@
 }
 
 .series-page {
+  display: -webkit-flex;
   display: flex;
   gap: 20px;
   height: 100%;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* Aplicar margens nos elementos filhos do layout principal */
@@ -26,7 +65,7 @@
   margin-right: 20px; /* Margem direita no último elemento */
 }
 
-/* Estilos para a lista de categorias de séries */
+/* Estilos para a lista de categorias de séries - Otimizada */
 .category-sidebar {
   width: 260px;
   min-width: 260px;
@@ -35,9 +74,13 @@
   overflow-y: auto;
   height: calc(100vh - 40px);
   scrollbar-width: none;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
   padding: 10px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
@@ -55,11 +98,14 @@
 }
 
 .category-list {
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
   gap: 10px;
 }
 
+/* Botões de categoria - Estados de foco otimizados */
 .category-button {
   display: block;
   width: 100%;
@@ -73,39 +119,31 @@
   font-size: 1.4rem;
   font-family: inherit;
   font-weight: 500;
-  transition: all 0.25s ease-in-out;
+  transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
   padding: 14px 18px;
-  box-shadow: inset 0 1px 1px rgba(0,0,0,0.2), 
-              0 1px 1px rgba(255,255,255,0.05); /* Sombra interna sutil e brilho superior */
   position: relative;
 }
 
 .category-button:hover,
 .category-button.focused {
-  background: linear-gradient(145deg, #2a303c, #3d4758); /* Fundo levemente mais claro no hover/focus */
+  background: rgba(255, 140, 0, 0.1);
   color: #ffffff;
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: inset 0 1px 1px rgba(0,0,0,0.2),
-              0 4px 8px rgba(0,0,0,0.3),
-              0 0 12px rgba(255, 140, 0, 0.3); /* Sombra mais pronunciada e brilho laranja */
-  border-color: rgba(255, 140, 0, 0.7); /* Borda laranja no hover/focus */
-  outline: none;
+  outline: 2px solid rgba(255, 140, 0, 0.7);
+  outline-offset: 1px;
+  border-color: rgba(255, 140, 0, 0.7);
 }
 
-/* Estilos para botões de categoria ativos */
+/* Estilos para botões de categoria ativos - Otimizados */
 .category-button.active {
   background: linear-gradient(145deg, #FF8C00, #e67e00);
   color: #ffffff;
   font-weight: 600;
-  box-shadow: inset 0 -2px 3px rgba(0,0,0,0.2),
-              0 3px 6px rgba(0,0,0,0.25),
-              0 0 15px rgba(255, 140, 0, 0.6);
-  transform: translateY(0) scale(1.01);
-  border-color: #FF8C00; /* Borda laranja sólida no estado ativo */
+  border-color: #FF8C00;
 }
 
 /* Estilos para a área de exibição das séries */
 .main-content-area {
+  -webkit-flex: 1;
   flex: 1;
   background-color: rgba(20, 20, 20, 0.5);
   border-radius: 8px;
@@ -126,8 +164,11 @@
 
 /* Indicador de paginação */
 .pagination-info {
+  display: -webkit-flex;
   display: flex;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
+  -webkit-align-items: center;
   align-items: center;
   padding: 15px 20px;
   background: rgba(255, 140, 0, 0.1);
@@ -148,6 +189,7 @@
   font-size: 0.9rem !important;
 }
 
+/* Grid de séries - Otimizado */
 .series-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -155,121 +197,105 @@
   gap: 20px;
   height: calc(100vh - 200px);
   overflow: hidden;
+  -webkit-align-items: stretch;
   align-items: stretch;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
+/* Cards de série - Performance otimizada */
 .serie {
   background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-  position: relative;
+  border-radius: 8px;
+  text-align: center;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.1s ease, outline 0.1s ease;
+  border: 2px solid transparent;
+  overflow: hidden;
+  min-height: 280px;
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
 }
 
 .serie:hover,
 .serie.focused {
-  transform: scale(1.05);
+  background: rgba(255, 140, 0, 0.1);
+  outline: 2px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 1px;
   border-color: #FF8C00;
-  box-shadow: 0 12px 24px rgba(255, 140, 0, 0.3);
-  z-index: 10;
 }
 
-.serie-poster {
-  position: relative;
+.serie img {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.serie-poster img {
-  width: 100%;
-  height: 100%;
+  height: 240px;
+  border-radius: 4px 4px 0 0;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.serie:hover .serie-poster img {
-  transform: scale(1.1);
-}
-
-.serie-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
-  padding: 20px;
-  color: white;
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
-}
-
-.serie:hover .serie-overlay,
-.serie.focused .serie-overlay {
-  transform: translateY(0);
-}
-
-.serie-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  color: #ffffff;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  transition: opacity 0.1s ease;
   line-height: 1.2;
+  margin: 0;
+  padding: 0;
 }
 
 .serie-info {
+  background: linear-gradient(to top, #1a1a1a, transparent);
+  width: 100%;
+  min-height: 60px;
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  padding: 10px;
+  margin: 0;
 }
 
-.serie-year {
-  color: #ffd700;
-  font-weight: 600;
-}
-
-.serie-rating {
-  color: #ffa500;
-  font-weight: 600;
+.serie-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-align: center;
+  line-height: 1.2;
+  padding: 5px;
 }
 
 .serie-description {
-  font-size: 0.85rem;
-  line-height: 1.4;
-  color: #e0e0e0;
-  margin-bottom: 10px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  margin: 0;
+  font-size: 12px;
+  color: #ccc;
+  text-overflow: ellipsis;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  text-align: center;
+  line-height: 1.2;
+  padding: 2px;
 }
 
-.serie-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.action-hint {
-  font-size: 0.75rem;
-  color: #FF8C00;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Estados de loading */
 .loading {
+  display: -webkit-flex;
   display: flex;
+  -webkit-justify-content: center;
   justify-content: center;
+  -webkit-align-items: center;
   align-items: center;
   height: 200px;
   font-size: 1.2rem;
@@ -277,7 +303,20 @@
   width: 100%;
 }
 
-/* Responsividade */
+.loading i {
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE OTIMIZADA
+   ========================================================================== */
+
 @media (max-width: 1200px) {
   .series-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -287,6 +326,7 @@
 
 @media (max-width: 900px) {
   .series-page {
+    -webkit-flex-direction: column;
     flex-direction: column;
     gap: 15px;
   }
@@ -300,31 +340,20 @@
     width: 100%;
     min-width: auto;
     height: 150px;
+    -webkit-flex-direction: row;
     flex-direction: row;
+    display: -webkit-flex;
     display: flex;
     gap: 10px;
     overflow-x: auto;
     overflow-y: hidden;
   }
   
-  /* Resetar margens das categorias em layout horizontal */
-  .category-sidebar > * {
-    margin: 10px 0; /* Margem vertical apenas */
-  }
-  
-  .category-sidebar > :first-child {
-    margin-left: 10px;
-  }
-  
-  .category-sidebar > :last-child {
-    margin-right: 10px;
-  }
-  
   .category-button {
     white-space: nowrap;
     min-width: 120px;
     margin-bottom: 0;
-    width: auto; /* Resetar largura em layout horizontal */
+    width: auto;
   }
   
   .series-grid {
@@ -353,11 +382,11 @@
   }
 }
 
-/* Animações de entrada */
+/* Animações simplificadas - Performance otimizada */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -366,21 +395,11 @@
 }
 
 .serie {
-  animation: fadeInUp 0.3s ease forwards;
+  animation: fadeInUp 0.2s ease forwards;
 }
 
-.serie:nth-child(1) { animation-delay: 0.1s; }
-.serie:nth-child(2) { animation-delay: 0.15s; }
-.serie:nth-child(3) { animation-delay: 0.2s; }
-.serie:nth-child(4) { animation-delay: 0.25s; }
-.serie:nth-child(5) { animation-delay: 0.3s; }
-.serie:nth-child(6) { animation-delay: 0.35s; }
-.serie:nth-child(7) { animation-delay: 0.4s; }
-.serie:nth-child(8) { animation-delay: 0.45s; }
-.serie:nth-child(9) { animation-delay: 0.5s; }
-.serie:nth-child(10) { animation-delay: 0.55s; }
-.serie:nth-child(11) { animation-delay: 0.6s; }
-.serie:nth-child(12) { animation-delay: 0.65s; }
-.serie:nth-child(13) { animation-delay: 0.7s; }
-.serie:nth-child(14) { animation-delay: 0.75s; }
-.serie:nth-child(15) { animation-delay: 0.8s; } 
+.serie:nth-child(1) { animation-delay: 0.05s; }
+.serie:nth-child(2) { animation-delay: 0.08s; }
+.serie:nth-child(3) { animation-delay: 0.11s; }
+.serie:nth-child(4) { animation-delay: 0.14s; }
+.serie:nth-child(5) { animation-delay: 0.17s; } 

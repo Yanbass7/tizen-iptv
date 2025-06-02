@@ -1,3 +1,39 @@
+/* ==========================================================================
+   RESET CSS ESPECÍFICO PARA TIZEN 8.0
+   ========================================================================== */
+
+/* Reset otimizado para Tizen 8 */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+div, span, p, h1, h2, h3, h4, h5, h6, button, img {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+}
+
+/* Force o box-sizing com prefixos para Tizen 8 */
+* {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL - OTIMIZADO PARA PERFORMANCE
+   ========================================================================== */
+
 /* Layout principal dos canais */
 .channels-container {
   width: 100%;
@@ -8,77 +44,95 @@
 }
 
 .channels-layout {
+  display: -webkit-flex;
   display: flex;
   gap: 20px;
   height: 100%;
-  padding: 20px;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
-/* Estilos para a lista de categorias */
+/* Estilos para a lista de categorias - Otimizada */
 .categories {
   width: 260px;
   min-width: 260px;
   background-color: #010d14;
   border-radius: 8px;
-  padding: 10px;
   overflow-y: auto;
   height: calc(100vh - 40px);
   scrollbar-width: none;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  padding: 10px;
+  margin: 20px 0 20px 20px;
 }
 
 .categories::-webkit-scrollbar {
   display: none;
 }
 
+/* Botões de categoria - Estados de foco otimizados */
 .categories .category-button {
   display: block;
   width: 100%;
   background-color: transparent;
   color: #fff;
   border: none;
-  padding: 10px;
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
   border-radius: 5px;
   cursor: pointer;
   text-align: left;
   font-size: 1.5rem;
   font-family: inherit;
-  transition: all 0.3s ease;
+  transition: background-color 0.1s ease, outline 0.1s ease;
+  padding: 10px;
 }
 
 .categories .category-button:hover,
 .categories .category-button.focused {
+  background: rgba(255, 140, 0, 0.1);
   outline: 2px solid #FF8C00;
-  transform: scale(1.02);
+  outline-offset: 1px;
 }
 
-/* Estilos para botões de categoria ativos */
+/* Estilos para botões de categoria ativos - Otimizados */
 .categories .category-button.active {
   font-weight: bold;
   background-color: #FF8C00 !important;
   color: #000 !important;
 }
 
-/* Estilos para a área de exibição dos canais */
+/* Área de exibição dos canais - Otimizada */
 .content-grid {
+  -webkit-flex: 1;
   flex: 1;
   background-color: rgba(20, 20, 20, 0.5);
   border-radius: 8px;
-  padding: 15px;
   overflow-y: auto;
   height: calc(100vh - 40px);
+  scrollbar-width: none;
+  margin: 20px 20px 20px 0;
+  padding: 20px;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-wrap: wrap;
   flex-wrap: wrap;
   gap: 15px;
+  -webkit-align-content: flex-start;
   align-content: flex-start;
-  scrollbar-width: none;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .content-grid::-webkit-scrollbar {
   display: none;
 }
 
+/* Cards de canal - Performance otimizada */
 .content-grid .channel {
+  -webkit-flex: 1 1 150px;
   flex: 1 1 150px;
   min-width: 150px;
   max-width: 200px;
@@ -90,21 +144,26 @@
   padding: 10px;
   border-radius: 8px;
   text-align: center;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
+  -webkit-justify-content: center;
   justify-content: center;
+  -webkit-align-items: center;
   align-items: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.1s ease, outline 0.1s ease;
   border: 2px solid transparent;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  margin: 0;
 }
 
 .content-grid .channel:hover,
 .content-grid .channel.focused {
-  transform: scale(1.05);
+  background: rgba(255, 140, 0, 0.1);
+  outline: 2px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 1px;
   border-color: #FF8C00;
-  box-shadow: 0 8px 16px rgba(255, 140, 0, 0.3);
 }
 
 .content-grid .channel img {
@@ -113,6 +172,7 @@
   border-radius: 4px;
   object-fit: cover;
   margin-bottom: 10px;
+  transition: opacity 0.1s ease;
 }
 
 .content-grid .channel p {
@@ -126,20 +186,37 @@
   -webkit-box-orient: vertical;
 }
 
-/* Estados de loading */
+/* Estados de loading - Otimizados */
 .loading {
+  display: -webkit-flex;
   display: flex;
+  -webkit-justify-content: center;
   justify-content: center;
+  -webkit-align-items: center;
   align-items: center;
   height: 200px;
   font-size: 1.2rem;
   color: #FF8C00;
   text-align: center;
+  width: 100%;
+}
+
+.loading i {
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .no-content {
+  display: -webkit-flex;
   display: flex;
+  -webkit-justify-content: center;
   justify-content: center;
+  -webkit-align-items: center;
   align-items: center;
   width: 100%;
   height: 200px;
@@ -148,9 +225,13 @@
   text-align: center;
 }
 
-/* Responsividade */
+/* ==========================================================================
+   RESPONSIVIDADE OTIMIZADA
+   ========================================================================== */
+
 @media (max-width: 1200px) {
   .content-grid .channel {
+    -webkit-flex: 1 1 140px;
     flex: 1 1 140px;
     min-width: 140px;
     max-width: 180px;
@@ -159,6 +240,7 @@
 
 @media (max-width: 900px) {
   .channels-layout {
+    -webkit-flex-direction: column;
     flex-direction: column;
     gap: 15px;
   }
@@ -167,11 +249,14 @@
     width: 100%;
     min-width: auto;
     height: 150px;
+    -webkit-flex-direction: row;
     flex-direction: row;
+    display: -webkit-flex;
     display: flex;
     gap: 10px;
     overflow-x: auto;
     overflow-y: hidden;
+    margin: 15px;
   }
   
   .categories .category-button {
@@ -182,14 +267,15 @@
   
   .content-grid {
     height: calc(100vh - 200px);
+    margin: 0 15px 15px 15px;
   }
 }
 
-/* Animações de entrada */
+/* Animações simplificadas - Performance otimizada */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -198,12 +284,12 @@
 }
 
 .channel {
-  animation: fadeInUp 0.3s ease forwards;
+  animation: fadeInUp 0.2s ease forwards;
 }
 
-.channel:nth-child(1) { animation-delay: 0.1s; }
-.channel:nth-child(2) { animation-delay: 0.15s; }
-.channel:nth-child(3) { animation-delay: 0.2s; }
-.channel:nth-child(4) { animation-delay: 0.25s; }
-.channel:nth-child(5) { animation-delay: 0.3s; }
-.channel:nth-child(6) { animation-delay: 0.35s; } 
+.channel:nth-child(1) { animation-delay: 0.05s; }
+.channel:nth-child(2) { animation-delay: 0.08s; }
+.channel:nth-child(3) { animation-delay: 0.11s; }
+.channel:nth-child(4) { animation-delay: 0.14s; }
+.channel:nth-child(5) { animation-delay: 0.17s; }
+.channel:nth-child(6) { animation-delay: 0.20s; } 

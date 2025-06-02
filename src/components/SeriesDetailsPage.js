@@ -19,6 +19,10 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
   const seasonElementsRef = useRef([]);
   const episodeElementsRef = useRef([]);
   
+  // Detectar ambiente Tizen TV
+  const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  
   const API_BASE_URL = 'https://rota66.bar/player_api.php';
   const API_CREDENTIALS = 'username=zBB82J&password=AMeDHq';
 
@@ -70,7 +74,7 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
     } finally {
       setLoading(false);
     }
-  }, [series.series_id]);
+  }, [series?.series_id]);
 
   const selectSeason = useCallback((seasonNumber) => {
     if (selectedSeason === seasonNumber) return;
@@ -81,103 +85,65 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
     loadEpisodes(seasonNumber);
   }, [selectedSeason, seasons, loadEpisodes]);
 
-  // Navegação simplificada - com scroll do carrossel
-  const handleUpNavigation = () => {
-    if (focusArea === 'episodes') {
-      if (seasons.length > 0) {
-        setFocusArea('seasons');
-      } else {
-        setFocusArea('actions');
-        setFocusedElement('play');
-        setEpisodesAreaExpanded(false);
-      }
-    } else if (focusArea === 'seasons') {
-      if (seasonFocus > 0) {
-        setSeasonFocus(seasonFocus - 1);
-      } else {
-        setFocusArea('actions');
-        setFocusedElement('play');
-        setEpisodesAreaExpanded(false);
-      }
-    }
-  };
-
-  const handleDownNavigation = () => {
-    if (focusArea === 'actions') {
-      if (seasons.length > 0) {
-        setFocusArea('seasons');
-        setSeasonFocus(0);
-        setEpisodesAreaExpanded(true);
-      } else {
-        setFocusArea('episodes');
-        setEpisodeFocus(0);
-        setEpisodesAreaExpanded(true);
-        // Scroll para o primeiro episódio
-        setTimeout(() => scrollEpisodeIntoView(0), 100);
-      }
-    } else if (focusArea === 'seasons') {
-      setFocusArea('episodes');
-      setEpisodeFocus(0);
-      // Scroll para o primeiro episódio
-      setTimeout(() => scrollEpisodeIntoView(0), 100);
-    }
-  };
-
-  const handleLeftNavigation = () => {
-    if (focusArea === 'actions') {
-      setFocusedElement(focusedElement === 'play' ? 'favorite' : 'play');
-    } else if (focusArea === 'seasons') {
-      const newFocus = seasonFocus > 0 ? seasonFocus - 1 : seasons.length - 1;
-      setSeasonFocus(newFocus);
-      const season = seasons[newFocus];
-      if (season) {
-        selectSeason(season.season_number);
-      }
-    } else if (focusArea === 'episodes') {
-      if (episodeFocus > 0) {
-        const newFocus = episodeFocus - 1;
-        setEpisodeFocus(newFocus);
-        scrollEpisodeIntoView(newFocus);
-      }
-    }
-  };
-
-  const handleRightNavigation = () => {
-    if (focusArea === 'actions') {
-      setFocusedElement(focusedElement === 'play' ? 'favorite' : 'play');
-    } else if (focusArea === 'seasons') {
-      const newFocus = seasonFocus < seasons.length - 1 ? seasonFocus + 1 : 0;
-      setSeasonFocus(newFocus);
-      const season = seasons[newFocus];
-      if (season) {
-        selectSeason(season.season_number);
-      }
-    } else if (focusArea === 'episodes') {
-      if (episodeFocus < episodes.length - 1) {
-        const newFocus = episodeFocus + 1;
-        setEpisodeFocus(newFocus);
-        scrollEpisodeIntoView(newFocus);
-      }
-    }
-  };
-
   const playEpisode = useCallback((episode) => {
-    const playEvent = new CustomEvent('playContent', {
-      detail: {
-        streamUrl: `https://rota66.bar/series/zBB82J/AMeDHq/${episode.id || episode.stream_id}.mp4`,
-        streamInfo: {
-          name: `${series.name} - S${String(selectedSeason).padStart(2, '0')}E${String(episode.episode_num || 1).padStart(2, '0')} - ${episode.title || episode.name || 'Episódio'}`,
-          type: 'series',
-          category: series.category_name || 'Série',
-          description: episode.plot || episode.info?.plot || series.plot || 'Descrição não disponível',
-          year: series.releasedate || 'N/A',
-          rating: series.rating || episode.rating || 'N/A',
-          poster: series.cover || series.stream_icon
+    console.log('🎬 Reproduzindo episódio:', episode);
+    console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
+    
+    const streamUrl = `https://rota66.bar/series/zBB82J/AMeDHq/${episode.id || episode.stream_id}.mp4`;
+    
+    // Para Tizen TV, usar configuração específica que força player interno
+    if (isTizenTV) {
+      console.log('📺 Configuração Tizen TV ativada');
+      
+      // Evento personalizado com configurações específicas para TV
+      const playEvent = new CustomEvent('playContent', {
+        detail: {
+          streamUrl: streamUrl,
+          streamInfo: {
+            name: `${series.name} - S${String(selectedSeason).padStart(2, '0')}E${String(episode.episode_num || 1).padStart(2, '0')} - ${episode.title || episode.name || 'Episódio'}`,
+            type: 'series',
+            category: series.category_name || 'Série',
+            description: episode.plot || episode.info?.plot || series.plot || 'Descrição não disponível',
+            year: series.releasedate || 'N/A',
+            rating: series.rating || episode.rating || 'N/A',
+            poster: series.cover || series.stream_icon,
+            // Flags específicas para Tizen TV
+            forceTizenPlayer: true,
+            preventBrowserRedirect: true,
+            useInternalPlayer: true
+          }
+        },
+        bubbles: false, // Não permitir propagação que pode causar redirect
+        cancelable: false // Não permitir cancelamento por outros handlers
+      });
+      
+      // Prevenir qualquer comportamento padrão que possa causar redirect
+      setTimeout(() => {
+        console.log('📺 Disparando evento playContent para Tizen TV');
+        window.dispatchEvent(playEvent);
+      }, 100); // Pequeno delay para garantir que o evento seja tratado corretamente
+      
+    } else {
+      // Para outros ambientes, usar o comportamento padrão
+      console.log('💻 Configuração padrão ativada');
+      
+      const playEvent = new CustomEvent('playContent', {
+        detail: {
+          streamUrl: streamUrl,
+          streamInfo: {
+            name: `${series.name} - S${String(selectedSeason).padStart(2, '0')}E${String(episode.episode_num || 1).padStart(2, '0')} - ${episode.title || episode.name || 'Episódio'}`,
+            type: 'series',
+            category: series.category_name || 'Série',
+            description: episode.plot || episode.info?.plot || series.plot || 'Descrição não disponível',
+            year: series.releasedate || 'N/A',
+            rating: series.rating || episode.rating || 'N/A',
+            poster: series.cover || series.stream_icon
+          }
         }
-      }
-    });
-    window.dispatchEvent(playEvent);
-  }, [series, selectedSeason]);
+      });
+      window.dispatchEvent(playEvent);
+    }
+  }, [series, selectedSeason, isTizenTV, isDevelopment]);
 
   const loadFirstEpisode = useCallback(async () => {
     try {
@@ -191,6 +157,7 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
         const firstSeason = Object.keys(data.episodes)[0];
         const firstEpisode = data.episodes[firstSeason][0];
         if (firstEpisode) {
+          console.log('🎬 Reproduzindo primeiro episódio via loadFirstEpisode');
           playEpisode(firstEpisode);
         }
       }
@@ -199,7 +166,7 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
     } finally {
       setLoading(false);
     }
-  }, [series.series_id, playEpisode]);
+  }, [series?.series_id, playEpisode]);
 
   const toggleFavorite = useCallback(() => {
     const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
@@ -224,35 +191,6 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
     localStorage.setItem('favorites', JSON.stringify(favorites));
     setIsFavorite(!isFavorite);
   }, [series, isFavorite]);
-
-  // Função de ação simplificada
-  const handleAction = () => {
-    if (focusArea === 'actions') {
-      if (focusedElement === 'play') {
-        if (episodes.length > 0 && episodes[selectedEpisode]) {
-          playEpisode(episodes[selectedEpisode]);
-        } else {
-          loadFirstEpisode();
-        }
-      } else if (focusedElement === 'favorite') {
-        toggleFavorite();
-      }
-    } else if (focusArea === 'episodes' && episodes[episodeFocus]) {
-      const episode = episodes[episodeFocus];
-      setSelectedEpisode(episodeFocus);
-      playEpisode(episode);
-    }
-  };
-
-  const handleBackNavigation = () => {
-    if (episodesAreaExpanded && (focusArea === 'episodes' || focusArea === 'seasons')) {
-      setEpisodesAreaExpanded(false);
-      setFocusArea('actions');
-      setFocusedElement('play');
-    } else {
-      onBack();
-    }
-  };
 
   const loadSeriesInfo = useCallback(async () => {
     if (!series?.series_id) return;
@@ -283,12 +221,113 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
     }
   }, [series?.series_id]);
 
+  // Navegação das ações (botões Play/Favoritos)
+  const handleActionsNavigation = useCallback((keyCode) => {
+    if (keyCode === 37) { // Esquerda
+      setFocusedElement(focusedElement === 'play' ? 'favorite' : 'play');
+    } else if (keyCode === 39) { // Direita
+      setFocusedElement(focusedElement === 'play' ? 'favorite' : 'play');
+    } else if (keyCode === 40) { // Baixo - ir para temporadas ou episódios
+      if (seasons.length > 0) {
+        setFocusArea('seasons');
+        setSeasonFocus(0);
+        setEpisodesAreaExpanded(true);
+      } else {
+        setFocusArea('episodes');
+        setEpisodeFocus(0);
+        setEpisodesAreaExpanded(true);
+        setTimeout(() => scrollEpisodeIntoView(0), 100);
+      }
+    } else if (keyCode === 13) { // Enter - executar ação
+      if (focusedElement === 'play') {
+        if (episodes.length > 0 && episodes[selectedEpisode]) {
+          playEpisode(episodes[selectedEpisode]);
+        } else {
+          loadFirstEpisode();
+        }
+      } else if (focusedElement === 'favorite') {
+        toggleFavorite();
+      }
+    }
+  }, [focusedElement, seasons.length, episodes, selectedEpisode, playEpisode, loadFirstEpisode, toggleFavorite, scrollEpisodeIntoView]);
+
+  // Navegação das temporadas
+  const handleSeasonsNavigation = useCallback((keyCode) => {
+    if (keyCode === 38) { // Cima - voltar para ações
+      if (seasonFocus > 0) {
+        setSeasonFocus(seasonFocus - 1);
+      } else {
+        setFocusArea('actions');
+        setFocusedElement('play');
+        setEpisodesAreaExpanded(false);
+      }
+    } else if (keyCode === 40) { // Baixo - ir para episódios
+      setFocusArea('episodes');
+      setEpisodeFocus(0);
+      setTimeout(() => scrollEpisodeIntoView(0), 100);
+    } else if (keyCode === 37) { // Esquerda
+      const newFocus = seasonFocus > 0 ? seasonFocus - 1 : seasons.length - 1;
+      setSeasonFocus(newFocus);
+      const season = seasons[newFocus];
+      if (season) {
+        selectSeason(season.season_number);
+      }
+    } else if (keyCode === 39) { // Direita
+      const newFocus = seasonFocus < seasons.length - 1 ? seasonFocus + 1 : 0;
+      setSeasonFocus(newFocus);
+      const season = seasons[newFocus];
+      if (season) {
+        selectSeason(season.season_number);
+      }
+    } else if (keyCode === 13) { // Enter - selecionar temporada
+      const season = seasons[seasonFocus];
+      if (season) {
+        selectSeason(season.season_number);
+      }
+    }
+  }, [seasonFocus, seasons, selectSeason, scrollEpisodeIntoView]);
+
+  // Navegação dos episódios
+  const handleEpisodesNavigation = useCallback((keyCode) => {
+    if (keyCode === 38) { // Cima - voltar para temporadas ou ações
+      if (seasons.length > 0) {
+        setFocusArea('seasons');
+      } else {
+        setFocusArea('actions');
+        setFocusedElement('play');
+        setEpisodesAreaExpanded(false);
+      }
+    } else if (keyCode === 37) { // Esquerda
+      if (episodeFocus > 0) {
+        const newFocus = episodeFocus - 1;
+        setEpisodeFocus(newFocus);
+        scrollEpisodeIntoView(newFocus);
+      }
+    } else if (keyCode === 39) { // Direita
+      if (episodeFocus < episodes.length - 1) {
+        const newFocus = episodeFocus + 1;
+        setEpisodeFocus(newFocus);
+        scrollEpisodeIntoView(newFocus);
+      }
+    } else if (keyCode === 13) { // Enter - reproduzir episódio
+      if (episodes[episodeFocus]) {
+        const episode = episodes[episodeFocus];
+        setSelectedEpisode(episodeFocus);
+        playEpisode(episode);
+      }
+    }
+  }, [episodeFocus, episodes, seasons.length, playEpisode, scrollEpisodeIntoView]);
+
   // Inicialização simplificada
   useEffect(() => {
     if (!isActive || !series) return;
 
+    // Reset do estado quando a página fica ativa
     setFocusedElement('play');
     setFocusArea('actions');
+    setEpisodesAreaExpanded(false);
+    setSeasonFocus(0);
+    setEpisodeFocus(0);
     
     const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
     const seriesKey = `series_${series.series_id}`;
@@ -297,52 +336,45 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
     loadSeriesInfo();
   }, [isActive, series, loadSeriesInfo]);
 
-  // Event listener simplificado
+  // Sistema de navegação por controle remoto - seguindo padrão das outras páginas
   useEffect(() => {
-    if (!isActive || !series) return;
+    if (!isActive) return;
 
-    const handleKeyDown = (event) => {
-      event.preventDefault();
+    const handleSeriesDetailsNavigation = (event) => {
+      const { keyCode } = event.detail;
       
-      switch (event.key) {
-        case 'ArrowUp':
-          handleUpNavigation();
-          break;
-        case 'ArrowDown':
-          handleDownNavigation();
-          break;
-        case 'ArrowLeft':
-          handleLeftNavigation();
-          break;
-        case 'ArrowRight':
-          handleRightNavigation();
-          break;
-        case 'Enter':
-        case ' ':
-          handleAction();
-          break;
-        case 'Escape':
-        case 'Backspace':
-          handleBackNavigation();
-          break;
-        default:
-          return;
+      // Tratar tecla de voltar
+      if (keyCode === 8 || keyCode === 10009) { // Backspace ou Return
+        if (episodesAreaExpanded && (focusArea === 'episodes' || focusArea === 'seasons')) {
+          setEpisodesAreaExpanded(false);
+          setFocusArea('actions');
+          setFocusedElement('play');
+        } else {
+          onBack();
+        }
+        return;
+      }
+      
+      // Delegar navegação baseada na área de foco
+      if (focusArea === 'actions') {
+        handleActionsNavigation(keyCode);
+      } else if (focusArea === 'seasons') {
+        handleSeasonsNavigation(keyCode);
+      } else if (focusArea === 'episodes') {
+        handleEpisodesNavigation(keyCode);
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('seriesDetailsNavigation', handleSeriesDetailsNavigation);
+    return () => window.removeEventListener('seriesDetailsNavigation', handleSeriesDetailsNavigation);
   }, [
     isActive,
-    series,
     focusArea,
-    focusedElement,
-    seasonFocus,
-    episodeFocus,
-    seasons,
-    episodes,
-    selectedEpisode,
-    episodesAreaExpanded
+    episodesAreaExpanded,
+    handleActionsNavigation,
+    handleSeasonsNavigation,
+    handleEpisodesNavigation,
+    onBack
   ]);
 
   if (!isActive || !series) return null;

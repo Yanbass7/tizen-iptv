@@ -33,6 +33,10 @@ const Movies = ({ isActive }) => {
   const API_BASE_URL = 'https://rota66.bar/player_api.php';
   const API_CREDENTIALS = 'username=zBB82J&password=AMeDHq';
 
+  // Detectar ambiente Tizen TV
+  const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
   // Função para carregar categorias VOD
   const loadVODCategories = useCallback(async () => {
     setLoading(true);
@@ -110,6 +114,7 @@ const Movies = ({ isActive }) => {
   // Função para selecionar filme
   const handleMovieSelect = useCallback((movie) => {
     console.log('Filme selecionado:', movie);
+    console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
     
     // Construir URL do stream com a estrutura correta (mesma dos canais que funcionam)
     const streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${movie.stream_id}`;
@@ -124,12 +129,43 @@ const Movies = ({ isActive }) => {
       type: 'movie'
     };
 
-    // Disparar evento para reproduzir no VideoPlayer
-    const playEvent = new CustomEvent('playContent', {
-      detail: { streamUrl, streamInfo }
-    });
-    window.dispatchEvent(playEvent);
-  }, [API_CREDENTIALS, selectedCategory, categories]);
+    // Para Tizen TV, usar configuração específica que força player interno
+    if (isTizenTV) {
+      console.log('📺 Configuração Tizen TV ativada para filme');
+      
+      // Evento personalizado com configurações específicas para TV
+      const playEvent = new CustomEvent('playContent', {
+        detail: {
+          streamUrl,
+          streamInfo: {
+            ...streamInfo,
+            // Flags específicas para Tizen TV
+            forceTizenPlayer: true,
+            preventBrowserRedirect: true,
+            useInternalPlayer: true
+          }
+        },
+        bubbles: false, // Não permitir propagação que pode causar redirect
+        cancelable: false // Não permitir cancelamento por outros handlers
+      });
+      
+      // Prevenir qualquer comportamento padrão que possa causar redirect
+      setTimeout(() => {
+        console.log('📺 Disparando evento playContent para Tizen TV (filme)');
+        window.dispatchEvent(playEvent);
+      }, 100); // Pequeno delay para garantir que o evento seja tratado corretamente
+      
+    } else {
+      // Para outros ambientes, usar o comportamento padrão
+      console.log('💻 Configuração padrão ativada para filme');
+      
+      // Disparar evento para reproduzir no VideoPlayer
+      const playEvent = new CustomEvent('playContent', {
+        detail: { streamUrl, streamInfo }
+      });
+      window.dispatchEvent(playEvent);
+    }
+  }, [API_CREDENTIALS, selectedCategory, categories, isTizenTV, isDevelopment]);
 
   // Função para mostrar preview do filme
   const handleMoviePreview = useCallback((movie) => {

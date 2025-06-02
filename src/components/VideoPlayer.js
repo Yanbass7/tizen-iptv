@@ -258,9 +258,27 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
   // Função para detectar tipo de player necessário
   const detectPlayerType = (url, info) => {
+    console.log('🔍 Detectando tipo de player:', { url, info, isTizenTV });
+    
+    // Se for Tizen TV com flags específicas, forçar mpegts
+    if (isTizenTV && info?.forceTizenPlayer) {
+      console.log('📺 Forçando mpegts para Tizen TV com flags específicas');
+      // Para séries/filmes no Tizen, usar mpegts configurado para VOD
+      if (info?.type === 'series' || info?.type === 'movie') {
+        return 'mpegts-vod';
+      }
+      return 'mpegts-live';
+    }
+    
     // TV ao vivo sempre usa mpegts
     if (info?.type === 'live') {
       return 'mpegts-live';
+    }
+    
+    // Para Tizen TV, priorizar mpegts para filmes e séries
+    if (isTizenTV && (info?.type === 'movie' || info?.type === 'series')) {
+      console.log('📺 Usando mpegts-vod para Tizen TV');
+      return 'mpegts-vod';
     }
     
     // Filmes e séries MP4 usam mpegts configurado para MP4
@@ -1007,6 +1025,47 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       }
     };
   }, [isActive, streamUrl, initializeIfNeeded, cleanupPlayer]);
+
+  // Prevenir redirecionamentos em Tizen TV
+  useEffect(() => {
+    if (!isActive || !isTizenTV || !streamInfo?.preventBrowserRedirect) return;
+    
+    console.log('🛡️ Ativando proteção contra redirecionamento Tizen TV');
+    
+    const preventRedirect = (event) => {
+      // Prevenir navegação automática para URLs de vídeo
+      if (event.target.tagName === 'A' || event.target.tagName === 'VIDEO') {
+        const href = event.target.href || event.target.src;
+        if (href && (href.includes('.mp4') || href.includes('.mkv') || href.includes('.avi'))) {
+          console.log('🚫 Prevenindo redirecionamento automático:', href);
+          event.preventDefault();
+          event.stopPropagation();
+          return false;
+        }
+      }
+    };
+    
+    const preventWindowOpen = () => {
+      console.log('🚫 Prevenindo window.open no Tizen TV');
+      return null;
+    };
+    
+    // Substituir window.open temporariamente
+    const originalWindowOpen = window.open;
+    window.open = preventWindowOpen;
+    
+    // Adicionar listeners para prevenir cliques automáticos
+    document.addEventListener('click', preventRedirect, true);
+    document.addEventListener('mousedown', preventRedirect, true);
+    
+    return () => {
+      // Restaurar comportamento original
+      window.open = originalWindowOpen;
+      document.removeEventListener('click', preventRedirect, true);
+      document.removeEventListener('mousedown', preventRedirect, true);
+      console.log('🛡️ Proteção contra redirecionamento removida');
+    };
+  }, [isActive, isTizenTV, streamInfo?.preventBrowserRedirect]);
 
   // Sistema de navegação por controle remoto
   useEffect(() => {

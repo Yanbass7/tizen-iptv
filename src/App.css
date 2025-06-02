@@ -1,14 +1,52 @@
+/* ==========================================================================
+   RESET CSS GLOBAL ESPECÍFICO PARA TIZEN 8.0
+   ========================================================================== */
+
+/* Reset otimizado para Tizen 8 */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+div, span, p, h1, h2, h3, h4, h5, h6, button, img {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+}
+
+/* Force o box-sizing com prefixos para Tizen 8 */
+* {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   APP PRINCIPAL - OTIMIZADO PARA PERFORMANCE
+   ========================================================================== */
+
 .App {
   text-align: left;
   color: #f0f0f0;
   background-color: #141414;
   min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
-/* Layout com sidebar */
+/* Layout com sidebar - Otimizado */
 .app-content {
-  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-left 0.15s ease;
 }
 
 .app-content.with-sidebar {
@@ -20,12 +58,15 @@
   margin-left: 80px; /* Manter margem base, sidebar fica por cima */
 }
 
-/* Conteúdo principal */
+/* Conteúdo principal - Otimizado */
 .main-content {
   width: 100%;
   min-height: 100vh;
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
   padding: 20px;
 }
@@ -36,17 +77,13 @@
   max-width: 600px;
 }
 
+/* Placeholder content - Performance otimizada */
 .placeholder-content {
-  background: linear-gradient(
-    135deg,
-    rgba(20, 20, 20, 0.9) 0%,
-    rgba(30, 30, 30, 0.9) 100%
-  );
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(30, 30, 30, 0.9) 100%);
   padding: 60px 40px;
   border-radius: 20px;
   border: 2px solid rgba(255, 140, 0, 0.3);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
+  margin: 0;
 }
 
 .placeholder-content i {
@@ -70,6 +107,7 @@
   line-height: 1.6;
 }
 
+/* Botões globais - Estados de foco otimizados */
 .back-btn {
   background: linear-gradient(45deg, #FF8C00, #ff9500);
   color: white;
@@ -79,50 +117,30 @@
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.1s ease, outline 0.1s ease;
+  display: -webkit-inline-flex;
   display: inline-flex;
+  -webkit-align-items: center;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+  margin: 0;
 }
 
-.back-btn:hover {
+.back-btn:hover,
+.back-btn.focused {
   background: linear-gradient(45deg, #e67e00, #ff8c00);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+  outline: 2px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 2px;
 }
 
-.back-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.5);
-}
-
-/* Estilos para foco global */
+/* Estados de foco globais - Performance otimizada */
 .focused {
-  outline: none !important;
-  border: 2px solid #FF8C00 !important;
-  box-shadow: 0 0 15px rgba(255, 140, 0, 0.7) !important;
-  transform: scale(1.05);
-  transition: all 0.3s ease;
+  outline: 2px solid #FF8C00 !important;
+  outline-offset: 2px !important;
+  transition: outline 0.1s ease !important;
 }
 
-/* Animações globais */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.app-content {
-  animation: fadeIn 0.5s ease;
-}
-
-/* Scrollbar personalizada */
+/* Scrollbar personalizada - Otimizada */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -136,13 +154,63 @@
 ::-webkit-scrollbar-thumb {
   background: #FF8C00;
   border-radius: 4px;
+  transition: background 0.1s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #e67e00;
 }
 
-/* Responsive Design */
+/* Loading state global - Otimizado */
+.loading {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  align-items: center;
+  height: 200px;
+  color: #FF8C00;
+}
+
+.loading i {
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   ANIMAÇÕES SIMPLIFICADAS - PERFORMANCE OTIMIZADA
+   ========================================================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-content {
+  animation: fadeIn 0.2s ease;
+}
+
+/* Transições suaves entre seções - Otimizadas */
+.section-transition {
+  transition: opacity 0.15s ease;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE OTIMIZADA
+   ========================================================================== */
+
 @media (max-width: 768px) {
   .app-content.with-sidebar {
     margin-left: 70px; /* Ajuste para telas menores */
@@ -186,32 +254,39 @@
   }
 }
 
-/* Transições suaves entre seções */
-.section-transition {
-  transition: all 0.5s ease;
+/* ==========================================================================
+   UTILITÁRIOS DE PERFORMANCE GLOBAL
+   ========================================================================== */
+
+/* Classes utilitárias para GPU layers mínimas */
+.gpu-layer {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
-/* Loading state global */
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  color: #FF8C00;
+/* Classes de transição otimizadas */
+.transition-fast {
+  transition: all 0.1s ease;
 }
 
-.loading i {
-  font-size: 2rem;
-  animation: spin 1s linear infinite;
+.transition-medium {
+  transition: all 0.15s ease;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.transition-slow {
+  transition: all 0.2s ease;
+}
+
+/* Estados de interação otimizados */
+.interactive:hover,
+.interactive.focused {
+  outline: 2px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 2px;
+}
+
+.interactive {
+  transition: outline 0.1s ease;
+  cursor: pointer;
 }
 
 .App-logo {

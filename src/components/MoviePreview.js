@@ -5,28 +5,72 @@ const MoviePreview = ({ movie, isVisible, onClose }) => {
   const [focusedElement, setFocusedElement] = useState('play');
   const [isFavorite, setIsFavorite] = useState(false);
 
+  // Detectar ambiente Tizen TV
+  const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
   // Memoizar array de elementos navegáveis para evitar re-criações
   const navigableElements = useMemo(() => ['play', 'favorite', 'close'], []);
 
   const handleAction = useCallback((action) => {
     switch (action) {
       case 'play':
-        // Disparar evento para reproduzir filme
-        const playEvent = new CustomEvent('playContent', {
-          detail: {
-            streamUrl: `https://rota66.bar/zBB82J/AMeDHq/${movie.stream_id}`,
-            streamInfo: {
-              name: movie.name,
-              type: 'movie',
-              category: movie.category_name || 'Filme',
-              description: movie.plot || 'Descrição não disponível',
-              year: movie.releasedate || 'N/A',
-              rating: movie.rating || 'N/A',
-              poster: movie.stream_icon
+        console.log('🎬 Reproduzindo filme do preview:', movie);
+        console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
+        
+        // Para Tizen TV, usar configuração específica que força player interno
+        if (isTizenTV) {
+          console.log('📺 Configuração Tizen TV ativada para filme (preview)');
+          
+          // Evento personalizado com configurações específicas para TV
+          const playEvent = new CustomEvent('playContent', {
+            detail: {
+              streamUrl: `https://rota66.bar/zBB82J/AMeDHq/${movie.stream_id}`,
+              streamInfo: {
+                name: movie.name,
+                type: 'movie',
+                category: movie.category_name || 'Filme',
+                description: movie.plot || 'Descrição não disponível',
+                year: movie.releasedate || 'N/A',
+                rating: movie.rating || 'N/A',
+                poster: movie.stream_icon,
+                // Flags específicas para Tizen TV
+                forceTizenPlayer: true,
+                preventBrowserRedirect: true,
+                useInternalPlayer: true
+              }
+            },
+            bubbles: false, // Não permitir propagação que pode causar redirect
+            cancelable: false // Não permitir cancelamento por outros handlers
+          });
+          
+          // Prevenir qualquer comportamento padrão que possa causar redirect
+          setTimeout(() => {
+            console.log('📺 Disparando evento playContent para Tizen TV (filme preview)');
+            window.dispatchEvent(playEvent);
+          }, 100); // Pequeno delay para garantir que o evento seja tratado corretamente
+          
+        } else {
+          // Para outros ambientes, usar o comportamento padrão
+          console.log('💻 Configuração padrão ativada para filme (preview)');
+          
+          // Disparar evento para reproduzir filme
+          const playEvent = new CustomEvent('playContent', {
+            detail: {
+              streamUrl: `https://rota66.bar/zBB82J/AMeDHq/${movie.stream_id}`,
+              streamInfo: {
+                name: movie.name,
+                type: 'movie',
+                category: movie.category_name || 'Filme',
+                description: movie.plot || 'Descrição não disponível',
+                year: movie.releasedate || 'N/A',
+                rating: movie.rating || 'N/A',
+                poster: movie.stream_icon
+              }
             }
-          }
-        });
-        window.dispatchEvent(playEvent);
+          });
+          window.dispatchEvent(playEvent);
+        }
         onClose();
         break;
       
@@ -41,7 +85,7 @@ const MoviePreview = ({ movie, isVisible, onClose }) => {
       default:
         break;
     }
-  }, [movie, onClose]);
+  }, [movie, onClose, isTizenTV, isDevelopment]);
 
   const toggleFavorite = useCallback(() => {
     const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');

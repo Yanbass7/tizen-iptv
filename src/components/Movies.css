@@ -1,3 +1,39 @@
+/* ==========================================================================
+   RESET CSS ESPECÍFICO PARA TIZEN 8.0
+   ========================================================================== */
+
+/* Reset otimizado para Tizen 8 */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+div, span, p, h1, h2, h3, h4, h5, h6, button, img {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+}
+
+/* Force o box-sizing com prefixos para Tizen 8 */
+* {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL - OTIMIZADO PARA PERFORMANCE
+   ========================================================================== */
+
 /* Layout principal dos filmes */
 .movies-container {
   width: 100%;
@@ -8,9 +44,12 @@
 }
 
 .movies-layout {
+  display: -webkit-flex;
   display: flex;
   gap: 20px;
   height: 100%;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* Aplicar margens nos elementos filhos do layout principal */
@@ -26,7 +65,7 @@
   margin-right: 20px; /* Margem direita no último elemento */
 }
 
-/* Estilos para a lista de categorias de filmes */
+/* Estilos para a lista de categorias de filmes - Otimizada */
 .vod-categories {
   width: 260px;
   min-width: 260px;
@@ -35,7 +74,9 @@
   overflow-y: auto;
   height: calc(100vh - 40px);
   scrollbar-width: none;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
 }
 
@@ -56,6 +97,7 @@
   display: none;
 }
 
+/* Botões de categoria - Estados de foco otimizados */
 .vod-categories .vod-category-button {
   display: block;
   width: calc(100% - 20px); /* Ajustar largura considerando as margens */
@@ -68,25 +110,27 @@
   text-align: left;
   font-size: 1.5rem;
   font-family: inherit;
-  transition: all 0.3s ease;
+  transition: background-color 0.1s ease, outline 0.1s ease;
   padding: 10px;
 }
 
 .vod-categories .vod-category-button:hover,
 .vod-categories .vod-category-button.focused {
+  background: rgba(255, 140, 0, 0.1);
   outline: 2px solid #FF8C00;
-  transform: scale(1.02);
+  outline-offset: 1px;
 }
 
-/* Estilos para botões de categoria ativos */
+/* Estilos para botões de categoria ativos - Otimizados */
 .vod-categories .vod-category-button.active {
   font-weight: bold;
   background-color: #FF8C00 !important;
   color: #000 !important;
 }
 
-/* Estilos para a área de exibição dos filmes */
+/* Estilos para a área de exibição dos filmes - Otimizada */
 .content-grid {
+  -webkit-flex: 1;
   flex: 1;
   background-color: rgba(20, 20, 20, 0.5);
   border-radius: 8px;
@@ -95,37 +139,47 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 15px;
+  -webkit-align-content: flex-start;
   align-content: flex-start;
   scrollbar-width: none;
   margin: 15px;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .content-grid::-webkit-scrollbar {
   display: none;
 }
 
+/* Cards de filme - Performance otimizada */
 .content-grid .movie {
   background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
   border-radius: 8px;
   text-align: center;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
+  -webkit-align-items: center;
   align-items: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.1s ease, outline 0.1s ease;
   border: 2px solid transparent;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   min-height: 280px;
   max-height: 320px;
+  margin: 0;
+  padding: 0;
 }
 
 .content-grid .movie:hover,
 .content-grid .movie.focused {
-  transform: scale(1.05);
+  background: rgba(255, 140, 0, 0.1);
+  outline: 2px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 1px;
   border-color: #FF8C00;
-  box-shadow: 0 8px 16px rgba(255, 140, 0, 0.3);
 }
 
 .content-grid .movie img {
@@ -133,35 +187,26 @@
   height: 240px;
   border-radius: 4px 4px 0 0;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: opacity 0.1s ease;
   line-height: 1.2;
-}
-
-.content-grid .movie:hover img {
-  transform: scale(1.1);
+  margin: 0;
+  padding: 0;
 }
 
 .movie-info {
   background: linear-gradient(to top, #1a1a1a, transparent);
   width: 100%;
   min-height: 60px;
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
+  -webkit-flex-direction: column;
   flex-direction: column;
-}
-
-/* Aplicar margens nos elementos filhos do movie-info */
-.movie-info > * {
-  margin: 0 10px; /* Margem lateral nos elementos filhos */
-}
-
-.movie-info > :first-child {
-  margin-top: 10px; /* Margem superior no primeiro elemento */
-}
-
-.movie-info > :last-child {
-  margin-bottom: 10px; /* Margem inferior no último elemento */
+  padding: 10px;
+  margin: 0;
 }
 
 .movie-info h3 {
@@ -176,12 +221,16 @@
   -webkit-box-orient: vertical;
   text-align: center;
   line-height: 1.2;
+  padding: 5px;
 }
 
-/* Estados de loading */
+/* Estados de loading - Otimizados */
 .loading {
+  display: -webkit-flex;
   display: flex;
+  -webkit-justify-content: center;
   justify-content: center;
+  -webkit-align-items: center;
   align-items: center;
   height: 200px;
   font-size: 1.2rem;
@@ -189,9 +238,22 @@
   grid-column: 1 / -1;
 }
 
+.loading i {
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .no-content {
+  display: -webkit-flex;
   display: flex;
+  -webkit-justify-content: center;
   justify-content: center;
+  -webkit-align-items: center;
   align-items: center;
   width: 100%;
   height: 200px;
@@ -201,7 +263,10 @@
   grid-column: 1 / -1;
 }
 
-/* Responsividade - Ajustada para margens ao invés de padding */
+/* ==========================================================================
+   RESPONSIVIDADE OTIMIZADA
+   ========================================================================== */
+
 @media (max-width: 1200px) {
   .content-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -233,6 +298,7 @@
 
 @media (max-width: 900px) {
   .movies-layout {
+    -webkit-flex-direction: column;
     flex-direction: column;
     gap: 15px;
   }
@@ -241,9 +307,6 @@
   .movies-layout > * {
     margin: 0 15px 15px 15px;
   }
-  
-  /* .vod-categories agora será .category-sidebar, estilos já definidos em Series.css */
-
 }
 
 @media (max-width: 600px) {
@@ -269,24 +332,13 @@
   .movies-layout > * {
     margin: 0 10px 10px 10px;
   }
-  
-  .movie-info > * {
-    margin: 0 8px;
-  }
-  
-  .movie-info > :first-child {
-    margin-top: 8px;
-  }
-  
-  .movie-info > :last-child {
-    margin-bottom: 8px;
-  }
 }
 
+/* Animações simplificadas - Performance otimizada */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -295,19 +347,19 @@
 }
 
 .movie {
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: fadeInUp 0.2s ease-out forwards;
 }
 
-.movie:nth-child(1) { animation-delay: 0.05s; }
-.movie:nth-child(2) { animation-delay: 0.1s; }
-.movie:nth-child(3) { animation-delay: 0.15s; }
-.movie:nth-child(4) { animation-delay: 0.2s; }
-.movie:nth-child(5) { animation-delay: 0.25s; }
-.movie:nth-child(6) { animation-delay: 0.3s; }
-.movie:nth-child(7) { animation-delay: 0.35s; }
-.movie:nth-child(8) { animation-delay: 0.4s; }
+.movie:nth-child(1) { animation-delay: 0.02s; }
+.movie:nth-child(2) { animation-delay: 0.04s; }
+.movie:nth-child(3) { animation-delay: 0.06s; }
+.movie:nth-child(4) { animation-delay: 0.08s; }
+.movie:nth-child(5) { animation-delay: 0.10s; }
+.movie:nth-child(6) { animation-delay: 0.12s; }
+.movie:nth-child(7) { animation-delay: 0.14s; }
+.movie:nth-child(8) { animation-delay: 0.16s; }
 
-/* Efeito de loading shimmer nos cards */
+/* Efeito de shimmer simplificado - Otimizado */
 .movie::before {
   content: '';
   position: absolute;
@@ -318,10 +370,10 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05),
     transparent
   );
-  transition: left 0.5s;
+  transition: left 0.3s ease;
 }
 
 .movie:hover::before,
@@ -329,16 +381,9 @@
   left: 100%;
 }
 
-/* Placeholder para imagens que não carregaram */
+/* Placeholder para imagens que não carregaram - Simplificado */
 .movie img[src=""],
 .movie img:not([src]) {
   background: linear-gradient(45deg, #333, #555);
   background-size: 20px 20px;
-  background-image: 
-    repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.1) 10px, rgba(255,255,255,.1) 20px);
-}
-
-@keyframes loading {
-  0% { background-position: 0 0; }
-  100% { background-position: 40px 40px; }
 } 

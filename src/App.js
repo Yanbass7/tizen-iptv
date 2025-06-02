@@ -235,8 +235,46 @@ function App() {
   useEffect(() => {
     const handlePlayContent = (event) => {
       const { streamUrl, streamInfo } = event.detail;
-      setPlayerData({ streamUrl, streamInfo });
-      setCurrentSection(SECTIONS.PLAYER);
+      
+      // Detectar ambiente Tizen TV
+      const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
+      
+      console.log('🎬 Evento playContent recebido:', { streamUrl, streamInfo });
+      console.log('📺 Ambiente Tizen TV:', isTizenTV);
+      
+      // Se for Tizen TV e tiver flags específicas, aplicar configurações especiais
+      if (isTizenTV && streamInfo?.forceTizenPlayer) {
+        console.log('🔧 Aplicando configurações específicas para Tizen TV');
+        
+        // Prevenir qualquer redirecionamento para navegador externo
+        event.preventDefault && event.preventDefault();
+        event.stopPropagation && event.stopPropagation();
+        
+        // Aplicar configurações específicas para Tizen no streamInfo
+        const tizenStreamInfo = {
+          ...streamInfo,
+          preferredPlayer: 'mpegts',
+          useInternalPlayer: true,
+          preventRedirect: true,
+          environment: 'tizen'
+        };
+        
+        console.log('📺 StreamInfo configurado para Tizen:', tizenStreamInfo);
+        
+        setPlayerData({ streamUrl, streamInfo: tizenStreamInfo });
+        setCurrentSection(SECTIONS.PLAYER);
+        
+        // Adicionar pequeno delay para garantir que a transição ocorra
+        setTimeout(() => {
+          console.log('📺 Player Tizen inicializado');
+        }, 200);
+        
+      } else {
+        // Comportamento padrão para outros ambientes
+        console.log('💻 Usando configuração padrão');
+        setPlayerData({ streamUrl, streamInfo });
+        setCurrentSection(SECTIONS.PLAYER);
+      }
     };
 
     window.addEventListener('playContent', handlePlayContent);

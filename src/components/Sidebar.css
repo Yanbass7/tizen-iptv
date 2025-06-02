@@ -1,27 +1,62 @@
-/* Sidebar Styles - Baseado no app antigo com estados collapsed/expanded */
+/* ==========================================================================
+   RESET CSS ESPECÍFICO PARA TIZEN 8.0
+   ========================================================================== */
 
+/* Reset otimizado para Tizen 8 */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+div, span, p, h1, h2, h3, h4, h5, h6, button, img {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+}
+
+/* Force o box-sizing com prefixos para Tizen 8 */
+* {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   SIDEBAR COM COLAPSO - OTIMIZADO PARA PERFORMANCE
+   ========================================================================== */
+
+/* Sidebar principal com estados collapsed/expanded */
 .sidebar {
   position: fixed;
-  left: 0;
   top: 0;
+  left: 0;
   height: 100vh;
-  background: linear-gradient(
-    to bottom,
-    rgba(20, 20, 20, 0.95) 0%,
-    rgba(15, 15, 15, 0.98) 100%
-  );
-  backdrop-filter: blur(10px);
-  border-right: 2px solid rgba(255, 140, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border-right: 2px solid #333;
+  overflow-y: auto;
+  scrollbar-width: none;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Estado Collapsed - Sidebar compacta */
 .sidebar.collapsed {
   width: 80px;
-  z-index: 100;
 }
 
 /* Estado Expanded - Sidebar expandida por cima */
@@ -33,7 +68,6 @@
     rgba(20, 20, 20, 0.97) 0%,
     rgba(15, 15, 15, 0.99) 100%
   );
-  backdrop-filter: blur(20px);
   box-shadow: 4px 0 40px rgba(0, 0, 0, 0.8);
 }
 
@@ -46,249 +80,218 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(2px);
   z-index: -1;
   opacity: 1;
   transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 
-/* Logo Section */
+/* Logo da sidebar - Adaptável */
 .sidebar-logo {
-  padding: 30px 20px;
-  text-align: center;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  padding: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.4s ease;
+  margin-bottom: 10px;
+  transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.collapsed .sidebar-logo {
-  padding: 20px 10px;
+  padding: 15px 10px;
 }
 
 .sidebar-logo-img {
-  width: 120px;
-  height: auto;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
-  transition: all 0.4s ease;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.collapsed .sidebar-logo-img {
-  width: 40px;
+  width: 35px;
+  height: 35px;
 }
 
-.sidebar-logo-img:hover {
-  transform: scale(1.05);
-}
-
-/* Menu Section */
+/* Menu de navegação */
 .sidebar-menu {
-  flex: 1;
-  padding: 20px 0;
+  padding: 10px;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
   gap: 8px;
-  transition: all 0.4s ease;
 }
 
-.sidebar.collapsed .sidebar-menu {
-  padding: 15px 0;
-  gap: 4px;
-}
-
+/* Itens do menu - Adaptáveis aos estados */
 .sidebar-menu-item {
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
-  padding: 18px 25px;
-  margin: 0 15px;
+  padding: 12px 15px;
   border-radius: 12px;
+  color: #ccc;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #e0e0e0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
+  gap: 15px;
+  margin: 0;
 }
 
+/* Estado collapsed - ícones centralizados */
 .sidebar.collapsed .sidebar-menu-item {
-  padding: 15px 10px;
-  margin: 0 8px;
+  -webkit-justify-content: center;
   justify-content: center;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  padding: 15px;
+  margin: 5px 0;
 }
 
-.sidebar-menu-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 0;
-  height: 100%;
-  background: linear-gradient(90deg, #FF8C00, #ff9500);
-  transition: width 0.3s ease;
-  z-index: -1;
-}
-
-.sidebar-menu-item:hover {
-  background-color: rgba(255, 140, 0, 0.1);
-  color: #FF8C00;
-  transform: translateX(5px);
-}
-
-.sidebar.collapsed .sidebar-menu-item:hover {
-  transform: scale(1.1);
-}
-
-.sidebar-menu-item:hover::before {
-  width: 4px;
-}
-
-.sidebar-menu-item.active {
-  background-color: rgba(255, 140, 0, 0.2);
-  color: #FF8C00;
-  border-left: 4px solid #FF8C00;
-  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
-}
-
-.sidebar.collapsed .sidebar-menu-item.active {
-  border-left: none;
-  border: 3px solid #FF8C00;
-  background-color: rgba(255, 140, 0, 0.3);
-}
-
-.sidebar-menu-item.focused {
-  background-color: rgba(255, 140, 0, 0.3);
-  color: #ffffff;
-  border: 2px solid #FF8C00;
-  box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
-  transform: translateX(8px) scale(1.02);
-}
-
-.sidebar.collapsed .sidebar-menu-item.focused {
-  transform: scale(1.15);
-  border: 3px solid #FF8C00;
-  box-shadow: 0 0 25px rgba(255, 140, 0, 0.8);
-}
-
+/* Ícone do menu */
 .menu-item-icon {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
   width: 24px;
   height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
+  min-width: 24px;
   font-size: 1.2rem;
-  transition: all 0.4s ease;
+  transition: transform 0.2s ease;
 }
 
 .sidebar.collapsed .menu-item-icon {
-  margin-right: 0;
+  width: 30px;
+  height: 30px;
   font-size: 1.4rem;
 }
 
-.sidebar-menu-item.focused .menu-item-icon,
-.sidebar-menu-item.active .menu-item-icon {
-  font-size: 1.4rem;
-  text-shadow: 0 0 10px rgba(255, 140, 0, 0.8);
-}
-
-.sidebar.collapsed .sidebar-menu-item.focused .menu-item-icon,
-.sidebar.collapsed .sidebar-menu-item.active .menu-item-icon {
-  font-size: 1.6rem;
-}
-
+/* Label do menu - Escondido quando collapsed */
 .menu-item-label {
   font-size: 1rem;
   font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: all 0.4s ease;
-  opacity: 1;
   white-space: nowrap;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .sidebar.collapsed .menu-item-label {
   opacity: 0;
   transform: translateX(-20px);
   pointer-events: none;
+  position: absolute;
+  width: 0;
+  overflow: hidden;
 }
 
-.sidebar-menu-item.focused .menu-item-label,
-.sidebar-menu-item.active .menu-item-label {
-  font-weight: 600;
-  text-shadow: 0 0 8px rgba(255, 140, 0, 0.6);
+/* Estados de hover e foco - Otimizados */
+.sidebar-menu-item:hover,
+.sidebar-menu-item.focused {
+  background: rgba(255, 140, 0, 0.1);
+  color: white;
+  outline: 2px solid rgba(255, 140, 0, 0.3);
+  outline-offset: 1px;
 }
 
-/* Footer Section */
-.sidebar-footer {
-  padding: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.4s ease;
-}
-
-.sidebar.collapsed .sidebar-footer {
-  padding: 15px 8px;
-}
-
-.sidebar-controls-hint {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #888;
-  font-size: 0.85rem;
-  text-align: center;
-  transition: all 0.4s ease;
-}
-
-.sidebar.collapsed .sidebar-controls-hint {
-  flex-direction: column;
-  gap: 5px;
-}
-
-.sidebar.collapsed .sidebar-controls-hint span {
-  opacity: 0;
-  transform: translateY(10px);
-  pointer-events: none;
-}
-
-.sidebar-controls-hint i {
+.sidebar-menu-item:hover .menu-item-icon,
+.sidebar-menu-item.focused .menu-item-icon {
+  transform: scale(1.1);
   color: #FF8C00;
-  font-size: 1rem;
-  transition: all 0.4s ease;
 }
 
-.sidebar.collapsed .sidebar-controls-hint i {
-  font-size: 1.2rem;
+/* Item ativo */
+.sidebar-menu-item.active {
+  background: rgba(255, 140, 0, 0.2);
+  color: #FF8C00;
+  border: 2px solid rgba(255, 140, 0, 0.4);
 }
 
-/* Tooltip para itens collapsed */
-.sidebar.collapsed .sidebar-menu-item {
-  position: relative;
+.sidebar-menu-item.active:hover,
+.sidebar-menu-item.active.focused {
+  background: rgba(255, 140, 0, 0.3);
+  outline: 2px solid rgba(255, 140, 0, 0.6);
 }
 
+/* Tooltips para estado collapsed */
 .sidebar.collapsed .sidebar-menu-item::after {
   content: attr(data-tooltip);
   position: absolute;
-  left: 70px;
+  left: 90px;
   top: 50%;
   transform: translateY(-50%);
   background: rgba(20, 20, 20, 0.95);
-  color: #fff;
+  color: white;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.9rem;
+  font-weight: 500;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
-  border: 1px solid rgba(255, 140, 0, 0.3);
-  backdrop-filter: blur(10px);
   z-index: 1001;
+  border: 1px solid rgba(255, 140, 0, 0.3);
 }
 
-.sidebar.collapsed .sidebar-menu-item:hover::after {
+.sidebar.collapsed .sidebar-menu-item:hover::after,
+.sidebar.collapsed .sidebar-menu-item.focused::after {
   opacity: 1;
 }
 
-/* Responsive Design - Remover para TV */
+/* Footer da sidebar */
+.sidebar-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-controls-hint {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  gap: 10px;
+  color: #888;
+  font-size: 0.8rem;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-controls-hint {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar.collapsed .sidebar-footer {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  align-items: center;
+  padding: 10px;
+}
+
+/* Ícone do gamepad no footer quando collapsed */
+.sidebar.collapsed .sidebar-controls-hint i {
+  opacity: 0.5;
+  font-size: 1rem;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE OTIMIZADA
+   ========================================================================== */
+
 @media (max-width: 768px) {
   .sidebar.collapsed {
     width: 70px;
@@ -297,47 +300,50 @@
   .sidebar.expanded {
     width: 280px;
   }
-}
-
-/* Animation for section transitions */
-@keyframes slideInFromLeft {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
+  
+  .sidebar.expanded::before {
+    left: 280px;
   }
-  to {
-    transform: translateX(0);
-    opacity: 1;
+  
+  .sidebar.collapsed .sidebar-menu-item::after {
+    left: 80px;
   }
-}
-
-.sidebar-menu-item.active {
-  animation: slideInFromLeft 0.3s ease;
-}
-
-/* Animação suave para expansão/contração */
-@keyframes expandSidebar {
-  from {
-    width: 80px;
+  
+  .sidebar-logo-img {
+    width: 35px;
+    height: 35px;
   }
-  to {
-    width: 320px;
+  
+  .sidebar.collapsed .sidebar-logo-img {
+    width: 30px;
+    height: 30px;
   }
 }
 
-@keyframes collapseSidebar {
-  from {
-    width: 320px;
+@media (max-width: 480px) {
+  .sidebar.collapsed {
+    width: 60px;
   }
-  to {
-    width: 80px;
+  
+  .sidebar.expanded {
+    width: 250px;
   }
-}
-
-.sidebar.expanded {
-  animation: expandSidebar 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sidebar.collapsed {
-  animation: collapseSidebar 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  .sidebar.expanded::before {
+    left: 250px;
+  }
+  
+  .sidebar.collapsed .sidebar-menu-item::after {
+    left: 70px;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+  
+  .sidebar.collapsed .sidebar-menu-item {
+    padding: 12px;
+  }
+  
+  .menu-item-label {
+    font-size: 0.9rem;
+  }
 } 
