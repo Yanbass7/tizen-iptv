@@ -24,6 +24,16 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const [useIframe, setUseIframe] = useState(false);
   const [urlAnalysis, setUrlAnalysis] = useState(null);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  // Refs para os botões de controle VOD
+  const rewindButtonRef = useRef(null);
+  const playPauseButtonRef = useRef(null);
+  const forwardButtonRef = useRef(null);
+
+  // Estado para rastrear o botão VOD focado (0: rewind, 1: play/pause, 2: forward)
+  const [focusedVodButtonIndex, setFocusedVodButtonIndex] = useState(null);
 
   // Detectar ambiente (desenvolvimento vs produção)
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -1075,11 +1085,72 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
     const handlePlayerNavigation = (event) => {
       const { keyCode } = event.detail;
-      
-      if (keyCode === 8 || keyCode === 10009) {
+
+      // Condições para ativar a navegação nos controles VOD
+      const vodControlsActive = isVOD && isPlaying && showOverlay && !useIframe;
+
+      if (vodControlsActive) {
+        let newIndex = focusedVodButtonIndex;
+        if (keyCode === 37) { // Esquerda
+          if (focusedVodButtonIndex === null) newIndex = 1; // Foca no play/pause se nada estiver focado
+          else newIndex = (focusedVodButtonIndex - 1 + 3) % 3; // (0-1+3)%3 = 2; (1-1+3)%3 = 0; (2-1+3)%3 = 1
+          setFocusedVodButtonIndex(newIndex);
+          showOverlayTemporarily(); // Manter overlay visível
+          event.preventDefault?.(); // Prevenir comportamento padrão do navegador/TV
+          event.stopPropagation?.();
+          return; // Navegação VOD tratada
+        } else if (keyCode === 39) { // Direita
+          if (focusedVodButtonIndex === null) newIndex = 1; // Foca no play/pause se nada estiver focado
+          else newIndex = (focusedVodButtonIndex + 1) % 3; // (0+1)%3 = 1; (1+1)%3 = 2; (2+1)%3 = 0
+          setFocusedVodButtonIndex(newIndex);
+          showOverlayTemporarily(); // Manter overlay visível
+          event.preventDefault?.();
+          event.stopPropagation?.();
+          return; // Navegação VOD tratada
+        } else if (keyCode === 13) { // OK/Enter
+          if (focusedVodButtonIndex === 0) rewindButtonRef.current?.click();
+          else if (focusedVodButtonIndex === 1) playPauseButtonRef.current?.click();
+          else if (focusedVodButtonIndex === 2) forwardButtonRef.current?.click();
+          showOverlayTemporarily(); // Manter overlay visível após ação
+          event.preventDefault?.();
+          event.stopPropagation?.();
+          return; // Ação VOD tratada
+        }
+      }
+
+      // Lógica de navegação existente (não relacionada aos botões VOD)
+      if (keyCode === 8 || keyCode === 10009) { // BACK or RETURN key
         handleBack();
+      } else if (keyCode === 415) { // PLAY
+        if (videoRef.current) {
+          if (videoRef.current.paused) {
+            videoRef.current.play();
+            setIsPlaying(true);
+          }
+        }
+        showOverlayTemporarily();
+      } else if (keyCode === 19) { // PAUSE
+        if (videoRef.current) {
+          if (!videoRef.current.paused) {
+            videoRef.current.pause();
+            setIsPlaying(false);
+          }
+        }
+        showOverlayTemporarily();
+      } else if (keyCode === 413) { // STOP (used as back for VOD or general stop)
+        handleBack(); // Or specific stop logic if needed
+        showOverlayTemporarily();
+      } else if (keyCode === 412) { // REWIND
+        if (videoRef.current && (streamInfo?.type === 'movie' || streamInfo?.type === 'series') && !vodControlsActive) { // Só aciona se os controles VOD não estiverem ativos
+          videoRef.current.currentTime -= 10;
+        }
+        showOverlayTemporarily();
+      } else if (keyCode === 417) { // FAST_FORWARD
+        if (videoRef.current && (streamInfo?.type === 'movie' || streamInfo?.type === 'series') && !vodControlsActive) { // Só aciona se os controles VOD não estiverem ativos
+          videoRef.current.currentTime += 10;
+        }
+        showOverlayTemporarily();
       } else if (isPlaying) {
-        // Mostrar overlay temporariamente ao pressionar qualquer tecla durante reprodução
         showOverlayTemporarily();
       }
     };
@@ -1109,7 +1180,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       document.removeEventListener('touchstart', handleTouch);
       document.removeEventListener('click', handleTouch);
     };
-  }, [isActive, handleBack, isPlaying, showOverlayTemporarily, isDevelopment]);
+  }, [isActive, handleBack, isPlaying, showOverlayTemporarily, isDevelopment, isVOD, showOverlay, useIframe, focusedVodButtonIndex]);
 
   const retryPlayback = () => {
     console.log('🔄 Tentando reproduzir novamente...');
@@ -1146,6 +1217,113 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     }, 1000);
   };
 
+  // Event listeners para tempo e duração (MOVIDO PARA ANTES DO RETURN CONDICIONAL)
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    const isVOD = streamInfo?.type === 'movie' || streamInfo?.type === 'series';
+    
+    // O efeito só deve anexar listeners se o componente estiver ativo, for VOD, e o elemento de vídeo existir
+    if (isActive && isVOD && videoElement) {
+      const updateCurrentTime = () => {
+        if (videoElement.currentTime && Number.isFinite(videoElement.currentTime)) {
+          setCurrentTime(videoElement.currentTime);
+        } else if (videoElement) { // se videoElement existe mas currentTime não é válido
+          setCurrentTime(0);
+        }
+      };
+      const updateDuration = () => {
+        if (videoElement.duration && Number.isFinite(videoElement.duration)) {
+          setDuration(videoElement.duration);
+        } else if (videoElement) { // se videoElement existe mas duration não é válido
+          setDuration(0);
+        }
+      };
+
+      videoElement.addEventListener('timeupdate', updateCurrentTime);
+      videoElement.addEventListener('loadedmetadata', updateDuration);
+      videoElement.addEventListener('durationchange', updateDuration);
+
+      // Sincronização inicial quando o efeito roda (ex: fonte do vídeo muda ou isActive/isVOD se torna true)
+      if (videoElement.readyState >= 1) { // HAVE_METADATA ou mais
+        updateDuration();
+        updateCurrentTime();
+      } else {
+        // Se não estiver pronto, garantir que os tempos sejam resetados
+        setCurrentTime(0);
+        setDuration(0);
+      }
+
+      return () => {
+        videoElement.removeEventListener('timeupdate', updateCurrentTime);
+        videoElement.removeEventListener('loadedmetadata', updateDuration);
+        videoElement.removeEventListener('durationchange', updateDuration);
+      };
+    } else {
+      // Se não estiver ativo ou não for VOD, garantir que currentTime e duration sejam resetados.
+      setCurrentTime(0);
+      setDuration(0);
+    }
+  }, [isActive, streamInfo]); // Dependências atualizadas
+
+  // Funções helper movidas para antes do return condicional
+  const isVOD = streamInfo?.type === 'movie' || streamInfo?.type === 'series';
+
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setIsPlaying(true);
+      } else {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  const handleSeek = (event) => {
+    if (videoRef.current) {
+      const seekBar = event.target;
+      const rect = seekBar.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const newTime = (offsetX / seekBar.offsetWidth) * duration;
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
+
+  // Efeito para gerenciar o foco inicial nos botões VOD e resetar
+  useEffect(() => {
+    const conditionsMet = isVOD && isPlaying && showOverlay && !useIframe;
+    if (conditionsMet) {
+      if (focusedVodButtonIndex === null) { // Se nenhum botão VOD estava focado antes
+        setFocusedVodButtonIndex(1); // Foca no Play/Pause por padrão
+      }
+      // Focar no botão correto baseado no índice (após a atualização do estado)
+      // Isso será melhor tratado no useEffect que depende de focusedVodButtonIndex
+    } else {
+      if (focusedVodButtonIndex !== null) {
+        setFocusedVodButtonIndex(null); // Reseta o foco quando o overlay VOD não está visível
+      }
+    }
+  }, [showOverlay, isVOD, isPlaying, useIframe, focusedVodButtonIndex]);
+
+  // Efeito para aplicar o foco quando focusedVodButtonIndex muda
+  useEffect(() => {
+    if (focusedVodButtonIndex === 0) {
+      rewindButtonRef.current?.focus();
+    } else if (focusedVodButtonIndex === 1) {
+      playPauseButtonRef.current?.focus();
+    } else if (focusedVodButtonIndex === 2) {
+      forwardButtonRef.current?.focus();
+    }
+  }, [focusedVodButtonIndex]);
+
   if (!isActive) return null;
 
   return (
@@ -1157,8 +1335,17 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
             className="video-element"
             autoPlay
             playsInline
-            controls={isDevelopment} // Mostrar controles apenas em desenvolvimento
+            controls={isDevelopment && !isVOD} // Mostrar controles nativos apenas em dev e se NÃO for VOD
             style={{ width: '100%', height: '100%' }}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onLoadedMetadata={() => { // MODIFICADO para segurança
+              if (videoRef.current && videoRef.current.duration && Number.isFinite(videoRef.current.duration)) {
+                setDuration(videoRef.current.duration);
+              } else if (videoRef.current) { // Se videoRef.current existe, mas a duração não é válida
+                setDuration(0);
+              }
+            }}
           />
         ) : (
           <iframe
@@ -1226,6 +1413,47 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
                 <p className="category">{streamInfo.category}</p>
               )}
               <p className="instructions">Pressione BACK para voltar</p>
+            </div>
+          </div>
+        )}
+
+        {/* VOD Controls Overlay - Novo */}
+        {isVOD && isPlaying && showOverlay && !useIframe && (
+          <div className="vod-controls-overlay">
+            <div className="progress-bar-container" onClick={handleSeek}>
+              <div 
+                className="progress-bar-filled" 
+                style={{ width: `${(currentTime / duration) * 100}%` }}
+              />
+            </div>
+            <div className="controls-buttons">
+              <button 
+                ref={rewindButtonRef} 
+                onClick={() => { if(videoRef.current) videoRef.current.currentTime -= 10; showOverlayTemporarily(); }}
+                className={`control-button rewind-button ${focusedVodButtonIndex === 0 ? 'focused' : ''}`}
+                tabIndex={0} // Adicionado para foco
+              >
+                ⏪︎
+              </button>
+              <button 
+                ref={playPauseButtonRef} 
+                onClick={() => { handlePlayPause(); showOverlayTemporarily();}} 
+                className={`control-button play-pause-button ${focusedVodButtonIndex === 1 ? 'focused' : ''}`}
+                tabIndex={0} // Adicionado para foco
+              >
+                {videoRef.current?.paused ? '▶︎' : '❚❚'}
+              </button>
+              <button 
+                ref={forwardButtonRef} 
+                onClick={() => { if(videoRef.current) videoRef.current.currentTime += 10; showOverlayTemporarily(); }} 
+                className={`control-button forward-button ${focusedVodButtonIndex === 2 ? 'focused' : ''}`}
+                tabIndex={0} // Adicionado para foco
+              >
+                ⏩︎
+              </button>
+            </div>
+            <div className="time-display">
+              <span>{formatTime(currentTime)}</span> / <span>{formatTime(duration)}</span>
             </div>
           </div>
         )}

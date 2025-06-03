@@ -1,6 +1,6 @@
 # Tarefa: Adicionar Controles de Reprodução e Duração para Conteúdo VOD
 
-**Status:** Pendente
+**Status:** Concluída
 
 **Descrição:**
 
