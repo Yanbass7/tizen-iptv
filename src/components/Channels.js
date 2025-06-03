@@ -50,7 +50,7 @@ const Channels = ({ isActive }) => {
     } finally {
       setLoading(false);
     }
-  }, [loadLiveChannels]);
+  }, []);
 
   // Função para carregar canais de uma categoria
   const loadLiveChannels = useCallback(async (categoryId) => {

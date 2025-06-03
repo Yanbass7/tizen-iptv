@@ -59,7 +59,7 @@ const Movies = ({ isActive }) => {
     } finally {
       setLoading(false);
     }
-  }, [loadVOD]);
+  }, []);
 
   // Função para carregar filmes de uma categoria
   const loadVOD = useCallback(async (categoryId) => {
