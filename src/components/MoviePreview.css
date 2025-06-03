@@ -1,14 +1,16 @@
 /* ==========================================================================
-   RESET CSS ESPECÍFICO PARA TIZEN 8.0
+   RESET CSS ESPECÍFICO PARA TIZEN 5.0+
    ========================================================================== */
 
-/* Reset otimizado para Tizen 8 */
+/* Reset otimizado para Tizen 5.0+ */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 div, span, p, h1, h2, h3, h4, h5, h6, button, img {
@@ -16,22 +18,25 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   padding: 0;
   border: 0;
   outline: 0;
+  vertical-align: baseline;
 }
 
-/* Force o box-sizing com prefixos para Tizen 8 */
-* {
+/* Force o box-sizing com prefixos para Tizen 5.0+ */
+*, *:before, *:after {
   -webkit-box-sizing: border-box !important;
   -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
   box-sizing: border-box !important;
 }
 
 /* Disable smooth scrolling para melhor performance */
 * {
   scroll-behavior: auto !important;
+  -webkit-scroll-behavior: auto !important;
 }
 
 /* ==========================================================================
-   MODAL PREVIEW - OTIMIZADO PARA PERFORMANCE
+   MODAL PREVIEW - OTIMIZADO PARA TIZEN 5.0+
    ========================================================================== */
 
 /* Overlay de fundo otimizado */
@@ -42,38 +47,128 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.8);
-  display: -webkit-flex;
-  display: flex;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-justify-content: center;
-  justify-content: center;
   z-index: 1000;
   padding: 20px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Animação com prefixos */
+  -webkit-animation: fadeIn 0.2s ease;
+  -moz-animation: fadeIn 0.2s ease;
+  -o-animation: fadeIn 0.2s ease;
   animation: fadeIn 0.2s ease;
 }
 
+/* Keyframes com prefixos */
+@-webkit-keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@-moz-keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@-o-keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Modal principal otimizado */
 .movie-preview-modal {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-  border-radius: 16px;
   width: 90%;
   max-width: 900px;
   max-height: 85vh;
   overflow: hidden;
   position: relative;
-  animation: slideUp 0.2s ease;
-  transform: translateZ(0);
+  border-radius: 16px;
+  
+  /* Fallback para gradiente */
+  background: #1a1a1a;
+  background: -webkit-gradient(linear, left top, right bottom, from(#1a1a1a), to(#2a2a2a));
+  background: -webkit-linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  background: -o-linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  
+  /* GPU acceleration */
   -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Animação com prefixos */
+  -webkit-animation: slideUp 0.2s ease;
+  -moz-animation: slideUp 0.2s ease;
+  -o-animation: slideUp 0.2s ease;
+  animation: slideUp 0.2s ease;
+}
+
+@-webkit-keyframes slideUp {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0) scale(1);
+  }
+}
+
+@-moz-keyframes slideUp {
+  from {
+    opacity: 0;
+    -moz-transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    -moz-transform: translateY(0) scale(1);
+  }
+}
+
+@-o-keyframes slideUp {
+  from {
+    opacity: 0;
+    -o-transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    -o-transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes slideUp {
@@ -91,15 +186,34 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .preview-header {
   position: relative;
   height: 300px;
-  background: linear-gradient(135deg, #333 0%, #555 100%);
   overflow: hidden;
+  
+  /* Fallback para gradiente */
+  background: #333;
+  background: -webkit-gradient(linear, left top, right bottom, from(#333), to(#555));
+  background: -webkit-linear-gradient(135deg, #333 0%, #555 100%);
+  background: -o-linear-gradient(135deg, #333 0%, #555 100%);
+  background: linear-gradient(135deg, #333 0%, #555 100%);
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .preview-backdrop {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  
+  /* Transição otimizada */
+  -webkit-transition: opacity 0.1s ease;
+  -moz-transition: opacity 0.1s ease;
+  -o-transition: opacity 0.1s ease;
   transition: opacity 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .preview-overlay {
@@ -108,11 +222,17 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 0.7) 100%
-  );
+  
+  /* Fallback para gradiente */
+  background: transparent;
+  background: -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, 0.7)));
+  background: -webkit-linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  background: -o-linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .preview-poster {
@@ -124,6 +244,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   border-radius: 12px;
   object-fit: cover;
   border: 3px solid rgba(255, 255, 255, 0.3);
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /* Conteúdo do modal - Otimizado */
@@ -132,10 +256,27 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   overflow-y: auto;
   max-height: calc(85vh - 300px);
   scrollbar-width: none;
+  
+  /* Otimizações de scroll cross-browser */
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .preview-content::-webkit-scrollbar {
   display: none;
+}
+
+.preview-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.preview-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 140, 0, 0.3);
+  border-radius: 4px;
 }
 
 .preview-title {
@@ -144,28 +285,59 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   color: white;
   margin: 0 0 15px 0;
   line-height: 1.2;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Metadata - Otimizada */
 .preview-meta {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-align-items: center;
-  align-items: center;
   gap: 20px;
   margin-bottom: 20px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* Wrap com prefixos */
   -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
   flex-wrap: wrap;
 }
 
 .meta-item {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-align-items: center;
-  align-items: center;
-  gap: 8px;
   color: #ccc;
   font-size: 14px;
+  gap: 8px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .rating {
@@ -175,6 +347,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   border-radius: 6px;
   font-weight: bold;
   font-size: 12px;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .quality {
@@ -184,6 +360,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   border-radius: 6px;
   font-weight: bold;
   font-size: 12px;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Descrição - Otimizada */
@@ -192,16 +372,29 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   line-height: 1.6;
   margin-bottom: 25px;
   font-size: 15px;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Gêneros - Otimizados */
 .preview-genres {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 25px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Wrap com prefixos */
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 .genre-badge {
@@ -211,34 +404,76 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   border-radius: 16px;
   font-size: 12px;
   font-weight: 500;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Botões de ação - Estados de foco otimizados */
 .movie-actions {
-  display: -webkit-flex;
-  display: flex;
   gap: 15px;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
   margin-top: 10px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Wrap com prefixos */
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 .action-btn {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-align-items: center;
-  align-items: center;
-  gap: 8px;
   padding: 12px 24px;
   border: none;
   border-radius: 25px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.1s ease, outline 0.1s ease;
-  background: linear-gradient(45deg, #333, #555);
   color: white;
   margin: 0;
+  gap: 8px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* Fallback para gradiente */
+  background: #333;
+  background: -webkit-gradient(linear, left top, right bottom, from(#333), to(#555));
+  background: -webkit-linear-gradient(45deg, #333, #555);
+  background: -o-linear-gradient(45deg, #333, #555);
+  background: linear-gradient(45deg, #333, #555);
+  
+  /* Transições otimizadas */
+  -webkit-transition: background-color 0.1s ease, outline 0.1s ease;
+  -moz-transition: background-color 0.1s ease, outline 0.1s ease;
+  -o-transition: background-color 0.1s ease, outline 0.1s ease;
+  transition: background-color 0.1s ease, outline 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .action-btn:hover,
@@ -248,6 +483,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 .play-btn {
+  /* Fallback para gradiente */
+  background: #28a745;
+  background: -webkit-gradient(linear, left top, right bottom, from(#28a745), to(#20913a));
+  background: -webkit-linear-gradient(45deg, #28a745, #20913a);
+  background: -o-linear-gradient(45deg, #28a745, #20913a);
   background: linear-gradient(45deg, #28a745, #20913a);
 }
 
@@ -258,6 +498,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 .favorite-btn.favorited {
+  /* Fallback para gradiente */
+  background: #dc3545;
+  background: -webkit-gradient(linear, left top, right bottom, from(#dc3545), to(#c82333));
+  background: -webkit-linear-gradient(45deg, #dc3545, #c82333);
+  background: -o-linear-gradient(45deg, #dc3545, #c82333);
   background: linear-gradient(45deg, #dc3545, #c82333);
 }
 
@@ -268,6 +513,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 .close-btn {
+  /* Fallback para gradiente */
+  background: #6c757d;
+  background: -webkit-gradient(linear, left top, right bottom, from(#6c757d), to(#5a6268));
+  background: -webkit-linear-gradient(45deg, #6c757d, #5a6268);
+  background: -o-linear-gradient(45deg, #6c757d, #5a6268);
   background: linear-gradient(45deg, #6c757d, #5a6268);
 }
 
@@ -279,28 +529,56 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Ajuda modal - Otimizada */
 .modal-help {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-justify-content: center;
-  justify-content: center;
   gap: 30px;
   padding: 20px 40px;
   background: rgba(0, 0, 0, 0.3);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.9rem;
   color: #aaa;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .modal-help span {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-align-items: center;
-  align-items: center;
   gap: 5px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ==========================================================================
-   RESPONSIVIDADE OTIMIZADA
+   RESPONSIVIDADE OTIMIZADA PARA TIZEN 5.0+
    ========================================================================== */
 
 @media (max-width: 768px) {
@@ -363,28 +641,68 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   }
   
   .preview-meta {
-    -webkit-flex-direction: column;
-    flex-direction: column;
-    -webkit-align-items: flex-start;
-    align-items: flex-start;
     gap: 10px;
+    
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    
+    /* Alinhamento com prefixos */
+    -webkit-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
   }
   
   .movie-actions {
-    -webkit-flex-direction: column;
-    flex-direction: column;
     gap: 8px;
+    
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
   }
   
   .action-btn {
+    /* Alinhamento com prefixos */
+    -webkit-box-pack: center;
     -webkit-justify-content: center;
+    -ms-flex-pack: center;
     justify-content: center;
   }
   
   .modal-help {
-    -webkit-flex-direction: column;
-    flex-direction: column;
     gap: 10px;
     padding: 10px;
+    
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
   }
+}
+
+/* GPU acceleration para elementos críticos */
+.movie-preview-overlay,
+.movie-preview-modal,
+.preview-header,
+.preview-backdrop,
+.preview-overlay,
+.preview-poster,
+.preview-content,
+.action-btn {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
 } 

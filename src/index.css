@@ -1,13 +1,42 @@
+/* ==========================================================================
+   INDEX CSS GLOBAL - OTIMIZADO PARA TIZEN 5.0+
+   ========================================================================== */
+
 body {
-  margin: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  
+  /* Fallback para fontes */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
+    
+  /* Otimização de texto cross-browser */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Force o box-sizing para Tizen 5.0+ */
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+    
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

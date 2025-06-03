@@ -273,12 +273,12 @@ const Movies = ({ isActive }) => {
             setMovieFocus(newRow * GRID_COLUMNS);
         }
       }
-    } else if (keyCode === 13) { // OK - reproduzir filme diretamente
+    } else if (keyCode === 13) { // OK - abrir preview do filme
       if (currentPageMovies[movieFocus]) {
         const actualMovieIndex = currentPage * ITEMS_PER_PAGE + movieFocus;
-        handleMovieSelect(movies[actualMovieIndex]);
+        handleMoviePreview(movies[actualMovieIndex]);
       }
-    } else if (keyCode === 73) { // Tecla 'I' - Info/Preview
+    } else if (keyCode === 73) { // Tecla 'I' - Info/Preview (alternativa)
       if (currentPageMovies[movieFocus]) {
         const actualMovieIndex = currentPage * ITEMS_PER_PAGE + movieFocus;
         handleMoviePreview(movies[actualMovieIndex]);

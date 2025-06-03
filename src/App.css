@@ -1,14 +1,16 @@
 /* ==========================================================================
-   RESET CSS GLOBAL ESPECÍFICO PARA TIZEN 8.0
+   RESET CSS GLOBAL ESPECÍFICO PARA TIZEN 5.0+
    ========================================================================== */
 
-/* Reset otimizado para Tizen 8 */
+/* Reset otimizado para Tizen 5.0+ */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 div, span, p, h1, h2, h3, h4, h5, h6, button, img {
@@ -16,22 +18,25 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   padding: 0;
   border: 0;
   outline: 0;
+  vertical-align: baseline;
 }
 
-/* Force o box-sizing com prefixos para Tizen 8 */
-* {
+/* Force o box-sizing com prefixos para Tizen 5.0+ */
+*, *:before, *:after {
   -webkit-box-sizing: border-box !important;
   -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
   box-sizing: border-box !important;
 }
 
 /* Disable smooth scrolling para melhor performance */
 * {
   scroll-behavior: auto !important;
+  -webkit-scroll-behavior: auto !important;
 }
 
 /* ==========================================================================
-   APP PRINCIPAL - OTIMIZADO PARA PERFORMANCE
+   APP PRINCIPAL - OTIMIZADO PARA TIZEN 5.0+
    ========================================================================== */
 
 .App {
@@ -40,13 +45,32 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   background-color: #141414;
   min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  transform: translateZ(0);
+  
+  /* GPU acceleration */
   -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Layout com sidebar - Otimizado */
 .app-content {
+  /* Transição otimizada */
+  -webkit-transition: margin-left 0.15s ease;
+  -moz-transition: margin-left 0.15s ease;
+  -o-transition: margin-left 0.15s ease;
   transition: margin-left 0.15s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .app-content.with-sidebar {
@@ -62,28 +86,60 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .main-content {
   width: 100%;
   min-height: 100vh;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
   -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  
+  -webkit-box-pack: center;
   -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
+  
   padding: 20px;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .section-placeholder {
   text-align: center;
   color: #f0f0f0;
   max-width: 600px;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Placeholder content - Performance otimizada */
 .placeholder-content {
+  /* Fallback para gradiente */
+  background: rgba(20, 20, 20, 0.9);
+  background: -webkit-gradient(linear, left top, right bottom, from(rgba(20, 20, 20, 0.9)), to(rgba(30, 30, 30, 0.9)));
+  background: -webkit-linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(30, 30, 30, 0.9) 100%);
+  background: -o-linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(30, 30, 30, 0.9) 100%);
   background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(30, 30, 30, 0.9) 100%);
+  
   padding: 60px 40px;
   border-radius: 20px;
   border: 2px solid rgba(255, 140, 0, 0.3);
   margin: 0;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .placeholder-content i {
@@ -98,6 +154,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   margin: 0 0 20px 0;
   color: #f0f0f0;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .placeholder-content p {
@@ -105,11 +165,21 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   margin: 0 0 40px 0;
   color: #e0e0e0;
   line-height: 1.6;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Botões globais - Estados de foco otimizados */
 .back-btn {
+  /* Fallback para gradiente */
+  background: #FF8C00;
+  background: -webkit-gradient(linear, left top, right bottom, from(#FF8C00), to(#ff9500));
+  background: -webkit-linear-gradient(45deg, #FF8C00, #ff9500);
+  background: -o-linear-gradient(45deg, #FF8C00, #ff9500);
   background: linear-gradient(45deg, #FF8C00, #ff9500);
+  
   color: white;
   border: none;
   padding: 15px 30px;
@@ -117,18 +187,48 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.1s ease, outline 0.1s ease;
-  display: -webkit-inline-flex;
-  display: inline-flex;
-  -webkit-align-items: center;
-  align-items: center;
-  gap: 10px;
   margin: 0;
+  
+  /* Fallback para browsers antigos */
+  display: inline-block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  gap: 10px;
+  
+  /* Transições otimizadas */
+  -webkit-transition: background 0.1s ease, outline 0.1s ease;
+  -moz-transition: background 0.1s ease, outline 0.1s ease;
+  -o-transition: background 0.1s ease, outline 0.1s ease;
+  transition: background 0.1s ease, outline 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .back-btn:hover,
 .back-btn.focused {
+  /* Fallback para gradiente */
+  background: #e67e00;
+  background: -webkit-gradient(linear, left top, right bottom, from(#e67e00), to(#ff8c00));
+  background: -webkit-linear-gradient(45deg, #e67e00, #ff8c00);
+  background: -o-linear-gradient(45deg, #e67e00, #ff8c00);
   background: linear-gradient(45deg, #e67e00, #ff8c00);
+  
   outline: 2px solid rgba(255, 140, 0, 0.6);
   outline-offset: 2px;
 }
@@ -137,6 +237,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .focused {
   outline: 2px solid #FF8C00 !important;
   outline-offset: 2px !important;
+  
+  /* Transição otimizada */
+  -webkit-transition: outline 0.1s ease !important;
+  -moz-transition: outline 0.1s ease !important;
+  -o-transition: outline 0.1s ease !important;
   transition: outline 0.1s ease !important;
 }
 
@@ -154,6 +259,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 ::-webkit-scrollbar-thumb {
   background: #FF8C00;
   border-radius: 4px;
+  
+  /* Transição otimizada */
+  -webkit-transition: background 0.1s ease;
+  -moz-transition: background 0.1s ease;
+  -o-transition: background 0.1s ease;
   transition: background 0.1s ease;
 }
 
@@ -163,19 +273,57 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Loading state global - Otimizado */
 .loading {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: center;
   -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
+  
+  -webkit-box-align: center;
   -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  
   height: 200px;
   color: #FF8C00;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .loading i {
+  /* Animação com prefixos */
+  -webkit-animation: spin 1s linear infinite;
+  -moz-animation: spin 1s linear infinite;
+  -o-animation: spin 1s linear infinite;
   animation: spin 1s linear infinite;
+  
   margin-right: 10px;
+}
+
+/* Keyframes com prefixos */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@-moz-keyframes spin {
+  0% { -moz-transform: rotate(0deg); }
+  100% { -moz-transform: rotate(360deg); }
+}
+
+@-o-keyframes spin {
+  0% { -o-transform: rotate(0deg); }
+  100% { -o-transform: rotate(360deg); }
 }
 
 @keyframes spin {
@@ -184,8 +332,41 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 /* ==========================================================================
-   ANIMAÇÕES SIMPLIFICADAS - PERFORMANCE OTIMIZADA
+   ANIMAÇÕES SIMPLIFICADAS - PERFORMANCE OTIMIZADA PARA TIZEN 5.0+
    ========================================================================== */
+
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+  }
+}
+
+@-moz-keyframes fadeIn {
+  from {
+    opacity: 0;
+    -moz-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -moz-transform: translateY(0);
+  }
+}
+
+@-o-keyframes fadeIn {
+  from {
+    opacity: 0;
+    -o-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -o-transform: translateY(0);
+  }
+}
 
 @keyframes fadeIn {
   from {
@@ -198,27 +379,30 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   }
 }
 
-.app-content {
-  animation: fadeIn 0.2s ease;
-}
-
-/* Transições suaves entre seções - Otimizadas */
 .section-transition {
-  transition: opacity 0.15s ease;
+  /* Animação com prefixos */
+  -webkit-animation: fadeIn 0.3s ease-out;
+  -moz-animation: fadeIn 0.3s ease-out;
+  -o-animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.3s ease-out;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /* ==========================================================================
-   RESPONSIVIDADE OTIMIZADA
+   OTIMIZAÇÕES ESPECÍFICAS PARA PERFORMANCE TIZEN 5.0+
    ========================================================================== */
 
+/* Responsividade otimizada */
 @media (max-width: 768px) {
   .app-content.with-sidebar {
-    margin-left: 70px; /* Ajuste para telas menores */
+    margin-left: 70px;
   }
   
   .placeholder-content {
-    padding: 40px 20px;
-    margin: 20px;
+    padding: 40px 30px;
   }
   
   .placeholder-content h2 {
@@ -226,7 +410,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   }
   
   .placeholder-content p {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
   
   .back-btn {
@@ -237,16 +421,15 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 @media (max-width: 480px) {
   .app-content.with-sidebar {
-    margin-left: 0; /* Em telas muito pequenas, sidebar fica por cima */
+    margin-left: 60px;
   }
   
   .placeholder-content {
-    padding: 30px 15px;
-    margin: 10px;
+    padding: 30px 20px;
   }
   
   .placeholder-content h2 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
   
   .placeholder-content i {
@@ -254,30 +437,38 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   }
 }
 
-/* ==========================================================================
-   UTILITÁRIOS DE PERFORMANCE GLOBAL
-   ========================================================================== */
-
-/* Classes utilitárias para GPU layers mínimas */
+/* Classes de otimização de performance */
 .gpu-layer {
-  transform: translateZ(0);
   -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
-/* Classes de transição otimizadas */
 .transition-fast {
+  -webkit-transition: all 0.1s ease;
+  -moz-transition: all 0.1s ease;
+  -o-transition: all 0.1s ease;
   transition: all 0.1s ease;
 }
 
 .transition-medium {
-  transition: all 0.15s ease;
-}
-
-.transition-slow {
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
   transition: all 0.2s ease;
 }
 
-/* Estados de interação otimizados */
+.transition-slow {
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
 .interactive:hover,
 .interactive.focused {
   outline: 2px solid rgba(255, 140, 0, 0.6);
@@ -285,8 +476,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 .interactive {
+  -webkit-transition: outline 0.1s ease;
+  -moz-transition: outline 0.1s ease;
+  -o-transition: outline 0.1s ease;
   transition: outline 0.1s ease;
-  cursor: pointer;
 }
 
 .App-logo {
@@ -296,23 +489,76 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
+    -webkit-animation: App-logo-spin infinite 20s linear;
+    -moz-animation: App-logo-spin infinite 20s linear;
+    -o-animation: App-logo-spin infinite 20s linear;
     animation: App-logo-spin infinite 20s linear;
   }
 }
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 20px;
   color: white;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  font-size: calc(10px + 2vmin);
 }
 
 .App-link {
   color: #61dafb;
+}
+
+@-webkit-keyframes App-logo-spin {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@-moz-keyframes App-logo-spin {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-o-keyframes App-logo-spin {
+  from {
+    -o-transform: rotate(0deg);
+  }
+  to {
+    -o-transform: rotate(360deg);
+  }
 }
 
 @keyframes App-logo-spin {
@@ -324,121 +570,211 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   }
 }
 
+/* IPTV Specific Styles - Otimizados */
 .iptv-app {
-  display: flex;
-  background: #181818;
-  min-height: 100vh;
+  background: #000;
   color: #fff;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: Arial, sans-serif;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .iptv-menu {
-  width: 220px;
-  background: #111;
-  padding-top: 40px;
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
-  gap: 18px;
-  min-height: 100vh;
+  
+  background: #1a1a1a;
+  padding: 10px;
 }
+
 .iptv-menu-item {
-  padding: 16px 32px;
-  font-size: 1.1rem;
-  border-radius: 8px 0 0 8px;
-  opacity: 0.7;
-  transition: background 0.2s, opacity 0.2s;
-}
-.iptv-menu-item.focused {
-  background: #e50914;
+  padding: 10px 20px;
+  margin-right: 10px;
+  background: #333;
+  border: none;
   color: #fff;
-  opacity: 1;
-  font-weight: bold;
+  cursor: pointer;
+  
+  /* Transição otimizada */
+  -webkit-transition: background 0.2s ease;
+  -moz-transition: background 0.2s ease;
+  -o-transition: background 0.2s ease;
+  transition: background 0.2s ease;
+}
+
+.iptv-menu-item.focused {
+  background: #FF8C00;
+  outline: 2px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 2px;
 }
 
 .iptv-main {
-  flex: 1;
-  padding: 32px 32px 32px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+  padding: 20px;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .iptv-hero {
-  margin-bottom: 24px;
+  margin-bottom: 40px;
 }
+
 .iptv-hero-banner {
-  background: linear-gradient(90deg, #222 60%, #e50914 100%);
-  border-radius: 18px;
-  padding: 32px 40px;
-  box-shadow: 0 4px 32px #0008;
+  width: 100%;
+  height: 300px;
+  background: #333;
+  margin-bottom: 20px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
 }
+
 .iptv-hero-actions button {
-  margin-right: 16px;
-  background: #e50914;
-  color: #fff;
+  padding: 10px 20px;
+  margin-right: 10px;
   border: none;
-  border-radius: 6px;
-  padding: 10px 22px;
-  font-size: 1rem;
+  background: #FF8C00;
+  color: #fff;
   cursor: pointer;
-  transition: background 0.2s;
+  
+  /* Transição otimizada */
+  -webkit-transition: background 0.2s ease, outline 0.1s ease;
+  -moz-transition: background 0.2s ease, outline 0.1s ease;
+  -o-transition: background 0.2s ease, outline 0.1s ease;
+  transition: background 0.2s ease, outline 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
+
 .iptv-hero-actions button:hover {
-  background: #b0060f;
+  background: #e67e00;
 }
 
 .iptv-shelves {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+  margin-bottom: 40px;
 }
+
 .iptv-shelf h3 {
-  margin: 0 0 12px 8px;
-  font-size: 1.2rem;
-  color: #fff;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
 }
+
 .iptv-shelf-items {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  gap: 18px;
+  
   overflow-x: auto;
-  padding-bottom: 8px;
+  gap: 10px;
 }
+
 .iptv-poster {
-  width: 120px;
-  height: 180px;
-  background: #222;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s, border 0.2s;
+  min-width: 150px;
+  height: 225px;
+  background: #333;
+  border-radius: 5px;
   cursor: pointer;
-  opacity: 0.8;
+  
+  /* Transição otimizada */
+  -webkit-transition: -webkit-transform 0.2s ease, outline 0.1s ease;
+  -moz-transition: -moz-transform 0.2s ease, outline 0.1s ease;
+  -o-transition: -o-transform 0.2s ease, outline 0.1s ease;
+  transition: transform 0.2s ease, outline 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
+
 .iptv-poster.focused {
-  transform: scale(1.12);
-  box-shadow: 0 0 16px #e50914cc, 0 2px 12px #000a;
-  border: 2px solid #e50914;
-  opacity: 1;
-  z-index: 2;
+  /* Transform com prefixos */
+  -webkit-transform: scale(1.05) translateZ(0);
+  -moz-transform: scale(1.05) translateZ(0);
+  -ms-transform: scale(1.05) translateZ(0);
+  transform: scale(1.05) translateZ(0);
+  
+  outline: 2px solid #FF8C00;
+  outline-offset: 2px;
 }
+
 .iptv-poster-img {
   width: 100%;
-  height: 75%;
-  background: #444;
-  border-radius: 10px 10px 0 0;
-  margin-bottom: 8px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px 5px 0 0;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
+
 .iptv-poster-title {
-  font-size: 0.95rem;
-  padding: 6px 0 12px 0;
+  padding: 10px;
+  font-size: 0.9rem;
   text-align: center;
-  color: #fff;
-  width: 100%;
-  background: none;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* GPU acceleration para elementos críticos */
+.App,
+.app-content,
+.main-content,
+.placeholder-content,
+.back-btn,
+.loading {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
 }

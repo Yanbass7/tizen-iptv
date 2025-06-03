@@ -1,3 +1,44 @@
+/* ==========================================================================
+   RESET CSS ESPECÍFICO PARA TIZEN 5.0+
+   ========================================================================== */
+
+/* Reset otimizado para Tizen 5.0+ */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+div, span, p, h1, h2, h3, h4, h5, h6, button, img, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  vertical-align: baseline;
+}
+
+/* Force o box-sizing com prefixos para Tizen 5.0+ */
+*, *:before, *:after {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+  -webkit-scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   CONTAINER PRINCIPAL - OTIMIZADO PARA TIZEN 5.0+
+   ========================================================================== */
+
 /* Container principal do player */
 .video-player-container {
   position: fixed;
@@ -8,12 +49,29 @@
   background: #000;
   z-index: 1000;
   overflow: hidden;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .video-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /* Elemento de vídeo */
@@ -22,7 +80,15 @@
   height: 100%;
   object-fit: contain;
   background: #000;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
+
+/* ==========================================================================
+   OVERLAYS - OTIMIZADOS PARA TIZEN 5.0+
+   ========================================================================== */
 
 /* Overlay de Loading */
 .loading-overlay {
@@ -32,22 +98,62 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   color: white;
   z-index: 10;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .loading-spinner {
   font-size: 4rem;
   margin-bottom: 20px;
+  
+  /* Animação com prefixos */
+  -webkit-animation: spin 1s linear infinite;
+  -moz-animation: spin 1s linear infinite;
+  -o-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 .loading-overlay p {
   font-size: 1.5rem;
   margin: 0;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Overlay de Erro */
@@ -58,10 +164,30 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 15;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .error-content {
@@ -72,12 +198,24 @@
   background: rgba(20, 20, 20, 0.9);
   border-radius: 12px;
   border: 2px solid #dc3545;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .error-content h3 {
   font-size: 2rem;
   margin: 0 0 20px 0;
   color: #dc3545;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .error-content p {
@@ -85,11 +223,27 @@
   margin: 0 0 30px 0;
   color: #ccc;
   line-height: 1.4;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .error-actions {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
   gap: 20px;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
 }
 
@@ -102,7 +256,20 @@
   padding: 15px 30px;
   font-size: 1.1rem;
   cursor: pointer;
+  
+  /* Transições otimizadas */
+  -webkit-transition: background 0.3s ease;
+  -moz-transition: background 0.3s ease;
+  -o-transition: background 0.3s ease;
   transition: background 0.3s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .retry-button:hover,
@@ -124,11 +291,25 @@
   top: 30px;
   left: 30px;
   right: 30px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
   padding: 30px;
   border-radius: 12px;
   color: white;
   z-index: 5;
+  
+  /* Fallback para gradiente */
+  background: rgba(0, 0, 0, 0.8);
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.8)), to(transparent));
+  background: -webkit-linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  background: -o-linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .stream-info h2 {
@@ -136,6 +317,10 @@
   margin: 0 0 10px 0;
   color: #FF8C00;
   font-weight: bold;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .stream-info .category {
@@ -144,6 +329,10 @@
   color: #888;
   text-transform: uppercase;
   letter-spacing: 1px;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .stream-info .instructions {
@@ -151,6 +340,10 @@
   margin: 0;
   color: #ccc;
   opacity: 0.8;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Overlay de Informações */
@@ -159,22 +352,52 @@
   top: 20px;
   left: 20px;
   right: 20px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
   margin: 30px;
   border-radius: 12px;
   color: white;
   z-index: 5;
+  
+  /* Fallback para gradiente */
+  background: rgba(0, 0, 0, 0.8);
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.8)), to(transparent));
+  background: -webkit-linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  background: -o-linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
   justify-content: space-between;
+  
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+  -ms-flex-align: start;
   align-items: flex-start;
+  
+  /* Transições otimizadas */
+  -webkit-transition: opacity 0.3s ease;
+  -moz-transition: opacity 0.3s ease;
+  -o-transition: opacity 0.3s ease;
   transition: opacity 0.3s ease;
-}
-
-.stream-info h2 {
-  font-size: 2rem;
-  margin: 0 0 8px 0;
-  color: #FF8C00;
-  font-weight: bold;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Animação com prefixos */
+  -webkit-animation: slideInFromTop 0.3s ease;
+  -moz-animation: slideInFromTop 0.3s ease;
+  -o-animation: slideInFromTop 0.3s ease;
+  animation: slideInFromTop 0.3s ease;
 }
 
 .stream-category {
@@ -183,6 +406,10 @@
   color: #888;
   text-transform: uppercase;
   letter-spacing: 1px;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .stream-description {
@@ -191,6 +418,10 @@
   color: #ccc;
   line-height: 1.4;
   max-width: 600px;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .time-info {
@@ -202,7 +433,15 @@
   font-weight: bold;
   color: #FF8C00;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ==========================================================================
+   CONTROLES - OTIMIZADOS PARA TIZEN 5.0+
+   ========================================================================== */
 
 /* Overlay de Controles */
 .controls-overlay {
@@ -213,29 +452,112 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.3);
   z-index: 8;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   margin: 20px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  
+  /* Transições otimizadas */
+  -webkit-transition: opacity 0.3s ease;
+  -moz-transition: opacity 0.3s ease;
+  -o-transition: opacity 0.3s ease;
   transition: opacity 0.3s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Animação com prefixos */
+  -webkit-animation: fadeIn 0.3s ease;
+  -moz-animation: fadeIn 0.3s ease;
+  -o-animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.3s ease;
 }
 
 .controls-top {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
   justify-content: space-between;
+  
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+  -ms-flex-align: start;
   align-items: flex-start;
 }
 
 .controls-center {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  
+  /* Flex com prefixos */
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
   flex: 1;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
 }
 
 .controls-bottom {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
   justify-content: space-between;
+  
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+  -ms-flex-align: end;
   align-items: flex-end;
 }
 
@@ -250,12 +572,38 @@
   color: #FF8C00;
   margin: 15px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-size: 1rem;
   backdrop-filter: blur(5px);
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  gap: 8px;
+  
+  /* Transições otimizadas */
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .back-button:hover,
@@ -263,7 +611,12 @@
 .mute-button:hover {
   background: #FF8C00;
   color: black;
-  transform: scale(1.05);
+  
+  /* Transform com prefixos */
+  -webkit-transform: scale(1.05) translateZ(0);
+  -moz-transform: scale(1.05) translateZ(0);
+  -ms-transform: scale(1.05) translateZ(0);
+  transform: scale(1.05) translateZ(0);
 }
 
 .play-pause-button {
@@ -271,25 +624,51 @@
   margin: 25px;
   width: 80px;
   height: 80px;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
 }
 
 .play-pause-button:hover {
   background: #FF8C00;
   color: black;
-  transform: scale(1.1);
+  
+  /* Transform com prefixos */
+  -webkit-transform: scale(1.1) translateZ(0);
+  -moz-transform: scale(1.1) translateZ(0);
+  -ms-transform: scale(1.1) translateZ(0);
+  transform: scale(1.1) translateZ(0);
 }
 
 /* Controle de Volume */
 .volume-control {
-  display: flex;
-  align-items: center;
-  gap: 15px;
   background: rgba(20, 20, 20, 0.8);
   margin: 10px 20px;
   border-radius: 25px;
   backdrop-filter: blur(5px);
   border: 1px solid #333;
+  gap: 15px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .volume-bar {
@@ -299,13 +678,32 @@
   border-radius: 3px;
   position: relative;
   overflow: hidden;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .volume-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FF8C00, #ffb347);
   border-radius: 3px;
+  
+  /* Fallback para gradiente */
+  background: #FF8C00;
+  background: -webkit-gradient(linear, left top, right top, from(#FF8C00), to(#ffb347));
+  background: -webkit-linear-gradient(90deg, #FF8C00, #ffb347);
+  background: -o-linear-gradient(90deg, #FF8C00, #ffb347);
+  background: linear-gradient(90deg, #FF8C00, #ffb347);
+  
+  /* Transições otimizadas */
+  -webkit-transition: width 0.2s ease;
+  -moz-transition: width 0.2s ease;
+  -o-transition: width 0.2s ease;
   transition: width 0.2s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .volume-text {
@@ -313,6 +711,10 @@
   color: #FF8C00;
   font-weight: bold;
   min-width: 35px;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Informações do Player */
@@ -322,16 +724,36 @@
   border-radius: 25px;
   backdrop-filter: blur(5px);
   border: 1px solid #333;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .status {
   color: #FF8C00;
   font-weight: bold;
   font-size: 0.9rem;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Animação com prefixos */
+  -webkit-animation: pulse 2s infinite;
+  -moz-animation: pulse 2s infinite;
+  -o-animation: pulse 2s infinite;
+  animation: pulse 2s infinite;
 }
 
 .error-status {
   color: #dc3545;
+  
+  /* Remover animação para status de erro */
+  -webkit-animation: none;
+  -moz-animation: none;
+  -o-animation: none;
+  animation: none;
 }
 
 /* Overlay de Ajuda */
@@ -345,26 +767,74 @@
   backdrop-filter: blur(5px);
   border: 1px solid #333;
   z-index: 6;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Animação com prefixos */
+  -webkit-animation: slideInFromBottom 0.3s ease;
+  -moz-animation: slideInFromBottom 0.3s ease;
+  -o-animation: slideInFromBottom 0.3s ease;
+  animation: slideInFromBottom 0.3s ease;
 }
 
 .help-text {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
   flex-direction: column;
+  
   gap: 5px;
 }
 
 .help-text span {
   color: #ccc;
   font-size: 0.9rem;
-  display: flex;
-  align-items: center;
   gap: 8px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Responsividade */
+/* ==========================================================================
+   RESPONSIVIDADE OTIMIZADA PARA TIZEN 5.0+
+   ========================================================================== */
+
 @media (max-width: 1024px) {
   .info-overlay {
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
     flex-direction: column;
+    
     gap: 20px;
   }
   
@@ -377,8 +847,19 @@
   }
   
   .controls-bottom {
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
     flex-direction: column;
+    
     gap: 15px;
+    
+    /* Alinhamento com prefixos */
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
     align-items: center;
   }
   
@@ -467,13 +948,61 @@
   }
 }
 
-/* Animações */
+/* ==========================================================================
+   ANIMAÇÕES - OTIMIZADAS PARA TIZEN 5.0+
+   ========================================================================== */
+
+/* Keyframes com prefixos */
+@-webkit-keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@-moz-keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@-o-keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@-webkit-keyframes slideInFromTop {
   from {
     opacity: 0;
+    -webkit-transform: translateY(-20px);
   }
   to {
     opacity: 1;
+    -webkit-transform: translateY(0);
+  }
+}
+
+@-moz-keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    -moz-transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    -moz-transform: translateY(0);
+  }
+}
+
+@-o-keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    -o-transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    -o-transform: translateY(0);
   }
 }
 
@@ -488,6 +1017,39 @@
   }
 }
 
+@-webkit-keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+  }
+}
+
+@-moz-keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    -moz-transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    -moz-transform: translateY(0);
+  }
+}
+
+@-o-keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    -o-transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    -o-transform: translateY(0);
+  }
+}
+
 @keyframes slideInFromBottom {
   from {
     opacity: 0;
@@ -499,16 +1061,58 @@
   }
 }
 
-.info-overlay {
-  animation: slideInFromTop 0.3s ease;
+/* Loading animation para o spinner */
+@-webkit-keyframes spin {
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(360deg); }
 }
 
-.controls-overlay {
-  animation: fadeIn 0.3s ease;
+@-moz-keyframes spin {
+  from { -moz-transform: rotate(0deg); }
+  to { -moz-transform: rotate(360deg); }
 }
 
-.help-overlay {
-  animation: slideInFromBottom 0.3s ease;
+@-o-keyframes spin {
+  from { -o-transform: rotate(0deg); }
+  to { -o-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.fa-spinner {
+  /* Animação com prefixos */
+  -webkit-animation: spin 1s linear infinite;
+  -moz-animation: spin 1s linear infinite;
+  -o-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+/* Efeito de pulse para indicar gravação/ao vivo */
+@-webkit-keyframes pulse {
+  0% { -webkit-box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7); }
+  70% { -webkit-box-shadow: 0 0 0 10px rgba(255, 140, 0, 0); }
+  100% { -webkit-box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); }
+}
+
+@-moz-keyframes pulse {
+  0% { -moz-box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7); }
+  70% { -moz-box-shadow: 0 0 0 10px rgba(255, 140, 0, 0); }
+  100% { -moz-box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); }
+}
+
+@-o-keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 140, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 140, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); }
 }
 
 /* Estados especiais */
@@ -521,33 +1125,26 @@
   height: 100vh;
 }
 
-/* Loading animation para o spinner */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.fa-spinner {
-  animation: spin 1s linear infinite;
-}
-
-/* Efeito de pulse para indicar gravação/ao vivo */
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(255, 140, 0, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0);
-  }
-}
-
-.status:not(.error-status) {
-  animation: pulse 2s infinite;
+/* GPU acceleration para elementos críticos */
+.video-player-container,
+.video-wrapper,
+.video-element,
+.loading-overlay,
+.error-overlay,
+.error-content,
+.stream-info-overlay,
+.info-overlay,
+.controls-overlay,
+.volume-control,
+.volume-bar,
+.volume-fill,
+.player-info,
+.help-overlay {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
 } 

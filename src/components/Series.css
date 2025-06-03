@@ -1,14 +1,16 @@
 /* ==========================================================================
-   RESET CSS ESPECÍFICO PARA TIZEN 8.0
+   RESET CSS ESPECÍFICO PARA TIZEN 5.0+
    ========================================================================== */
 
-/* Reset otimizado para Tizen 8 */
+/* Reset otimizado para Tizen 5.0+ */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 div, span, p, h1, h2, h3, h4, h5, h6, button, img {
@@ -16,40 +18,75 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   padding: 0;
   border: 0;
   outline: 0;
+  vertical-align: baseline;
 }
 
-/* Force o box-sizing com prefixos para Tizen 8 */
-* {
+/* Force o box-sizing com prefixos para Tizen 5.0+ */
+*, *:before, *:after {
   -webkit-box-sizing: border-box !important;
   -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
   box-sizing: border-box !important;
 }
 
 /* Disable smooth scrolling para melhor performance */
 * {
   scroll-behavior: auto !important;
+  -webkit-scroll-behavior: auto !important;
 }
 
 /* ==========================================================================
-   LAYOUT PRINCIPAL - OTIMIZADO PARA PERFORMANCE
+   LAYOUT PRINCIPAL - OTIMIZADO PARA TIZEN 5.0+
    ========================================================================== */
 
 /* Layout principal das séries */
 .series-container {
   width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
   color: white;
   overflow: hidden;
+  
+  /* Fallback para gradiente */
+  background: #0c0c0c;
+  background: -webkit-gradient(linear, left top, right bottom, from(#0c0c0c), to(#1a1a1a));
+  background: -webkit-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  background: -o-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .series-page {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
   gap: 20px;
   height: 100%;
-  transform: translateZ(0);
+  
+  /* GPU acceleration */
   -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* Aplicar margens nos elementos filhos do layout principal */
@@ -69,23 +106,60 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .category-sidebar {
   width: 260px;
   min-width: 260px;
-  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
   border-radius: 8px;
   overflow-y: auto;
   height: calc(100vh - 40px);
   scrollbar-width: none;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-direction: column;
-  flex-direction: column;
   padding: 10px;
+  
+  /* Fallback para gradiente */
+  background: #0c0c0c;
+  background: -webkit-gradient(linear, left top, right bottom, from(#0c0c0c), to(#1a1a1a));
+  background: -webkit-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  background: -o-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* Force o box-sizing com prefixos */
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
   box-sizing: border-box;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimizações de scroll cross-browser */
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
 }
 
 .category-sidebar::-webkit-scrollbar {
   display: none;
+}
+
+.category-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 140, 0, 0.3);
+  border-radius: 4px;
 }
 
 .category-sidebar h2 {
@@ -95,13 +169,28 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   text-align: center;
   border-bottom: 2px solid rgba(255, 140, 0, 0.3);
   padding-bottom: 15px;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .category-list {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
   -webkit-flex-direction: column;
+  -ms-flex-direction: column;
   flex-direction: column;
+  
   gap: 10px;
 }
 
@@ -119,9 +208,22 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   font-size: 1.4rem;
   font-family: inherit;
   font-weight: 500;
-  transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
   padding: 14px 18px;
   position: relative;
+  
+  /* Transições otimizadas */
+  -webkit-transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
+  -moz-transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
+  -o-transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
+  transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .category-button:hover,
@@ -135,58 +237,114 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Estilos para botões de categoria ativos - Otimizados */
 .category-button.active {
-  background: linear-gradient(145deg, #FF8C00, #e67e00);
   color: #ffffff;
   font-weight: 600;
   border-color: #FF8C00;
+  
+  /* Fallback para gradiente */
+  background: #FF8C00;
+  background: -webkit-gradient(linear, left top, right bottom, from(#FF8C00), to(#e67e00));
+  background: -webkit-linear-gradient(145deg, #FF8C00, #e67e00);
+  background: -o-linear-gradient(145deg, #FF8C00, #e67e00);
+  background: linear-gradient(145deg, #FF8C00, #e67e00);
 }
 
 /* Estilos para a área de exibição das séries */
 .main-content-area {
+  /* Flex com prefixos */
+  -webkit-box-flex: 1;
   -webkit-flex: 1;
+  -ms-flex: 1;
   flex: 1;
+  
   background-color: rgba(20, 20, 20, 0.5);
   border-radius: 8px;
   overflow-y: auto;
   height: calc(100vh - 40px);
   scrollbar-width: none;
   margin: 15px;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimizações de scroll cross-browser */
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
 }
 
 .series-main::-webkit-scrollbar {
   display: none;
 }
 
+.series-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.series-main::-webkit-scrollbar-thumb {
+  background: rgba(255, 140, 0, 0.3);
+  border-radius: 4px;
+}
+
 .series-content {
   padding: 20px;
   height: 100%;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /* Indicador de paginação */
 .pagination-info {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: justify;
   -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
   justify-content: space-between;
+  
+  -webkit-box-align: center;
   -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  
   padding: 15px 20px;
   background: rgba(255, 140, 0, 0.1);
   border-radius: 8px;
   margin-bottom: 20px;
   border: 1px solid rgba(255, 140, 0, 0.3);
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .pagination-info span {
   color: #FF8C00;
   font-weight: 600;
   font-size: 1rem;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .series-count {
   color: #e0e0e0 !important;
   font-weight: 400 !important;
   font-size: 0.9rem !important;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Grid de séries - Otimizado */
@@ -197,33 +355,82 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   gap: 20px;
   height: calc(100vh - 200px);
   overflow: hidden;
+  
+  /* Alinhamento com prefixos */
   -webkit-align-items: stretch;
+  -ms-flex-align: stretch;
   align-items: stretch;
-  transform: translateZ(0);
+  
+  /* GPU acceleration */
   -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* Cards de série - Performance otimizada */
 .serie {
-  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
   border-radius: 8px;
   text-align: center;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -webkit-justify-content: space-between;
-  justify-content: space-between;
-  -webkit-align-items: center;
-  align-items: center;
   cursor: pointer;
-  transition: background-color 0.1s ease, outline 0.1s ease;
   border: 2px solid transparent;
   overflow: hidden;
   min-height: 280px;
   max-height: 320px;
   margin: 0;
   padding: 0;
+  position: relative;
+  
+  /* Fallback para gradiente */
+  background: #2a2a2a;
+  background: -webkit-gradient(linear, left top, right bottom, from(#2a2a2a), to(#1a1a1a));
+  background: -webkit-linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  background: -o-linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* Transições otimizadas */
+  -webkit-transition: background-color 0.1s ease, outline 0.1s ease, -webkit-transform 0.2s ease;
+  -moz-transition: background-color 0.1s ease, outline 0.1s ease, -moz-transform 0.2s ease;
+  -o-transition: background-color 0.1s ease, outline 0.1s ease, -o-transform 0.2s ease;
+  transition: background-color 0.1s ease, outline 0.1s ease, transform 0.2s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .serie:hover,
@@ -232,6 +439,12 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   outline: 2px solid rgba(255, 140, 0, 0.6);
   outline-offset: 1px;
   border-color: #FF8C00;
+  
+  /* Transform com prefixos */
+  -webkit-transform: scale(1.02) translateZ(0);
+  -moz-transform: scale(1.02) translateZ(0);
+  -ms-transform: scale(1.02) translateZ(0);
+  transform: scale(1.02) translateZ(0);
 }
 
 .serie img {
@@ -239,26 +452,59 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   height: 240px;
   border-radius: 4px 4px 0 0;
   object-fit: cover;
-  transition: opacity 0.1s ease;
   line-height: 1.2;
   margin: 0;
   padding: 0;
+  
+  /* Transição otimizada */
+  -webkit-transition: opacity 0.1s ease;
+  -moz-transition: opacity 0.1s ease;
+  -o-transition: opacity 0.1s ease;
+  transition: opacity 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .serie-info {
-  background: linear-gradient(to top, #1a1a1a, transparent);
   width: 100%;
   min-height: 60px;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  -webkit-flex-direction: column;
-  flex-direction: column;
   padding: 10px;
   margin: 0;
+  
+  /* Fallback para gradiente */
+  background: #1a1a1a;
+  background: -webkit-gradient(linear, left bottom, left top, from(#1a1a1a), to(transparent));
+  background: -webkit-linear-gradient(to top, #1a1a1a, transparent);
+  background: -o-linear-gradient(to top, #1a1a1a, transparent);
+  background: linear-gradient(to top, #1a1a1a, transparent);
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
 }
 
 .serie-title {
@@ -268,12 +514,22 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   color: #fff;
   text-overflow: ellipsis;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
   text-align: center;
   line-height: 1.2;
   padding: 5px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  
+  /* Line clamp com prefixos */
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .serie-description {
@@ -282,30 +538,82 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   color: #ccc;
   text-overflow: ellipsis;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
   text-align: center;
   line-height: 1.2;
   padding: 2px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  
+  /* Line clamp com prefixos */
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .loading {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: center;
   -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
+  
+  -webkit-box-align: center;
   -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  
   height: 200px;
   font-size: 1.2rem;
   color: #FF8C00;
   width: 100%;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .loading i {
-  animation: spin 1s linear infinite;
   margin-right: 10px;
+  
+  /* Animação com prefixos */
+  -webkit-animation: spin 1s linear infinite;
+  -moz-animation: spin 1s linear infinite;
+  -o-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+/* Keyframes com prefixos */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@-moz-keyframes spin {
+  0% { -moz-transform: rotate(0deg); }
+  100% { -moz-transform: rotate(360deg); }
+}
+
+@-o-keyframes spin {
+  0% { -o-transform: rotate(0deg); }
+  100% { -o-transform: rotate(360deg); }
 }
 
 @keyframes spin {
@@ -314,7 +622,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 /* ==========================================================================
-   RESPONSIVIDADE OTIMIZADA
+   RESPONSIVIDADE OTIMIZADA PARA TIZEN 5.0+
    ========================================================================== */
 
 @media (max-width: 1200px) {
@@ -326,8 +634,13 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 @media (max-width: 900px) {
   .series-page {
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
     -webkit-flex-direction: column;
+    -ms-flex-direction: column;
     flex-direction: column;
+    
     gap: 15px;
   }
   
@@ -340,13 +653,24 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     width: 100%;
     min-width: auto;
     height: 150px;
-    -webkit-flex-direction: row;
-    flex-direction: row;
-    display: -webkit-flex;
-    display: flex;
     gap: 10px;
     overflow-x: auto;
     overflow-y: hidden;
+    
+    /* Direção com prefixos */
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    
+    /* Fallback para browsers antigos */
+    display: block;
+    /* Prefixos WebKit para Tizen */
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
   }
   
   .category-button {
@@ -382,7 +706,40 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   }
 }
 
-/* Animações simplificadas - Performance otimizada */
+/* Animações simplificadas - Performance otimizada para Tizen 5.0+ */
+@-webkit-keyframes fadeInUp {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+  }
+}
+
+@-moz-keyframes fadeInUp {
+  from {
+    opacity: 0;
+    -moz-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -moz-transform: translateY(0);
+  }
+}
+
+@-o-keyframes fadeInUp {
+  from {
+    opacity: 0;
+    -o-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -o-transform: translateY(0);
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -395,11 +752,59 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 .serie {
+  /* Animação com prefixos */
+  -webkit-animation: fadeInUp 0.2s ease forwards;
+  -moz-animation: fadeInUp 0.2s ease forwards;
+  -o-animation: fadeInUp 0.2s ease forwards;
   animation: fadeInUp 0.2s ease forwards;
 }
 
-.serie:nth-child(1) { animation-delay: 0.05s; }
-.serie:nth-child(2) { animation-delay: 0.08s; }
-.serie:nth-child(3) { animation-delay: 0.11s; }
-.serie:nth-child(4) { animation-delay: 0.14s; }
-.serie:nth-child(5) { animation-delay: 0.17s; } 
+.serie:nth-child(1) { 
+  -webkit-animation-delay: 0.05s;
+  -moz-animation-delay: 0.05s;
+  -o-animation-delay: 0.05s;
+  animation-delay: 0.05s; 
+}
+.serie:nth-child(2) { 
+  -webkit-animation-delay: 0.08s;
+  -moz-animation-delay: 0.08s;
+  -o-animation-delay: 0.08s;
+  animation-delay: 0.08s; 
+}
+.serie:nth-child(3) { 
+  -webkit-animation-delay: 0.11s;
+  -moz-animation-delay: 0.11s;
+  -o-animation-delay: 0.11s;
+  animation-delay: 0.11s; 
+}
+.serie:nth-child(4) { 
+  -webkit-animation-delay: 0.14s;
+  -moz-animation-delay: 0.14s;
+  -o-animation-delay: 0.14s;
+  animation-delay: 0.14s; 
+}
+.serie:nth-child(5) { 
+  -webkit-animation-delay: 0.17s;
+  -moz-animation-delay: 0.17s;
+  -o-animation-delay: 0.17s;
+  animation-delay: 0.17s; 
+}
+
+/* GPU acceleration para elementos críticos */
+.series-container,
+.series-page,
+.category-sidebar,
+.main-content-area,
+.series-content,
+.pagination-info,
+.series-grid,
+.serie,
+.loading {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+} 
