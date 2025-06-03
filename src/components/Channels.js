@@ -13,11 +13,11 @@ const Channels = ({ isActive }) => {
   const [categoryFocus, setCategoryFocus] = useState(0);
   const [channelFocus, setChannelFocus] = useState(0);
 
-  // Estados de paginação ( مشابه a Series.js/Movies.js )
+  // Estados de paginação (corrigidos para ficar igual ao Series.js)
   const [currentPage, setCurrentPage] = useState(0);
-  const ITEMS_PER_PAGE = 15; // Ajuste conforme o layout de canais (ex: 5 colunas x 3 linhas)
-  const GRID_COLUMNS = 5; // Ajuste conforme o layout de canais
-  const GRID_ROWS = 3; // Ajuste conforme o layout de canais
+  const ITEMS_PER_PAGE = 15; // 5 colunas x 3 linhas
+  const GRID_COLUMNS = 5;
+  const GRID_ROWS = 3;
 
   // Referencias para navegação
   const categoriesRef = useRef([]);
@@ -41,23 +41,7 @@ const Channels = ({ isActive }) => {
       if (data.length > 0) {
         setSelectedCategory(data[0].category_id);
         setCategoryFocus(0);
-        // Chamada direta para evitar dependência circular
-        const categoryId = data[0].category_id;
-        setChannelsLoading(true);
-        setChannelFocus(0);
-        setCurrentPage(0);
-        try {
-          const channelsResponse = await fetch(
-            `${API_BASE_URL}?${API_CREDENTIALS}&action=get_live_streams&category_id=${categoryId}`
-          );
-          const channelsData = await channelsResponse.json();
-          setChannels(channelsData);
-        } catch (channelsError) {
-          console.error('Erro ao carregar canais:', channelsError);
-          setChannels([]);
-        } finally {
-          setChannelsLoading(false);
-        }
+        loadLiveChannels(data[0].category_id);
       }
     } catch (error) {
       console.error('Erro ao carregar categorias:', error);
@@ -65,7 +49,7 @@ const Channels = ({ isActive }) => {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL, API_CREDENTIALS]);
+  }, []);
 
   // Função para carregar canais de uma categoria
   const loadLiveChannels = useCallback(async (categoryId) => {
@@ -89,7 +73,7 @@ const Channels = ({ isActive }) => {
     } finally {
       setChannelsLoading(false);
     }
-  }, [API_BASE_URL, API_CREDENTIALS, focusArea]);
+  }, [focusArea]);
 
   // Calcular canais da página atual
   const getCurrentPageChannels = useCallback(() => {
@@ -128,7 +112,7 @@ const Channels = ({ isActive }) => {
     setSelectedCategory(categoryId);
     const categoryIndex = categories.findIndex(cat => cat.category_id === categoryId);
     setCategoryFocus(categoryIndex);
-    loadLiveChannels(categoryId); // loadLiveChannels já reseta currentPage
+    loadLiveChannels(categoryId);
     setFocusArea('channels'); // Mover foco para os canais
   }, [categories, loadLiveChannels]);
 
@@ -139,12 +123,39 @@ const Channels = ({ isActive }) => {
     }
   }, [isActive, loadLiveCategories]);
 
+  // Atualizar foco visual
+  const updateFocusVisual = useCallback(() => {
+    // Remover foco de todos os elementos
+    document.querySelectorAll('.channel, .category-button').forEach(el => {
+      el.classList.remove('focused');
+    });
+
+    // Adicionar foco ao elemento atual
+    if (focusArea === 'categories' && categoriesRef.current[categoryFocus]) {
+      categoriesRef.current[categoryFocus].classList.add('focused');
+      categoriesRef.current[categoryFocus].scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+    } else if (focusArea === 'channels' && channelsRef.current[channelFocus]) {
+      channelsRef.current[channelFocus].classList.add('focused');
+      channelsRef.current[channelFocus].scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+    }
+  }, [focusArea, categoryFocus, channelFocus]);
+
+  useEffect(() => {
+    updateFocusVisual();
+  }, [updateFocusVisual]);
+
   // Função de navegação das categorias
   const handleCategoriesNavigation = useCallback((keyCode) => {
     if (keyCode === 38) { // Cima
-      setCategoryFocus(prev => (prev > 0 ? prev - 1 : categories.length - 1));
+      setCategoryFocus(prev => Math.max(0, prev - 1));
     } else if (keyCode === 40) { // Baixo
-      setCategoryFocus(prev => (prev < categories.length - 1 ? prev + 1 : 0));
+      setCategoryFocus(prev => Math.min(categories.length - 1, prev + 1));
     } else if (keyCode === 37) { // Esquerda - voltar para sidebar
       const backEvent = new CustomEvent('backToSidebar');
       window.dispatchEvent(backEvent);
@@ -155,21 +166,25 @@ const Channels = ({ isActive }) => {
       }
     } else if (keyCode === 13) { // OK - selecionar categoria
       if (categories[categoryFocus]) {
-        handleCategoryClick(categories[categoryFocus].category_id);
+        const selectedCat = categories[categoryFocus];
+        setSelectedCategory(selectedCat.category_id);
+        loadLiveChannels(selectedCat.category_id);
       }
     }
-  }, [categories, categoryFocus, channels.length, handleCategoryClick]);
+  }, [categories, categoryFocus, channels.length, loadLiveChannels]);
 
-  // Função de navegação dos canais
+  // Função de navegação dos canais (corrigida para ficar igual ao Series.js)
   const handleChannelsNavigationInternal = useCallback((keyCode) => {
-    const currentPageChannelsCount = currentPageChannels.length; // Usar canais da página atual
+    const currentPageChannelsCount = currentPageChannels.length;
 
     if (keyCode === 38) { // Cima
       const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
+      
       if (currentRow > 0) {
         const newFocus = Math.max(0, channelFocus - GRID_COLUMNS);
         setChannelFocus(newFocus);
       } else {
+        // Se estiver na primeira linha e houver página anterior
         if (currentPage > 0) {
           setCurrentPage(currentPage - 1);
           const currentCol = channelFocus % GRID_COLUMNS;
@@ -182,33 +197,46 @@ const Channels = ({ isActive }) => {
     } else if (keyCode === 40) { // Baixo
       const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
       const maxRow = Math.floor((currentPageChannelsCount - 1) / GRID_COLUMNS);
+      
       if (currentRow < maxRow) {
         const newFocus = Math.min(currentPageChannelsCount - 1, channelFocus + GRID_COLUMNS);
         setChannelFocus(newFocus);
       } else {
+        // Se estiver na última linha e houver próxima página
         if (currentPage < totalPages - 1) {
           setCurrentPage(currentPage + 1);
-          setChannelFocus(channelFocus % GRID_COLUMNS);
+          setChannelFocus(channelFocus % GRID_COLUMNS); // Manter coluna, ir para primeira linha da próxima página
         }
       }
     } else if (keyCode === 37) { // Esquerda
       const currentCol = channelFocus % GRID_COLUMNS;
+      
       if (currentCol > 0) {
         setChannelFocus(channelFocus - 1);
       } else {
+        // Se estiver na primeira coluna, voltar para categorias
         setFocusArea('categories');
         const selectedIndex = categories.findIndex(cat => cat.category_id === selectedCategory);
         setCategoryFocus(selectedIndex >= 0 ? selectedIndex : 0);
       }
     } else if (keyCode === 39) { // Direita
       const currentCol = channelFocus % GRID_COLUMNS;
+      
       if (currentCol < GRID_COLUMNS - 1 && channelFocus < currentPageChannelsCount - 1) {
+        // Mover para próximo item na mesma linha
         setChannelFocus(channelFocus + 1);
-      } else {
-        if (currentPage < totalPages - 1 && currentCol === GRID_COLUMNS - 1) {
-            setCurrentPage(currentPage + 1);
-            const newRow = Math.floor(channelFocus / GRID_COLUMNS);
-            setChannelFocus(newRow * GRID_COLUMNS);
+      } else if (currentCol === GRID_COLUMNS - 1) {
+        // Estamos na última coluna
+        const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
+        const maxRow = Math.floor((currentPageChannelsCount - 1) / GRID_COLUMNS);
+        
+        if (currentRow < maxRow) {
+          // Há linha abaixo na mesma página → descer para primeira coluna da próxima linha
+          setChannelFocus((currentRow + 1) * GRID_COLUMNS);
+        } else if (currentPage < totalPages - 1) {
+          // Última linha da página → mudar página
+          setCurrentPage(currentPage + 1);
+          setChannelFocus(0); // Ir para primeiro item da nova página
         }
       }
     } else if (keyCode === 13) { // OK - selecionar canal
@@ -246,33 +274,6 @@ const Channels = ({ isActive }) => {
     return () => window.removeEventListener('channelsNavigation', handleChannelsNavigation);
   }, [isActive, focusArea, handleCategoriesNavigation, handleChannelsNavigationInternal]);
 
-  const updateFocusVisual = useCallback(() => {
-    // Remover foco de todos os elementos
-    document.querySelectorAll('.channel, .category-button').forEach(el => {
-      el.classList.remove('focused');
-    });
-
-    // Adicionar foco ao elemento atual
-    if (focusArea === 'categories' && categoriesRef.current[categoryFocus]) {
-      categoriesRef.current[categoryFocus].classList.add('focused');
-      categoriesRef.current[categoryFocus].scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
-      });
-    } else if (focusArea === 'channels' && channelsRef.current[channelFocus]) {
-      channelsRef.current[channelFocus].classList.add('focused');
-      channelsRef.current[channelFocus].scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
-      });
-    }
-  }, [focusArea, categoryFocus, channelFocus]);
-
-  // Atualizar foco visual
-  useEffect(() => {
-    updateFocusVisual();
-  }, [updateFocusVisual]);
-
   // Função para tratar erros de imagem
   const handleImageError = (e) => {
     e.target.style.display = 'none';
@@ -281,14 +282,13 @@ const Channels = ({ isActive }) => {
   if (!isActive) return null;
 
   return (
-    <div className="channels-container" ref={containerRef}>
-      <div className="channels-layout">
-        {/* Lista de Categorias */}
-        <div className="category-sidebar">
-          {loading ? (
-            <div className="loading">Carregando categorias...</div>
-          ) : (
-            categories.map((category, index) => (
+    <div className="channels-page" ref={containerRef}>
+      <div className="category-sidebar">
+        {loading ? (
+          <div className="loading">Carregando categorias...</div>
+        ) : (
+          <div className="category-list">
+            {categories.map((category, index) => (
               <button
                 key={category.category_id}
                 ref={el => categoriesRef.current[index] = el}
@@ -296,57 +296,58 @@ const Channels = ({ isActive }) => {
                   selectedCategory === category.category_id ? 'active' : ''
                 }`}
                 onClick={() => handleCategoryClick(category.category_id)}
-                data-focusable="true"
-                data-category={category.category_id}
               >
                 {category.category_name}
               </button>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
+      </div>
 
-        {/* Grid de Canais */}
-        <div className="content-grid">
+      <div className="main-content-area">
+        <div className="channels-content">
           {channelsLoading ? (
             <div className="loading">Carregando canais...</div>
-          ) : channels.length > 0 ? (
+          ) : (
             <>
               {totalPages > 1 && (
-                <div className="pagination-info"> {/* Estilo de Series.css */} 
+                <div className="pagination-info">
                   <span>Página {currentPage + 1} de {totalPages}</span>
-                  <span className="channels-count"> {/* Pode precisar de um estilo específico ou usar series-count */} 
+                  <span className="channels-count">
                     {channels.length} canais • {currentPageChannels.length} nesta página
                   </span>
                 </div>
               )}
-              {currentPageChannels.map((channel, index) => ( // Mapear currentPageChannels
-                <div
-                  key={channel.stream_id}
-                  ref={el => channelsRef.current[index] = el} // Manter ref para os itens visíveis
-                  className="channel"
-                  onClick={() => {
-                    // Ajustar o índice para o array original de canais se necessário para handleChannelSelect
-                    const actualChannelIndex = currentPage * ITEMS_PER_PAGE + index;
-                    handleChannelSelect(channels[actualChannelIndex]);
-                  }}
-                  data-focusable="true"
-                  data-channel={channel.stream_id}
-                >
-                  {channel.stream_icon && (
-                    <img
-                      src={channel.stream_icon}
-                      alt={channel.name}
-                      onError={handleImageError}
-                    />
-                  )}
-                  <p>{channel.name}</p>
-                </div>
-              ))}
+              <div className="channels-grid">
+                {currentPageChannels.map((channel, index) => (
+                  <div
+                    key={channel.stream_id}
+                    ref={el => channelsRef.current[index] = el}
+                    className="channel"
+                    onClick={() => {
+                      const actualChannelIndex = currentPage * ITEMS_PER_PAGE + index;
+                      handleChannelSelect(channels[actualChannelIndex]);
+                    }}
+                  >
+                    <div className="channel-poster">
+                      {channel.stream_icon && (
+                        <img
+                          src={channel.stream_icon}
+                          alt={channel.name}
+                          onError={handleImageError}
+                        />
+                      )}
+                      <div className="channel-overlay">
+                        <h3 className="channel-title">{channel.name}</h3>
+                        <div className="channel-actions">
+                          <span className="action-hint">ENTER Assistir</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </>
-          ) : (
-            <div className="no-content">
-              Nenhum canal encontrado nesta categoria
-            </div>
           )}
         </div>
       </div>

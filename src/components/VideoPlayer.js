@@ -14,18 +14,49 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const previousStreamUrlRef = useRef(null);
   const retryAttemptRef = useRef(0);
   const blobUrlRef = useRef(null);
+  const overlayTimeoutRef = useRef(null);
   
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('Iniciando player...');
+  const [loadingMessage, setLoadingMessage] = useState('Carregando...');
   const [error, setError] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerType, setPlayerType] = useState(null);
   const [useIframe, setUseIframe] = useState(false);
   const [urlAnalysis, setUrlAnalysis] = useState(null);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   // Detectar ambiente (desenvolvimento vs produção)
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
+
+  // Sistema de auto-hide para overlays
+  const startOverlayTimer = useCallback(() => {
+    if (overlayTimeoutRef.current) {
+      clearTimeout(overlayTimeoutRef.current);
+    }
+    
+    // Mostrar overlay inicialmente
+    setShowOverlay(true);
+    
+    overlayTimeoutRef.current = setTimeout(() => {
+      if (isPlaying && !error && !isLoading) {
+        setShowOverlay(false);
+      }
+    }, 10000); // Esconder após 5 segundos
+  }, [isPlaying, error, isLoading]);
+
+  const showOverlayTemporarily = useCallback(() => {
+    setShowOverlay(true);
+    startOverlayTimer();
+  }, [startOverlayTimer]);
+
+  // Limpar timer do overlay
+  const clearOverlayTimer = useCallback(() => {
+    if (overlayTimeoutRef.current) {
+      clearTimeout(overlayTimeoutRef.current);
+      overlayTimeoutRef.current = null;
+    }
+  }, []);
 
   // Função para analisar e corrigir URLs problemáticas
   const analyzeAndFixUrl = (url) => {
@@ -109,43 +140,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           type: 'https-direct-server',
           url: `https://74.63.227.218/${userPath}/${movieId}.mp4`
         });
-        
-        // Estratégias baseadas em APIs comuns de IPTV
-        // Muitos servidores IPTV usem essas estruturas:
-        
-        // 1. Formato XStreamCodes padrão
-        if (streamInfo?.stream_id) {
-          // Comentado URLs hardcoded que podem estar interferindo
-          // alternatives.push({
-          //   type: 'xstream-api',
-          //   url: `http://74.63.227.218/movie/${userPath}/${streamInfo.stream_id}.mp4`
-          // });
-          // alternatives.push({
-          //   type: 'xstream-ext',
-          //   url: `http://74.63.227.218/movie/${userPath}/${streamInfo.stream_id}.mkv`
-          // });
-        }
-        
-        // 2. Estrutura de arquivo direto (muito comum)
-        // Comentado URLs hardcoded que podem estar interferindo
-        // alternatives.push({
-        //   type: 'files-direct',
-        //   url: `http://74.63.227.218/files/${movieId}.mp4`
-        // });
-        // alternatives.push({
-        //   type: 'content-direct',
-        //   url: `http://74.63.227.218/content/${movieId}.mp4`
-        // });
-        
-        // 3. Tentar com diferentes extensões no servidor direto
-        // Comentado para não interferir
-        // const commonExtensions = ['mp4', 'mkv', 'avi', 'm4v', 'mov'];
-        // commonExtensions.forEach(ext => {
-        //   alternatives.push({
-        //     type: `direct-${ext}`,
-        //     url: `http://74.63.227.218/${userPath}/${movieId}.${ext}`
-        //   });
-        // });
         
         // 4. Fallback: tentar o domínio original mas com caminhos diferentes
         alternatives.push({
@@ -237,7 +231,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const tryMultipleUrls = async (alternatives, testFunction) => {
     for (const alt of alternatives) {
       console.log(`🎯 Tentando URL ${alt.type}:`, alt.url);
-      setLoadingMessage(`Tentando rota ${alt.type}...`);
+      setLoadingMessage('Carregando...');
       
       try {
         const result = await testFunction(alt.url);
@@ -364,10 +358,11 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
       console.log(`🚀 Inicializando player ${type} com URL:`, streamUrl);
       setIsLoading(true);
-      setLoadingMessage('Analisando rotas disponíveis...');
+      setLoadingMessage('Carregando...');
       setError(null);
       setIsPlaying(false);
       setUseIframe(false);
+      clearOverlayTimer();
       
       clearTimeouts();
 
@@ -562,7 +557,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       
       for (const alt of alternatives) {
         console.log(`🎯 Tentando URL ${alt.type}:`, alt.url);
-        setLoadingMessage(`Testando rota ${alt.type}...`);
+        setLoadingMessage('Carregando...');
         
         try {
           const result = await testUrl(alt.url);
@@ -605,17 +600,17 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       
       const handleLoadStart = () => {
         console.log('HTML5 Direto: Começou a carregar');
-        setLoadingMessage('Carregando vídeo...');
+        setLoadingMessage('Carregando...');
       };
 
       const handleLoadedData = () => {
         console.log('HTML5 Direto: Dados carregados');
-        setLoadingMessage('Preparando reprodução...');
+        setLoadingMessage('Preparando...');
       };
 
       const handleCanPlay = () => {
         console.log('HTML5 Direto: Pode reproduzir');
-        setLoadingMessage('Iniciando reprodução...');
+        setLoadingMessage('Iniciando...');
       };
 
       const handlePlaying = () => {
@@ -625,6 +620,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         setIsLoading(false);
         setError(null);
         initializingRef.current = false;
+        startOverlayTimer(); // Iniciar timer para esconder overlay
         resolve();
       };
 
@@ -721,12 +717,12 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
         hls.on(Hls.Events.MEDIA_ATTACHED, () => {
           console.log('HLS Seguro: Mídia anexada');
-          setLoadingMessage('Carregando playlist...');
+          setLoadingMessage('Carregando...');
         });
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           console.log('HLS Seguro: Manifest carregado');
-          setLoadingMessage('Iniciando reprodução...');
+          setLoadingMessage('Iniciando...');
           
           videoElement.play().then(() => {
             console.log('HLS Seguro: Reprodução iniciada');
@@ -734,6 +730,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
             setIsLoading(false);
             setError(null);
             initializingRef.current = false;
+            startOverlayTimer(); // Iniciar timer para esconder overlay
             resolve();
           }).catch(reject);
         });
@@ -767,7 +764,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const initIframePlayer = async (url) => {
     return new Promise((resolve, reject) => {
       console.log('🖼️ Configurando iframe player com URL:', url);
-      setLoadingMessage('Carregando via iframe...');
+      setLoadingMessage('Carregando...');
       setUseIframe(true);
       
       // Simular carregamento bem-sucedido após delay
@@ -776,6 +773,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         setIsLoading(false);
         setError(null);
         initializingRef.current = false;
+        startOverlayTimer(); // Iniciar timer para esconder overlay
         resolve();
       }, 2000);
       
@@ -793,7 +791,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const initMpegtsVodPlayer = async (url, videoElement) => {
     return new Promise((resolve, reject) => {
       try {
-        setLoadingMessage('Configurando player para MP4...');
+        setLoadingMessage('Carregando...');
         console.log('📽️ Configurando mpegts para MP4:', { url, type: 'mp4', isLive: false });
         
         const player = mpegts.createPlayer({
@@ -815,7 +813,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
         player.on(mpegts.Events.LOADING_COMPLETE, () => {
           console.log('✅ mpegts VOD: Carregamento completo');
-          setLoadingMessage('Iniciando reprodução...');
+          setLoadingMessage('Iniciando...');
         });
 
         const handlePlaying = () => {
@@ -825,6 +823,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           setIsLoading(false);
           setError(null);
           initializingRef.current = false;
+          startOverlayTimer(); // Iniciar timer para esconder overlay
           resolve();
         };
 
@@ -834,6 +833,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           setIsLoading(false);
           setError(null);
           initializingRef.current = false;
+          startOverlayTimer(); // Iniciar timer para esconder overlay
           resolve();
         };
 
@@ -869,7 +869,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const initMpegtsLivePlayer = async (url, videoElement) => {
     return new Promise((resolve, reject) => {
       try {
-        setLoadingMessage('Configurando player para canal ao vivo...');
+        setLoadingMessage('Carregando...');
         console.log('📡 Configurando mpegts para live:', { url, type: 'mpegts', isLive: true });
         
         const player = mpegts.createPlayer({
@@ -887,7 +887,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
         player.on(mpegts.Events.LOADING_COMPLETE, () => {
           console.log('✅ mpegts Live: Carregamento completo');
-          setLoadingMessage('Iniciando transmissão...');
+          setLoadingMessage('Iniciando...');
         });
 
         const handlePlaying = () => {
@@ -943,6 +943,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const cleanupPlayer = useCallback(() => {
     clearTimeouts();
     cleanupBlobUrls();
+    clearOverlayTimer(); // Limpar timer do overlay
     
     // Limpar HLS
     if (hlsRef.current) {
@@ -995,12 +996,13 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     }
     
     setIsLoading(false);
-    setLoadingMessage('Iniciando player...');
+    setLoadingMessage('Carregando...');
     setError(null);
     setIsPlaying(false);
     setPlayerType(null);
     setUseIframe(false);
     setUrlAnalysis(null);
+    setShowOverlay(false); // Reset do overlay
     initializingRef.current = false;
     previousStreamUrlRef.current = null;
     retryAttemptRef.current = 0;
@@ -1076,12 +1078,38 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       
       if (keyCode === 8 || keyCode === 10009) {
         handleBack();
+      } else if (isPlaying) {
+        // Mostrar overlay temporariamente ao pressionar qualquer tecla durante reprodução
+        showOverlayTemporarily();
+      }
+    };
+
+    // Mostrar overlay ao mover mouse (para web)
+    const handleMouseMove = () => {
+      if (isPlaying && !isDevelopment) {
+        showOverlayTemporarily();
+      }
+    };
+
+    // Mostrar overlay ao tocar na tela (para mobile/TV)
+    const handleTouch = () => {
+      if (isPlaying) {
+        showOverlayTemporarily();
       }
     };
 
     window.addEventListener('playerNavigation', handlePlayerNavigation);
-    return () => window.removeEventListener('playerNavigation', handlePlayerNavigation);
-  }, [isActive, handleBack]);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('touchstart', handleTouch);
+    document.addEventListener('click', handleTouch);
+    
+    return () => {
+      window.removeEventListener('playerNavigation', handlePlayerNavigation);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchstart', handleTouch);
+      document.removeEventListener('click', handleTouch);
+    };
+  }, [isActive, handleBack, isPlaying, showOverlayTemporarily, isDevelopment]);
 
   const retryPlayback = () => {
     console.log('🔄 Tentando reproduzir novamente...');
@@ -1089,7 +1117,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     
     setError(null);
     setIsLoading(true);
-    setLoadingMessage('Reiniciando player...');
+    setLoadingMessage('Tentando novamente...');
     setIsPlaying(false);
     
     initializingRef.current = false;
@@ -1112,7 +1140,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         
         console.log(`🎯 Tentativa ${retryAttemptRef.current}: usando ${detectedPlayerType}`);
         setPlayerType(detectedPlayerType);
-        setLoadingMessage(`Tentativa ${retryAttemptRef.current}: ${detectedPlayerType}...`);
+        setLoadingMessage('Carregando...');
         initializeIfNeeded();
       }
     }, 1000);
@@ -1153,13 +1181,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           <div className="loading-overlay">
             <div className="loading-spinner">⏳</div>
             <p className="loading-message">{loadingMessage}</p>
-            <p className="loading-player-info">
-              {playerType === 'html5-direct' ? 'Player HTML5 Direto' : 
-               playerType === 'html5-multi-url' ? 'Player HTML5 Multi-URL' :
-               playerType === 'hls-safe' ? 'Player HLS Seguro' :
-               playerType === 'iframe-fallback' ? 'Player Iframe' :
-               playerType === 'mpegts' ? 'Player mpegts.js' : 'Detectando...'}
-            </p>
             {streamInfo && (
               <p className="loading-content-info">
                 {streamInfo.type === 'series' ? 'Série' : 
@@ -1170,17 +1191,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
             {retryAttemptRef.current > 0 && (
               <p className="retry-info">Tentativa: {retryAttemptRef.current}</p>
             )}
-            <p className="environment-info">
-              Ambiente: {isDevelopment ? 'Desenvolvimento' : isTizenTV ? 'Tizen TV' : 'Produção'}
-            </p>
-            {urlAnalysis && (
-              <div className="url-analysis-info">
-                <p>🔍 Análise da URL:</p>
-                <p>• Protocolo: {urlAnalysis.protocol}</p>
-                <p>• Token: {urlAnalysis.hasToken ? '✅' : '❌'}</p>
-                <p>• Alternativas: {urlAnalysis.alternatives?.length || 0}</p>
-              </div>
-            )}
           </div>
         )}
 
@@ -1190,32 +1200,10 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
             <div className="error-content">
               <h3>Erro na Reprodução</h3>
               <p>{error}</p>
-              <p className="player-info">
-                Player usado: {playerType === 'html5-direct' ? 'HTML5 Direto' : 
-                              playerType === 'html5-multi-url' ? 'HTML5 Multi-URL' :
-                              playerType === 'hls-safe' ? 'HLS Seguro' :
-                              playerType === 'iframe-fallback' ? 'Iframe' :
-                              playerType === 'mpegts' ? 'mpegts.js' : 'Desconhecido'}
-              </p>
               {retryAttemptRef.current < 4 && (
                 <p className="retry-suggestion">
-                  Próxima tentativa usará: {
-                    retryAttemptRef.current === 0 ? 'HTML5 Multi-URL' :
-                    retryAttemptRef.current === 1 ? 'HTML5 Direto' :
-                    retryAttemptRef.current === 2 ? 'HLS Seguro' : 'Iframe'
-                  }
+                  Tentaremos uma estratégia diferente...
                 </p>
-              )}
-              <p className="environment-info">
-                Ambiente: {isDevelopment ? 'Desenvolvimento' : isTizenTV ? 'Tizen TV' : 'Produção'}
-              </p>
-              {urlAnalysis && (
-                <div className="url-analysis-info">
-                  <p>🔍 Problema identificado:</p>
-                  <p>• URL original: {urlAnalysis.original}</p>
-                  <p>• Protocolo: {urlAnalysis.protocol}</p>
-                  <p>• Sugestões: {urlAnalysis.suggestions.join(', ')}</p>
-                </div>
               )}
               <div className="error-actions">
                 <button onClick={retryPlayback} className="retry-button">
@@ -1231,22 +1219,12 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
         {/* Stream Info Overlay */}
         {streamInfo && isPlaying && (
-          <div className="stream-info-overlay">
+          <div className={`stream-info-overlay ${showOverlay ? 'visible' : 'hidden'}`}>
             <div className="stream-info">
               <h2>{streamInfo.name}</h2>
               {streamInfo.category && (
                 <p className="category">{streamInfo.category}</p>
               )}
-              <p className="player-info">
-                Player: {playerType === 'html5-direct' ? 'HTML5 Direto' : 
-                         playerType === 'html5-multi-url' ? 'HTML5 Multi-URL' :
-                         playerType === 'hls-safe' ? 'HLS Seguro' :
-                         playerType === 'iframe-fallback' ? 'Iframe' :
-                         playerType === 'mpegts' ? 'mpegts.js' : 'Desconhecido'}
-              </p>
-              <p className="environment-info">
-                {isDevelopment ? 'Modo Desenvolvimento' : isTizenTV ? 'Tizen TV' : 'Modo Produção'}
-              </p>
               <p className="instructions">Pressione BACK para voltar</p>
             </div>
           </div>

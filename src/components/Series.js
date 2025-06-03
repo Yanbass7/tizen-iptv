@@ -88,7 +88,7 @@ const Series = ({ isActive }) => {
   // Atualizar foco visual
   const updateFocusVisual = useCallback(() => {
     // Remover foco de todos os elementos
-    document.querySelectorAll('.serie, .series-category-button').forEach(el => {
+    document.querySelectorAll('.serie, .category-button').forEach(el => {
       el.classList.remove('focused');
     });
 
@@ -342,13 +342,20 @@ const Series = ({ isActive }) => {
       const currentCol = seriesFocus % GRID_COLUMNS;
       
       if (currentCol < GRID_COLUMNS - 1 && seriesFocus < currentPageSeriesCount - 1) {
+        // Mover para próximo item na mesma linha
         setSeriesFocus(seriesFocus + 1);
-      } else {
-        // Se estiver na última coluna e houver próxima página
-        if (currentPage < totalPages - 1) {
+      } else if (currentCol === GRID_COLUMNS - 1) {
+        // Estamos na última coluna
+        const currentRow = Math.floor(seriesFocus / GRID_COLUMNS);
+        const maxRow = Math.floor((currentPageSeriesCount - 1) / GRID_COLUMNS);
+        
+        if (currentRow < maxRow) {
+          // Há linha abaixo na mesma página → descer para primeira coluna da próxima linha
+          setSeriesFocus((currentRow + 1) * GRID_COLUMNS);
+        } else if (currentPage < totalPages - 1) {
+          // Última linha da página → mudar página
           setCurrentPage(currentPage + 1);
-          const newRow = Math.floor(seriesFocus / GRID_COLUMNS);
-          setSeriesFocus(newRow * GRID_COLUMNS); // Ir para primeira coluna da mesma linha na próxima página
+          setSeriesFocus(0); // Ir para primeiro item da nova página
         }
       }
     } else if (keyCode === 13) { // OK - abrir detalhes
