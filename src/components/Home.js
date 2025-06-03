@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { iptvApi } from '../services/iptvApi';
+import { safeScrollTo, safeScrollIntoView } from '../utils/scrollUtils';
 import './Home.css';
 
 const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
@@ -8,6 +9,13 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
   const [classicos, setClassicos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [featuredContent, setFeaturedContent] = useState(null);
+  const [previewContent, setPreviewContent] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  
+  const previewTimeoutRef = useRef(null);
+  const shelfRefs = useRef([]);
+  const itemRefs = useRef([]);
 
   // Carregar dados da API quando o componente montar
   useEffect(() => {
@@ -30,14 +38,27 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
           timeout
         ]);
 
-        // Limitar a 10 itens por prateleira para performance
-        setLancamentos(Array.isArray(lancamentosData) ? lancamentosData.slice(0, 10) : []);
-        setTelenovelas(Array.isArray(telenovelaData) ? telenovelaData.slice(0, 10) : []);
-        setClassicos(Array.isArray(classicosData) ? classicosData.slice(0, 10) : []);
+        // Limitar a 10 itens por prateleira para navegação correta
+        const lancamentosFiltered = Array.isArray(lancamentosData) ? lancamentosData.slice(0, 10) : [];
+        const telenovelaFiltered = Array.isArray(telenovelaData) ? telenovelaData.slice(0, 10) : [];
+        const classicosFiltered = Array.isArray(classicosData) ? classicosData.slice(0, 10) : [];
+        
+        setLancamentos(lancamentosFiltered);
+        setTelenovelas(telenovelaFiltered);
+        setClassicos(classicosFiltered);
+        
+        // Definir conteúdo em destaque (primeiro item dos lançamentos ou qualquer disponível)
+        const featured = lancamentosFiltered[0] || telenovelaFiltered[0] || classicosFiltered[0];
+        if (featured) {
+          setFeaturedContent({
+            ...featured,
+            type: lancamentosFiltered[0] ? 'movie' : telenovelaFiltered[0] ? 'series' : 'movie'
+          });
+        }
         
       } catch (error) {
         console.error('Erro ao carregar dados do home:', error);
-        setError('Erro ao carregar conteúdo. Tente novamente.');
+        setError('Erro ao carregar conteúdo. Verifique sua conexão.');
         // Definir dados vazios em caso de erro
         setLancamentos([]);
         setTelenovelas([]);
@@ -53,24 +74,86 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
   // Definir prateleiras com dados carregados
   const shelves = [
     { 
-      title: 'Filmes Lançamentos', 
+      id: 'lancamentos',
+      title: '🎬 Lançamentos em Destaque', 
       items: lancamentos, 
       type: 'movie',
       emptyMessage: 'Nenhum lançamento disponível'
     },
     { 
-      title: 'Telenovelas', 
+      id: 'telenovelas',
+      title: '📺 Séries e Telenovelas', 
       items: telenovelas, 
       type: 'series',
-      emptyMessage: 'Nenhuma telenovela disponível'
+      emptyMessage: 'Nenhuma série disponível'
     },
     { 
-      title: 'Clássicos do Cinema', 
+      id: 'classicos',
+      title: '🏆 Clássicos do Cinema', 
       items: classicos, 
       type: 'movie',
       emptyMessage: 'Nenhum clássico disponível'
     }
   ];
+
+  // Scroll automático para o item focado
+  useEffect(() => {
+    if (!onMenu && shelfFocus !== null && itemFocus !== null) {
+      const currentShelfRef = shelfRefs.current[shelfFocus];
+      const currentItemRef = itemRefs.current[`${shelfFocus}-${itemFocus}`];
+      
+      if (currentShelfRef && currentItemRef) {
+        // Scroll da prateleira para mostrar o item focado
+        const shelfContainer = currentShelfRef.querySelector('.carousel-track');
+        if (shelfContainer) {
+          const itemRect = currentItemRef.getBoundingClientRect();
+          const containerRect = shelfContainer.getBoundingClientRect();
+          
+          if (itemRect.left < containerRect.left || itemRect.right > containerRect.right) {
+            const scrollLeft = currentItemRef.offsetLeft - (shelfContainer.offsetWidth / 2) + (currentItemRef.offsetWidth / 2);
+            safeScrollTo(shelfContainer, {
+              left: Math.max(0, scrollLeft),
+              behavior: 'smooth'
+            });
+          }
+        }
+        
+        // Scroll da página para mostrar a prateleira focada
+        const shelfRect = currentShelfRef.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        
+        if (shelfRect.top < 100 || shelfRect.bottom > windowHeight - 100) {
+          safeScrollIntoView(currentShelfRef, {
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      }
+    }
+  }, [onMenu, shelfFocus, itemFocus]);
+
+  // Função para lidar com foco em item (preview após delay)
+  const handleItemFocus = (item, type) => {
+    // Limpar timeout anterior
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+    }
+    
+    // Definir novo timeout para preview
+    previewTimeoutRef.current = setTimeout(() => {
+      setPreviewContent({ ...item, type });
+      setShowPreview(true);
+    }, 1000); // 1 segundo de delay
+  };
+
+  // Função para lidar com saída de foco
+  const handleItemBlur = () => {
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+    }
+    setShowPreview(false);
+    setPreviewContent(null);
+  };
 
   const handleItemClick = (item, type) => {
     console.log('Item selecionado:', item, 'Tipo:', type);
@@ -92,31 +175,43 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
     window.dispatchEvent(playEvent);
   };
 
-  const handleItemPreview = (item, type) => {
-    console.log('Preview do item:', item, 'Tipo:', type);
-    
-    if (type === 'series') {
-      // Para séries, mostrar página de detalhes
+  const handleFeaturedPlay = () => {
+    if (featuredContent) {
+      handleItemClick(featuredContent, featuredContent.type);
+    }
+  };
+
+  const handleFeaturedInfo = () => {
+    if (featuredContent && featuredContent.type === 'series') {
       const seriesDetailsEvent = new CustomEvent('showSeriesDetails', {
         detail: {
-          seriesData: item
+          seriesData: featuredContent
         }
       });
       window.dispatchEvent(seriesDetailsEvent);
-    } else {
-      // Para filmes, pode implementar modal de preview no futuro
-      console.log('Preview de filme não implementado ainda');
     }
   };
+
+  // Limpar timeout ao desmontar componente
+  useEffect(() => {
+    return () => {
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Estado de loading otimizado para TV
   if (loading) {
     return (
       <div className="home-loading">
-        <div className="loading-spinner">
-          <i className="fa-solid fa-spinner fa-spin"></i>
+        <div className="loading-content">
+          <div className="loading-spinner">
+            <div className="spinner-ring"></div>
+          </div>
+          <h2 className="loading-title">BIGTV</h2>
+          <p className="loading-text">Carregando seu entretenimento...</p>
         </div>
-        <p className="loading-text">Carregando conteúdo...</p>
       </div>
     );
   }
@@ -125,136 +220,181 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
   if (error) {
     return (
       <div className="home-error">
-        <div className="error-icon">
-          <i className="fa-solid fa-exclamation-triangle"></i>
+        <div className="error-content">
+          <div className="error-icon">
+            <i className="fa-solid fa-wifi"></i>
+          </div>
+          <h2 className="error-title">Ops! Algo deu errado</h2>
+          <p className="error-message">{error}</p>
+          <button 
+            className="error-retry-btn"
+            onClick={() => window.location.reload()}
+          >
+            <i className="fa-solid fa-refresh"></i>
+            Tentar Novamente
+          </button>
         </div>
-        <h2 className="error-title">Ops! Algo deu errado</h2>
-        <p className="error-message">{error}</p>
-        <button 
-          className="error-retry-btn"
-          onClick={() => window.location.reload()}
-        >
-          <i className="fa-solid fa-refresh"></i>
-          Tentar Novamente
-        </button>
       </div>
     );
   }
 
   return (
     <div className="home-container">
-      {/* Banner principal otimizado */}
-      <section className="home-hero">
-        <div className="hero-background">
-          <img 
-            src="/images/banner (1).jpg" 
-            alt="Banner Principal" 
-            className="hero-bg-image"
-            loading="lazy"
-          />
-          <div className="hero-overlay"></div>
-        </div>
-        <div className="hero-content">
-          <img 
-            src="/images/BIGTV-transparente.png" 
-            alt="BIGTV Logo" 
-            className="hero-logo"
-            loading="lazy"
-          />
-          <h1 className="hero-title">Seu entretenimento completo</h1>
-          <p className="hero-description">
-            Acesse milhares de filmes, séries, canais ao vivo e muito mais.
-            Entretenimento de qualidade na palma da sua mão.
-          </p>
-          <div className="hero-stats">
-            <div className="stat-item">
-              <span className="stat-number">{lancamentos.length + classicos.length}</span>
-              <span className="stat-label">Filmes</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">{telenovelas.length}</span>
-              <span className="stat-label">Séries</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">100+</span>
-              <span className="stat-label">Canais</span>
+      {/* Hero Banner - Estilo Netflix */}
+      {featuredContent && (
+        <section className="hero-banner">
+          <div className="hero-background">
+            <img 
+              src={featuredContent.stream_icon || featuredContent.cover || '/images/banner (1).jpg'} 
+              alt={featuredContent.name}
+              className="hero-bg-image"
+              loading="eager"
+            />
+            <div className="hero-gradient"></div>
+          </div>
+          
+          <div className="hero-content">
+            <div className="hero-info">
+              <div className="hero-logo">
+                <img 
+                  src="/images/BIGTV-transparente.png" 
+                  alt="BIGTV" 
+                  className="brand-logo"
+                />
+              </div>
+              
+              <h1 className="hero-title">{featuredContent.name}</h1>
+              
+              <div className="hero-meta">
+                <span className="content-type">
+                  {featuredContent.type === 'series' ? 'SÉRIE' : 'FILME'}
+                </span>
+                {featuredContent.rating && (
+                  <span className="content-rating">
+                    <i className="fa-solid fa-star"></i>
+                    {featuredContent.rating}
+                  </span>
+                )}
+                <span className="content-year">2024</span>
+              </div>
+              
+              <p className="hero-description">
+                {featuredContent.plot || 
+                 `${featuredContent.type === 'series' ? 'Uma série' : 'Um filme'} imperdível que vai te manter grudado na tela. Entretenimento de qualidade com a melhor experiência de streaming.`}
+              </p>
+              
+              <div className="hero-actions">
+                <button 
+                  className="hero-btn primary"
+                  onClick={handleFeaturedPlay}
+                >
+                  <i className="fa-solid fa-play"></i>
+                  Assistir
+                </button>
+                
+                {featuredContent.type === 'series' && (
+                  <button 
+                    className="hero-btn secondary"
+                    onClick={handleFeaturedInfo}
+                  >
+                    <i className="fa-solid fa-info-circle"></i>
+                    Mais Informações
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Prateleiras de conteúdo otimizadas */}
-      <section className="home-shelves">
+      {/* Prateleiras de Conteúdo - Estilo Streaming */}
+      <section className="content-shelves">
         {shelves.map((shelf, shelfIndex) => (
-          <div key={shelf.title} className="shelf">
+          <div 
+            key={shelf.id} 
+            className="content-shelf"
+            ref={el => shelfRefs.current[shelfIndex] = el}
+          >
             <h2 className="shelf-title">{shelf.title}</h2>
-            <div className="shelf-items">
+            
+            <div className="shelf-carousel">
               {shelf.items.length > 0 ? (
-                shelf.items.map((item, itemIndex) => (
-                  <div
-                    key={item.stream_id || item.series_id || itemIndex}
-                    className={`shelf-item ${
-                      !onMenu && shelfFocus === shelfIndex && itemFocus === itemIndex 
-                        ? 'focused' 
-                        : ''
-                    }`}
-                    onClick={() => handleItemClick(item, shelf.type)}
-                  >
-                    <div className="item-poster">
-                      <img
-                        src={item.stream_icon || item.cover || '/images/BIGTV-transparente.png'}
-                        alt={item.name}
-                        loading="lazy"
-                        onError={(e) => {
-                          e.target.src = '/images/BIGTV-transparente.png';
-                        }}
-                      />
-                      <div className="item-overlay">
-                        <div className="overlay-content">
-                          <i className="fa-solid fa-play play-icon"></i>
-                          <span className="play-text">Reproduzir</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="item-info">
-                      <h3 className="item-title">{item.name}</h3>
-                      {item.rating && (
-                        <div className="item-rating">
-                          <i className="fa-solid fa-star"></i>
-                          <span>{item.rating}</span>
-                        </div>
-                      )}
-                      {shelf.type === 'series' && item.episode_run_time && (
-                        <div className="item-duration">
-                          <i className="fa-solid fa-clock"></i>
-                          <span>{item.episode_run_time} min</span>
-                        </div>
-                      )}
-                    </div>
+                <div className="carousel-track">
+                  {shelf.items.map((item, itemIndex) => {
+                    const isFocused = !onMenu && shelfFocus === shelfIndex && itemFocus === itemIndex;
                     
-                    {/* Indicadores de ação para controle remoto */}
-                    {!onMenu && shelfFocus === shelfIndex && itemFocus === itemIndex && (
-                      <div className="item-actions">
-                        <div className="action-hint">
-                          <span className="key-hint">OK</span>
-                          <span>Reproduzir</span>
+                    return (
+                      <div
+                        key={item.stream_id || item.series_id || itemIndex}
+                        ref={el => itemRefs.current[`${shelfIndex}-${itemIndex}`] = el}
+                        className={`content-card ${isFocused ? 'focused' : ''}`}
+                        onClick={() => handleItemClick(item, shelf.type)}
+                        onMouseEnter={() => handleItemFocus(item, shelf.type)}
+                        onMouseLeave={handleItemBlur}
+                      >
+                        <div className="card-image">
+                          <img
+                            src={item.stream_icon || item.cover || '/images/BIGTV-transparente.png'}
+                            alt={item.name}
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.src = '/images/BIGTV-transparente.png';
+                            }}
+                          />
+                          
+                          <div className="card-overlay">
+                            <div className="play-button">
+                              <i className="fa-solid fa-play"></i>
+                            </div>
+                          </div>
+                          
+                          {item.rating && (
+                            <div className="card-rating">
+                              <i className="fa-solid fa-star"></i>
+                              <span>{item.rating}</span>
+                            </div>
+                          )}
                         </div>
-                        {shelf.type === 'series' && (
-                          <div className="action-hint">
-                            <span className="key-hint">INFO</span>
-                            <span>Detalhes</span>
+                        
+                        <div className="card-info">
+                          <h3 className="card-title">{item.name}</h3>
+                          <div className="card-meta">
+                            <span className="card-type">
+                              {shelf.type === 'series' ? 'Série' : 'Filme'}
+                            </span>
+                            {item.episode_run_time && (
+                              <span className="card-duration">
+                                {item.episode_run_time}min
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Indicadores de navegação para TV */}
+                        {isFocused && (
+                          <div className="card-controls">
+                            <div className="control-hint">
+                              <span className="key">OK</span>
+                              <span>Assistir</span>
+                            </div>
+                            {shelf.type === 'series' && (
+                              <div className="control-hint">
+                                <span className="key">INFO</span>
+                                <span>Detalhes</span>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
-                    )}
-                  </div>
-                ))
+                    );
+                  })}
+                </div>
               ) : (
                 <div className="shelf-empty">
-                  <div className="empty-icon">
+                  <div className="empty-content">
                     <i className="fa-solid fa-film"></i>
+                    <p>{shelf.emptyMessage}</p>
                   </div>
-                  <p className="empty-message">{shelf.emptyMessage}</p>
                 </div>
               )}
             </div>
@@ -262,26 +402,44 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
         ))}
       </section>
 
-      {/* Instruções de navegação para TV */}
-      <section className="home-instructions">
-        <div className="instructions-content">
-          <h3 className="instructions-title">Como navegar</h3>
-          <div className="instructions-grid">
-            <div className="instruction-item">
-              <i className="fa-solid fa-arrows-alt"></i>
-              <span>Use as setas para navegar</span>
+      {/* Preview Modal - Estilo Netflix */}
+      {showPreview && previewContent && (
+        <div className="preview-modal">
+          <div className="preview-content">
+            <div className="preview-image">
+              <img 
+                src={previewContent.stream_icon || previewContent.cover} 
+                alt={previewContent.name}
+              />
             </div>
-            <div className="instruction-item">
-              <i className="fa-solid fa-check-circle"></i>
-              <span>OK para reproduzir</span>
-            </div>
-            <div className="instruction-item">
-              <i className="fa-solid fa-arrow-left"></i>
-              <span>Voltar para acessar menu</span>
+            <div className="preview-info">
+              <h3 className="preview-title">{previewContent.name}</h3>
+              <div className="preview-meta">
+                <span className="preview-type">
+                  {previewContent.type === 'series' ? 'SÉRIE' : 'FILME'}
+                </span>
+                {previewContent.rating && (
+                  <span className="preview-rating">
+                    <i className="fa-solid fa-star"></i>
+                    {previewContent.rating}
+                  </span>
+                )}
+              </div>
+              <p className="preview-description">
+                {previewContent.plot || 'Conteúdo de entretenimento de alta qualidade.'}
+              </p>
             </div>
           </div>
         </div>
-      </section>
+      )}
+
+      {/* Navegação Helper - Canto inferior */}
+      <div className="navigation-helper">
+        <div className="nav-hint">
+          <i className="fa-solid fa-gamepad"></i>
+          <span>Use as setas para navegar • OK para assistir • Voltar para menu</span>
+        </div>
+      </div>
     </div>
   );
 };

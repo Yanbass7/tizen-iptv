@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { safeScrollTo, scrollToElementInCarousel } from '../utils/scrollUtils';
+import { formatEpisode, padNumber } from '../utils/polyfills';
 import './SeriesDetailsPage.css';
 
 const SeriesDetailsPage = ({ series, isActive, onBack }) => {
@@ -32,16 +34,8 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
       const element = episodeElementsRef.current[index];
       const container = element.parentElement;
       
-      // Calcular posição central
-      const elementWidth = element.offsetWidth;
-      const containerWidth = container.offsetWidth;
-      const scrollLeft = element.offsetLeft - (containerWidth / 2) + (elementWidth / 2);
-      
-      // Scroll suave otimizado
-      container.scrollTo({
-        left: Math.max(0, scrollLeft),
-        behavior: 'auto' // Sem smooth para melhor performance
-      });
+      // Usar função utilitária para scroll seguro em carrossel
+      scrollToElementInCarousel(container, element, 'auto');
     }
   }, []);
 
@@ -100,7 +94,7 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
         detail: {
           streamUrl: streamUrl,
           streamInfo: {
-            name: `${series.name} - S${String(selectedSeason).padStart(2, '0')}E${String(episode.episode_num || 1).padStart(2, '0')} - ${episode.title || episode.name || 'Episódio'}`,
+            name: `${series.name} - ${formatEpisode(selectedSeason, episode.episode_num || 1)} - ${episode.title || episode.name || 'Episódio'}`,
             type: 'series',
             category: series.category_name || 'Série',
             description: episode.plot || episode.info?.plot || series.plot || 'Descrição não disponível',
@@ -131,7 +125,7 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
         detail: {
           streamUrl: streamUrl,
           streamInfo: {
-            name: `${series.name} - S${String(selectedSeason).padStart(2, '0')}E${String(episode.episode_num || 1).padStart(2, '0')} - ${episode.title || episode.name || 'Episódio'}`,
+            name: `${series.name} - ${formatEpisode(selectedSeason, episode.episode_num || 1)} - ${episode.title || episode.name || 'Episódio'}`,
             type: 'series',
             category: series.category_name || 'Série',
             description: episode.plot || episode.info?.plot || series.plot || 'Descrição não disponível',
@@ -317,6 +311,18 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
       }
     }
   }, [episodeFocus, episodes, seasons.length, playEpisode, scrollEpisodeIntoView]);
+
+  // Função otimizada para scroll central - sem requestAnimationFrame
+  const scrollToCenter = useCallback((element, container) => {
+    if (!element || !container) return;
+    
+    try {
+      // Usar função utilitária para scroll seguro
+      scrollToElementInCarousel(container, element, 'auto');
+    } catch (error) {
+      console.warn('Erro no scroll central:', error);
+    }
+  }, []);
 
   // Inicialização simplificada
   useEffect(() => {
@@ -548,7 +554,7 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
                           <div className="episode-details">
                             <div className="episode-header">
                               <div className="episode-number-badge">
-                                E{String(episode.episode_num || index + 1).padStart(2, '0')}
+                                E{padNumber(episode.episode_num || index + 1, 2)}
                               </div>
                               <span className="episode-duration">22 min</span>
                             </div>

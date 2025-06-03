@@ -33,41 +33,33 @@ const menuItems = [
 
 function App() {
   const [currentSection, setCurrentSection] = useState(SECTIONS.LOGIN);
-  const [menuFocus, setMenuFocus] = useState(1); // Iniciar no Home
+  const [menuFocus, setMenuFocus] = useState(0);
   const [shelfFocus, setShelfFocus] = useState(0);
   const [itemFocus, setItemFocus] = useState(0);
   const [onMenu, setOnMenu] = useState(false);
-
-  // Estados do VideoPlayer
-  const [playerData, setPlayerData] = useState({
-    streamUrl: '',
-    streamInfo: null
-  });
-
-  // Estado para a página de detalhes da série
+  const [playerData, setPlayerData] = useState(null);
   const [selectedSeriesData, setSelectedSeriesData] = useState(null);
-  
-  // Histórico de navegação para botão voltar inteligente
-  const [navigationHistory, setNavigationHistory] = useState([]);
+  const [sectionHistory, setSectionHistory] = useState([]);
+  const [moviePreviewActive, setMoviePreviewActive] = useState(false);
 
   // Função para navegar para uma seção e rastrear histórico
   const navigateToSection = useCallback((newSection, addToHistory = true) => {
     if (addToHistory && currentSection !== newSection) {
-      setNavigationHistory(prev => [...prev, currentSection]);
+      setSectionHistory(prev => [...prev, currentSection]);
     }
     setCurrentSection(newSection);
   }, [currentSection]);
 
   // Função para voltar usando histórico
   const navigateBack = useCallback(() => {
-    if (navigationHistory.length > 0) {
-      const previousSection = navigationHistory[navigationHistory.length - 1];
-      setNavigationHistory(prev => prev.slice(0, -1));
+    if (sectionHistory.length > 0) {
+      const previousSection = sectionHistory[sectionHistory.length - 1];
+      setSectionHistory(prev => prev.slice(0, -1));
       setCurrentSection(previousSection);
       return true; // Indica que conseguiu voltar
     }
     return false; // Indica que não há histórico
-  }, [navigationHistory]);
+  }, [sectionHistory]);
 
   // Registrar teclas do controle remoto Tizen (mantido do template original)
   useEffect(() => {
@@ -109,6 +101,15 @@ function App() {
           detail: { keyCode }
         });
         window.dispatchEvent(seriesDetailsEvent);
+        return;
+      }
+
+      // Se o MoviePreview estiver ativo, delegar navegação específica
+      if (moviePreviewActive && currentSection === SECTIONS.MOVIES) {
+        const movieDetailsEvent = new CustomEvent('movieDetailsNavigation', {
+          detail: { keyCode }
+        });
+        window.dispatchEvent(movieDetailsEvent);
         return;
       }
 
@@ -229,7 +230,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentSection, onMenu, menuFocus, shelfFocus, itemFocus, navigateBack]);
+  }, [currentSection, onMenu, menuFocus, shelfFocus, itemFocus, moviePreviewActive, navigateBack]);
 
   // Listener para eventos de reprodução de conteúdo
   useEffect(() => {
@@ -303,6 +304,16 @@ function App() {
     return () => window.removeEventListener('backToSidebar', handleBackToSidebar);
   }, []);
 
+  // Listener para controlar estado do MoviePreview
+  useEffect(() => {
+    const handleMoviePreviewActive = (event) => {
+      setMoviePreviewActive(event.detail.active);
+    };
+
+    window.addEventListener('moviePreviewActive', handleMoviePreviewActive);
+    return () => window.removeEventListener('moviePreviewActive', handleMoviePreviewActive);
+  }, []);
+
   const handleLogin = () => {
     setCurrentSection(SECTIONS.HOME);
     setOnMenu(false);
@@ -318,7 +329,7 @@ function App() {
   const handleBackFromPlayer = () => {
     // Voltar para a última seção que não seja o player
     setCurrentSection(SECTIONS.HOME);
-    setPlayerData({ streamUrl: '', streamInfo: null });
+    setPlayerData(null);
   };
 
   const handleBackFromSeriesDetails = () => {
@@ -366,8 +377,8 @@ function App() {
         return (
           <VideoPlayer 
             isActive={currentSection === SECTIONS.PLAYER}
-            streamUrl={playerData.streamUrl}
-            streamInfo={playerData.streamInfo}
+            streamUrl={playerData?.streamUrl}
+            streamInfo={playerData?.streamInfo}
             onBack={handleBackFromPlayer}
           />
         );

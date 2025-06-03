@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { iptvApi } from '../services/iptvApi';
+import { safeScrollIntoView } from '../utils/scrollUtils';
 import './Search.css';
 
 const Search = ({ isActive }) => {
@@ -381,6 +383,20 @@ const Search = ({ isActive }) => {
   const handleImageError = (e) => {
     e.target.style.display = 'none';
   };
+
+  // Efeito para auto-scroll baseado no foco
+  useEffect(() => {
+    if (resultFocus.section !== null && resultFocus.index !== null) {
+      const sectionResults = resultsRef.current[resultFocus.section];
+      if (sectionResults && sectionResults[resultFocus.index]) {
+        sectionResults[resultFocus.index].classList.add('focused');
+        safeScrollIntoView(sectionResults[resultFocus.index], {
+          behavior: 'smooth',
+          block: 'nearest'
+        });
+      }
+    }
+  }, [resultFocus]);
 
   if (!isActive) return null;
 

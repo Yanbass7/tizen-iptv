@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import MoviePreview from './MoviePreview';
 import { buildStreamUrl, buildApiUrl } from '../config/serverConfig';
+import { iptvApi } from '../services/iptvApi';
+import { safeScrollIntoView } from '../utils/scrollUtils';
 import './Movies.css';
 
 const Movies = ({ isActive }) => {
@@ -160,6 +162,12 @@ const Movies = ({ isActive }) => {
     };
     setPreviewMovie(movieWithCategory);
     setShowPreview(true);
+    
+    // Informar ao App.js que o preview está ativo
+    const previewActiveEvent = new CustomEvent('moviePreviewActive', {
+      detail: { active: true }
+    });
+    window.dispatchEvent(previewActiveEvent);
   }, [categories, selectedCategory]);
 
   // Função para clicar em categoria
@@ -178,32 +186,25 @@ const Movies = ({ isActive }) => {
     }
   }, [isActive, loadVODCategories]);
 
-  // Atualizar foco visual
-  const updateFocusVisual = useCallback(() => {
-    // Remover foco de todos os elementos
-    document.querySelectorAll('.movie, .category-button').forEach(el => {
-      el.classList.remove('focused');
-    });
-
-    // Adicionar foco ao elemento atual
+  // Efeito para auto-scroll baseado no foco
+  useEffect(() => {
+    // Auto-scroll para categoria focada
     if (focusArea === 'categories' && categoriesRef.current[categoryFocus]) {
       categoriesRef.current[categoryFocus].classList.add('focused');
-      categoriesRef.current[categoryFocus].scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
+      safeScrollIntoView(categoriesRef.current[categoryFocus], {
+        behavior: 'smooth',
+        block: 'nearest'
       });
-    } else if (focusArea === 'movies' && moviesRef.current[movieFocus]) {
+    }
+    // Auto-scroll para filme focado
+    else if (focusArea === 'movies' && moviesRef.current[movieFocus]) {
       moviesRef.current[movieFocus].classList.add('focused');
-      moviesRef.current[movieFocus].scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
+      safeScrollIntoView(moviesRef.current[movieFocus], {
+        behavior: 'smooth',
+        block: 'nearest'
       });
     }
   }, [focusArea, categoryFocus, movieFocus]);
-
-  useEffect(() => {
-    updateFocusVisual();
-  }, [updateFocusVisual]);
 
   // Função de navegação das categorias
   const handleCategoriesNavigation = useCallback((keyCode) => {
@@ -337,6 +338,12 @@ const Movies = ({ isActive }) => {
   const closePreview = () => {
     setShowPreview(false);
     setPreviewMovie(null);
+    
+    // Informar ao App.js que o preview foi fechado
+    const previewActiveEvent = new CustomEvent('moviePreviewActive', {
+      detail: { active: false }
+    });
+    window.dispatchEvent(previewActiveEvent);
   };
 
   // Função para tratar erros de imagem
@@ -435,8 +442,8 @@ const Movies = ({ isActive }) => {
       {showPreview && (
         <MoviePreview
           movie={previewMovie}
-          isVisible={showPreview}
-          onClose={closePreview}
+          isActive={showPreview}
+          onBack={closePreview}
         />
       )}
     </div>

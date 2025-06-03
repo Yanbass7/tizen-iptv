@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { iptvApi } from '../services/iptvApi';
+import { safeScrollIntoView } from '../utils/scrollUtils';
+import { formatEpisode } from '../utils/polyfills';
+import SeriesDetailsPage from './SeriesDetailsPage';
 import './Series.css';
 
 const Series = ({ isActive }) => {
@@ -85,32 +89,25 @@ const Series = ({ isActive }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
 
-  // Atualizar foco visual
-  const updateFocusVisual = useCallback(() => {
-    // Remover foco de todos os elementos
-    document.querySelectorAll('.serie, .category-button').forEach(el => {
-      el.classList.remove('focused');
-    });
-
-    // Adicionar foco ao elemento atual
+  // Efeito para auto-scroll baseado no foco
+  useEffect(() => {
+    // Auto-scroll para categoria focada
     if (focusArea === 'categories' && categoriesRef.current[categoryFocus]) {
       categoriesRef.current[categoryFocus].classList.add('focused');
-      categoriesRef.current[categoryFocus].scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
+      safeScrollIntoView(categoriesRef.current[categoryFocus], {
+        behavior: 'smooth',
+        block: 'nearest'
       });
-    } else if (focusArea === 'series' && seriesRef.current[seriesFocus]) {
+    }
+    // Auto-scroll para série focada
+    else if (focusArea === 'series' && seriesRef.current[seriesFocus]) {
       seriesRef.current[seriesFocus].classList.add('focused');
-      seriesRef.current[seriesFocus].scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
+      safeScrollIntoView(seriesRef.current[seriesFocus], {
+        behavior: 'smooth',
+        block: 'nearest'
       });
     }
   }, [focusArea, categoryFocus, seriesFocus]);
-
-  useEffect(() => {
-    updateFocusVisual();
-  }, [updateFocusVisual]);
 
   // Função para carregar séries de uma categoria
   const loadSeries = useCallback(async (categoryId) => {
@@ -172,7 +169,7 @@ const Series = ({ isActive }) => {
           const streamUrl = `https://rota66.bar/series/zBB82J/AMeDHq/${firstEpisode.id || firstEpisode.stream_id}.mp4`;
           
           const streamInfo = {
-            name: `${series.name} - S${String(firstSeason).padStart(2, '0')}E${String(firstEpisode.episode_num || 1).padStart(2, '0')} - ${firstEpisode.title || firstEpisode.name || 'Episódio'}`,
+            name: `${series.name} - ${formatEpisode(firstSeason, firstEpisode.episode_num || 1)} - ${firstEpisode.title || firstEpisode.name || 'Episódio'}`,
             type: 'series',
             category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Série',
             description: firstEpisode.plot || firstEpisode.info?.plot || series.plot || 'Descrição não disponível',

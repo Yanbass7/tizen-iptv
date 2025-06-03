@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { iptvApi } from '../services/iptvApi';
+import { safeScrollIntoView } from '../utils/scrollUtils';
 import './Channels.css';
 
 const Channels = ({ isActive }) => {
@@ -123,32 +125,25 @@ const Channels = ({ isActive }) => {
     }
   }, [isActive, loadLiveCategories]);
 
-  // Atualizar foco visual
-  const updateFocusVisual = useCallback(() => {
-    // Remover foco de todos os elementos
-    document.querySelectorAll('.channel, .category-button').forEach(el => {
-      el.classList.remove('focused');
-    });
-
-    // Adicionar foco ao elemento atual
+  // Efeito para auto-scroll baseado no foco
+  useEffect(() => {
+    // Auto-scroll para categoria focada
     if (focusArea === 'categories' && categoriesRef.current[categoryFocus]) {
       categoriesRef.current[categoryFocus].classList.add('focused');
-      categoriesRef.current[categoryFocus].scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
+      safeScrollIntoView(categoriesRef.current[categoryFocus], {
+        behavior: 'smooth',
+        block: 'nearest'
       });
-    } else if (focusArea === 'channels' && channelsRef.current[channelFocus]) {
+    }
+    // Auto-scroll para canal focado
+    else if (focusArea === 'channels' && channelsRef.current[channelFocus]) {
       channelsRef.current[channelFocus].classList.add('focused');
-      channelsRef.current[channelFocus].scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
+      safeScrollIntoView(channelsRef.current[channelFocus], {
+        behavior: 'smooth',
+        block: 'nearest'
       });
     }
   }, [focusArea, categoryFocus, channelFocus]);
-
-  useEffect(() => {
-    updateFocusVisual();
-  }, [updateFocusVisual]);
 
   // Função de navegação das categorias
   const handleCategoriesNavigation = useCallback((keyCode) => {

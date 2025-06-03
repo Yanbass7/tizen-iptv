@@ -1,26 +1,24 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './MoviePreview.css';
 
-const MoviePreview = ({ movie, isVisible, onClose }) => {
+const MoviePreview = ({ movie, isActive, onBack }) => {
   const [focusedElement, setFocusedElement] = useState('play');
   const [isFavorite, setIsFavorite] = useState(false);
+  const [focusArea, setFocusArea] = useState('actions');
 
   // Detectar ambiente Tizen TV
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-  // Memoizar array de elementos navegáveis para evitar re-criações
-  const navigableElements = useMemo(() => ['play', 'favorite', 'close'], []);
-
   const handleAction = useCallback((action) => {
     switch (action) {
       case 'play':
-        console.log('🎬 Reproduzindo filme do preview:', movie);
+        console.log('🎬 Reproduzindo filme:', movie);
         console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
         
         // Para Tizen TV, usar configuração específica que força player interno
         if (isTizenTV) {
-          console.log('📺 Configuração Tizen TV ativada para filme (preview)');
+          console.log('📺 Configuração Tizen TV ativada para filme');
           
           // Evento personalizado com configurações específicas para TV
           const playEvent = new CustomEvent('playContent', {
@@ -46,13 +44,13 @@ const MoviePreview = ({ movie, isVisible, onClose }) => {
           
           // Prevenir qualquer comportamento padrão que possa causar redirect
           setTimeout(() => {
-            console.log('📺 Disparando evento playContent para Tizen TV (filme preview)');
+            console.log('📺 Disparando evento playContent para Tizen TV (filme)');
             window.dispatchEvent(playEvent);
           }, 100); // Pequeno delay para garantir que o evento seja tratado corretamente
           
         } else {
           // Para outros ambientes, usar o comportamento padrão
-          console.log('💻 Configuração padrão ativada para filme (preview)');
+          console.log('💻 Configuração padrão ativada para filme');
           
           // Disparar evento para reproduzir filme
           const playEvent = new CustomEvent('playContent', {
@@ -71,21 +69,16 @@ const MoviePreview = ({ movie, isVisible, onClose }) => {
           });
           window.dispatchEvent(playEvent);
         }
-        onClose();
         break;
       
       case 'favorite':
         toggleFavorite();
         break;
       
-      case 'close':
-        onClose();
-        break;
-      
       default:
         break;
     }
-  }, [movie, onClose, isTizenTV, isDevelopment]);
+  }, [movie, isTizenTV, isDevelopment]);
 
   const toggleFavorite = useCallback(() => {
     const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
@@ -106,121 +99,178 @@ const MoviePreview = ({ movie, isVisible, onClose }) => {
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [movie]);
 
-  const handleKeyDown = useCallback((event) => {
-    if (!isVisible) return;
-
-    const currentIndex = navigableElements.indexOf(focusedElement);
-
-    switch (event.key) {
-      case 'ArrowLeft':
-        event.preventDefault();
-        const prevIndex = currentIndex > 0 ? currentIndex - 1 : navigableElements.length - 1;
-        setFocusedElement(navigableElements[prevIndex]);
-        break;
-      
-      case 'ArrowRight':
-        event.preventDefault();
-        const nextIndex = currentIndex < navigableElements.length - 1 ? currentIndex + 1 : 0;
-        setFocusedElement(navigableElements[nextIndex]);
-        break;
-      
-      case 'Enter':
-      case ' ':
-        event.preventDefault();
-        handleAction(focusedElement);
-        break;
-      
-      case 'Escape':
-      case 'Backspace':
-        event.preventDefault();
-        onClose();
-        break;
-      
-      default:
-        break;
+  // Navegação das ações (botões Play/Favoritos)
+  const handleActionsNavigation = useCallback((keyCode) => {
+    if (keyCode === 37) { // Esquerda
+      setFocusedElement(focusedElement === 'play' ? 'favorite' : 'play');
+    } else if (keyCode === 39) { // Direita
+      setFocusedElement(focusedElement === 'play' ? 'favorite' : 'play');
+    } else if (keyCode === 13) { // Enter - executar ação
+      handleAction(focusedElement);
     }
-  }, [focusedElement, isVisible, onClose, handleAction, navigableElements, toggleFavorite]);
+  }, [focusedElement, handleAction]);
 
+  // Inicialização
   useEffect(() => {
-    if (isVisible) {
-      document.addEventListener('keydown', handleKeyDown);
-      setFocusedElement('play'); // Reset focus ao abrir
+    if (!isActive || !movie) return;
+
+    // Reset do estado quando a página fica ativa
+    setFocusedElement('play');
+    setFocusArea('actions');
+    
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
+    const movieKey = `movie_${movie.stream_id}`;
+    setIsFavorite(!!favorites[movieKey]);
+  }, [isActive, movie]);
+
+  // Sistema de navegação por controle remoto
+  useEffect(() => {
+    if (!isActive) return;
+
+    const handleMovieDetailsNavigation = (event) => {
+      const { keyCode } = event.detail;
       
-      // Verificar se é favorito
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
-      const movieKey = `movie_${movie.stream_id}`;
-      setIsFavorite(!!favorites[movieKey]);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      // Tratar tecla de voltar
+      if (keyCode === 8 || keyCode === 10009) { // Backspace ou Return
+        onBack();
+        return;
+      }
+      
+      // Delegar navegação baseada na área de foco
+      if (focusArea === 'actions') {
+        handleActionsNavigation(keyCode);
+      }
     };
-  }, [isVisible, handleKeyDown, movie]);
 
-  if (!isVisible || !movie) return null;
+    window.addEventListener('movieDetailsNavigation', handleMovieDetailsNavigation);
+    return () => window.removeEventListener('movieDetailsNavigation', handleMovieDetailsNavigation);
+  }, [
+    isActive,
+    focusArea,
+    handleActionsNavigation,
+    onBack
+  ]);
+
+  if (!isActive || !movie) return null;
 
   return (
-    <div className="movie-preview-overlay">
-      <div className="movie-preview-modal">
-        <div className="movie-preview-content">
-          <div className="movie-poster-section">
+    <div className="movie-details-page">
+      <div className="movie-main-layout">
+        <div className="movie-info-panel">
+          <div className="movie-header-info">
             <img 
-              src={movie.stream_icon || '/images/placeholder-movie.jpg'} 
-              alt={movie.name}
-              className="movie-poster-large"
-              onError={(e) => {
-                e.target.src = '/images/placeholder-movie.jpg';
-              }}
+              src="/images/logo-provider.png" 
+              alt="Provider Logo" 
+              className="movie-provider-logo"
+              onError={(e) => { e.target.style.display = 'none'; }}
             />
+            
+            <div className="new-movie-badge">
+              Filme em Destaque
+            </div>
+            
+            <h1 className="movie-title-main">{movie.name}</h1>
+            
+            <div className="movie-meta-info">
+              <div className="meta-item age-rating">
+                <i className="fas fa-shield-alt"></i>
+                <span>14+</span>
+              </div>
+              <div className="meta-item movie-year">
+                <i className="fas fa-calendar-alt"></i>
+                <span>{movie.releasedate || 'N/A'}</span>
+              </div>
+              <div className="meta-item movie-rating">
+                <i className="fas fa-star"></i>
+                <span>⭐ {movie.rating || 'N/A'}</span>
+              </div>
+            </div>
           </div>
           
-          <div className="movie-info-section">
-            <h1 className="movie-title">{movie.name}</h1>
+          <div className="movie-synopsis">
+            <p className="synopsis-text expanded">
+              {movie.plot || 'Descrição não disponível para este filme.'}
+            </p>
+          </div>
+          
+          <div className="movie-genres">
+            <div className="genre-tag">{movie.category_name || 'Filme'}</div>
+            <div className="genre-tag">HD</div>
+            <div className="genre-tag">Legendado</div>
+          </div>
+          
+          <div className="movie-action-buttons">
+            <button 
+              className={`primary-action-btn ${focusArea === 'actions' && focusedElement === 'play' ? 'focused' : ''}`}
+              onClick={() => handleAction('play')}
+            >
+              <i className="fas fa-play"></i>
+              Assistir Filme
+            </button>
             
-            <div className="movie-metadata">
-              <span className="movie-year">{movie.releasedate || 'N/A'}</span>
-              <span className="movie-separator">•</span>
-              <span className="movie-rating">⭐ {movie.rating || 'N/A'}</span>
-              <span className="movie-separator">•</span>
-              <span className="movie-genre">{movie.category_name || 'Filme'}</span>
-            </div>
-            
-            <div className="movie-description">
-              <p>{movie.plot || 'Descrição não disponível para este filme.'}</p>
-            </div>
-            
-            <div className="movie-actions">
-              <button 
-                className={`action-btn play-btn ${focusedElement === 'play' ? 'focused' : ''}`}
-                onClick={() => handleAction('play')}
-              >
-                <i className="fas fa-play"></i>
-                Reproduzir
-              </button>
-              
-              <button 
-                className={`action-btn favorite-btn ${focusedElement === 'favorite' ? 'focused' : ''} ${isFavorite ? 'favorited' : ''}`}
-                onClick={() => handleAction('favorite')}
-              >
-                <i className={`fas ${isFavorite ? 'fa-heart' : 'fa-heart-o'}`}></i>
-                {isFavorite ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
-              </button>
-              
-              <button 
-                className={`action-btn close-btn ${focusedElement === 'close' ? 'focused' : ''}`}
-                onClick={() => handleAction('close')}
-              >
-                <i className="fas fa-times"></i>
-                Fechar
-              </button>
-            </div>
+            <button 
+              className={`secondary-action-btn ${focusArea === 'actions' && focusedElement === 'favorite' ? 'focused' : ''}`}
+              onClick={() => handleAction('favorite')}
+            >
+              <i className={`fas ${isFavorite ? 'fa-heart' : 'fa-plus'}`}></i>
+              {isFavorite ? 'Na Minha Lista' : 'Minha Lista'}
+            </button>
           </div>
         </div>
         
-        <div className="modal-help">
-          <span>← → Navegar</span>
-          <span>ENTER Selecionar</span>
-          <span>VOLTAR Fechar</span>
+        <div className="movie-promotional-art">
+          <img 
+            src={movie.stream_icon || '/images/placeholder-movie.jpg'} 
+            alt={movie.name}
+            className="promotional-image"
+            loading="lazy"
+            onError={(e) => {
+              e.target.src = '/images/placeholder-movie.jpg';
+            }}
+          />
+          <div className="promotional-overlay"></div>
+        </div>
+      </div>
+
+      <div className="movie-info-area">
+        <div className="movie-additional-info">
+          <div className="info-section">
+            <h3>Informações do Filme</h3>
+            <div className="info-grid">
+              <div className="info-item">
+                <span className="info-label">Ano:</span>
+                <span className="info-value">{movie.releasedate || 'N/A'}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Categoria:</span>
+                <span className="info-value">{movie.category_name || 'Filme'}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Avaliação:</span>
+                <span className="info-value">⭐ {movie.rating || 'N/A'}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Qualidade:</span>
+                <span className="info-value">HD 1080p</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="movie-controls-hint">
+            <div className="control-item">
+              <i className="fas fa-arrow-left"></i>
+              <i className="fas fa-arrow-right"></i>
+              <span>Navegar</span>
+            </div>
+            <div className="control-item">
+              <span>ENTER</span>
+              <span>Selecionar</span>
+            </div>
+            <div className="control-item">
+              <span>VOLTAR</span>
+              <span>Retornar</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
