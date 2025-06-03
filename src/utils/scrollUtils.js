@@ -87,34 +87,4 @@ export const scrollToElementInCarousel = (container, targetElement, behavior = '
     left: Math.max(0, scrollLeft),
     behavior: behavior
   });
-};
-
-/**
- * Verifica se o elemento está visível no viewport
- * @param {Element} element - Elemento para verificar
- * @param {Element} container - Container de referência (opcional)
- * @returns {boolean} - True se visível
- */
-export const isElementVisible = (element, container = null) => {
-  if (!element) return false;
-  
-  try {
-    const rect = element.getBoundingClientRect();
-    const containerRect = container ? container.getBoundingClientRect() : {
-      top: 0,
-      left: 0,
-      bottom: window.innerHeight,
-      right: window.innerWidth
-    };
-    
-    return (
-      rect.left >= containerRect.left &&
-      rect.right <= containerRect.right &&
-      rect.top >= containerRect.top &&
-      rect.bottom <= containerRect.bottom
-    );
-  } catch (error) {
-    console.warn('Erro ao verificar visibilidade:', error);
-    return false;
-  }
 }; 

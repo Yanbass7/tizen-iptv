@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { iptvApi } from '../services/iptvApi';
 import { safeScrollIntoView } from '../utils/scrollUtils';
 import './Search.css';
 

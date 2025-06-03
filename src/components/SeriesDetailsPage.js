@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { safeScrollTo, scrollToElementInCarousel } from '../utils/scrollUtils';
+import { scrollToElementInCarousel } from '../utils/scrollUtils';
 import { formatEpisode, padNumber } from '../utils/polyfills';
 import './SeriesDetailsPage.css';
 
@@ -311,18 +311,6 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
       }
     }
   }, [episodeFocus, episodes, seasons.length, playEpisode, scrollEpisodeIntoView]);
-
-  // Função otimizada para scroll central - sem requestAnimationFrame
-  const scrollToCenter = useCallback((element, container) => {
-    if (!element || !container) return;
-    
-    try {
-      // Usar função utilitária para scroll seguro
-      scrollToElementInCarousel(container, element, 'auto');
-    } catch (error) {
-      console.warn('Erro no scroll central:', error);
-    }
-  }, []);
 
   // Inicialização simplificada
   useEffect(() => {

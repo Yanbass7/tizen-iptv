@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import MoviePreview from './MoviePreview';
-import { buildStreamUrl, buildApiUrl } from '../config/serverConfig';
-import { iptvApi } from '../services/iptvApi';
 import { safeScrollIntoView } from '../utils/scrollUtils';
 import './Movies.css';
 
@@ -61,7 +59,7 @@ const Movies = ({ isActive }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadVOD]);
 
   // Função para carregar filmes de uma categoria
   const loadVOD = useCallback(async (categoryId) => {

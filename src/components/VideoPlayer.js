@@ -20,7 +20,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const [loadingMessage, setLoadingMessage] = useState('Carregando...');
   const [error, setError] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playerType, setPlayerType] = useState(null);
   const [useIframe, setUseIframe] = useState(false);
   const [urlAnalysis, setUrlAnalysis] = useState(null);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -38,6 +37,9 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   // Detectar ambiente (desenvolvimento vs produção)
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
+
+  // Determinar se é conteúdo VOD (Video on Demand)
+  const isVOD = streamInfo?.type === 'movie' || streamInfo?.type === 'series';
 
   // Sistema de auto-hide para overlays
   const startOverlayTimer = useCallback(() => {
@@ -203,33 +205,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     return analysis;
   };
 
-  // Função para tentar fetch com follow redirects
-  const fetchWithRedirects = async (url, options = {}) => {
-    console.log('🔄 Tentando fetch com redirects para:', url);
-    
-    try {
-      const response = await fetch(url, {
-        ...options,
-        redirect: 'follow', // Seguir redirects automaticamente
-        mode: 'no-cors'
-      });
-      
-      console.log('✅ Fetch com redirects OK para:', url);
-      return { success: true, url: response.url || url };
-    } catch (error) {
-      console.error('❌ Fetch com redirects falhou:', error);
-      return { success: false, error };
-    }
-  };
-
-  // Headers personalizados para contornar erro 403
-  const getCustomHeaders = () => ({
-    'Accept': '*/*',
-    'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache'
-  });
-
   // Headers seguros para HLS (sem os bloqueados pelo navegador)
   const getSafeHeaders = () => ({
     'Accept': '*/*',
@@ -324,6 +299,74 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     }
   };
 
+  // Função para limpar player
+  const cleanupPlayer = useCallback(() => {
+    clearTimeouts();
+    cleanupBlobUrls();
+    clearOverlayTimer(); // Limpar timer do overlay
+    
+    // Limpar HLS
+    if (hlsRef.current) {
+      try {
+        hlsRef.current.destroy();
+        console.log('HLS player limpo');
+      } catch (err) {
+        console.error('Erro ao limpar HLS:', err);
+      }
+      hlsRef.current = null;
+    }
+    
+    // Limpar elemento video
+    if (videoRef.current) {
+      const videoElement = videoRef.current;
+      
+      try {
+        const events = ['loadstart', 'loadeddata', 'canplay', 'canplaythrough', 'playing', 'waiting', 'error', 'stalled'];
+        events.forEach(event => {
+          videoElement.removeEventListener(event, () => {});
+        });
+        
+        if (videoElement.pause) videoElement.pause();
+        if (videoElement.src !== undefined) videoElement.src = '';
+        if (videoElement.load) videoElement.load();
+      } catch (err) {
+        console.log('Erro ao limpar video element:', err);
+      }
+    }
+
+    // Limpar player mpegts
+    if (playerRef.current) {
+      try {
+        const player = playerRef.current;
+        
+        if (player.isLoaded && player.isLoaded()) {
+          if (player.pause) player.pause();
+          if (player.unload) player.unload();
+        }
+        
+        if (player.detachMediaElement) player.detachMediaElement();
+        if (player.destroy) player.destroy();
+        
+        console.log('Player mpegts limpo');
+      } catch (err) {
+        console.error('Erro ao limpar player mpegts:', err);
+      }
+      
+      playerRef.current = null;
+    }
+    
+    setIsLoading(false);
+    setLoadingMessage('Carregando...');
+    setError(null);
+    setIsPlaying(false);
+    setUseIframe(false);
+    setUrlAnalysis(null);
+    setShowOverlay(false); // Reset do overlay
+    initializingRef.current = false;
+    previousStreamUrlRef.current = null;
+    retryAttemptRef.current = 0;
+  }, [clearOverlayTimer]);
+
   // Função memoizada para inicialização
   const initializeIfNeeded = useCallback(() => {
     if (!isActive || !streamUrl || initializingRef.current) return;
@@ -355,7 +398,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     
     const detectedPlayerType = detectPlayerType(streamUrl, streamInfo);
     console.log('🎯 Tipo de player detectado:', detectedPlayerType);
-    setPlayerType(detectedPlayerType);
     initializingRef.current = true;
 
     // Função de inicialização integrada
@@ -445,7 +487,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
     // Chamar função de inicialização
     initPlayer(detectedPlayerType);
-  }, [isActive, streamUrl, streamInfo, isDevelopment, isTizenTV]);
+  }, [isActive, streamUrl, streamInfo, isDevelopment, isTizenTV, error, cleanupPlayer, clearOverlayTimer]);
 
   // Função para inicializar HTML5 player com múltiplas URLs
   const initHtml5PlayerMultiUrl = async (alternatives, videoElement) => {
@@ -939,85 +981,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     });
   };
 
-  // Função para inicializar mpegts player (compatibilidade - mantida para não quebrar código existente)
-  const initMpegtsPlayer = async (url, videoElement) => {
-    // Determinar se é live ou VOD baseado no streamInfo
-    if (streamInfo?.type === 'live') {
-      return initMpegtsLivePlayer(url, videoElement);
-    } else {
-      return initMpegtsVodPlayer(url, videoElement);
-    }
-  };
-
-  // Função para limpar player
-  const cleanupPlayer = useCallback(() => {
-    clearTimeouts();
-    cleanupBlobUrls();
-    clearOverlayTimer(); // Limpar timer do overlay
-    
-    // Limpar HLS
-    if (hlsRef.current) {
-      try {
-        hlsRef.current.destroy();
-        console.log('HLS player limpo');
-      } catch (err) {
-        console.error('Erro ao limpar HLS:', err);
-      }
-      hlsRef.current = null;
-    }
-    
-    // Limpar elemento video
-    if (videoRef.current) {
-      const videoElement = videoRef.current;
-      
-      try {
-        const events = ['loadstart', 'loadeddata', 'canplay', 'canplaythrough', 'playing', 'waiting', 'error', 'stalled'];
-        events.forEach(event => {
-          videoElement.removeEventListener(event, () => {});
-        });
-        
-        if (videoElement.pause) videoElement.pause();
-        if (videoElement.src !== undefined) videoElement.src = '';
-        if (videoElement.load) videoElement.load();
-      } catch (err) {
-        console.log('Erro ao limpar video element:', err);
-      }
-    }
-
-    // Limpar player mpegts
-    if (playerRef.current) {
-      try {
-        const player = playerRef.current;
-        
-        if (player.isLoaded && player.isLoaded()) {
-          if (player.pause) player.pause();
-          if (player.unload) player.unload();
-        }
-        
-        if (player.detachMediaElement) player.detachMediaElement();
-        if (player.destroy) player.destroy();
-        
-        console.log('Player mpegts limpo');
-      } catch (err) {
-        console.error('Erro ao limpar player mpegts:', err);
-      }
-      
-      playerRef.current = null;
-    }
-    
-    setIsLoading(false);
-    setLoadingMessage('Carregando...');
-    setError(null);
-    setIsPlaying(false);
-    setPlayerType(null);
-    setUseIframe(false);
-    setUrlAnalysis(null);
-    setShowOverlay(false); // Reset do overlay
-    initializingRef.current = false;
-    previousStreamUrlRef.current = null;
-    retryAttemptRef.current = 0;
-  }, []);
-
   // Função para voltar/sair
   const handleBack = useCallback(() => {
     cleanupPlayer();
@@ -1087,7 +1050,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       const { keyCode } = event.detail;
 
       // Condições para ativar a navegação nos controles VOD
-      const vodControlsActive = isVOD && isPlaying && showOverlay && !useIframe;
+      const vodControlsActive = isPlaying && showOverlay && !useIframe;
 
       if (vodControlsActive) {
         let newIndex = focusedVodButtonIndex;
@@ -1180,7 +1143,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       document.removeEventListener('touchstart', handleTouch);
       document.removeEventListener('click', handleTouch);
     };
-  }, [isActive, handleBack, isPlaying, showOverlayTemporarily, isDevelopment, isVOD, showOverlay, useIframe, focusedVodButtonIndex]);
+  }, [isActive, handleBack, isPlaying, showOverlayTemporarily, isDevelopment, showOverlay, useIframe, focusedVodButtonIndex]);
 
   const retryPlayback = () => {
     console.log('🔄 Tentando reproduzir novamente...');
@@ -1210,7 +1173,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         }
         
         console.log(`🎯 Tentativa ${retryAttemptRef.current}: usando ${detectedPlayerType}`);
-        setPlayerType(detectedPlayerType);
         setLoadingMessage('Carregando...');
         initializeIfNeeded();
       }
@@ -1263,11 +1225,9 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       setCurrentTime(0);
       setDuration(0);
     }
-  }, [isActive, streamInfo]); // Dependências atualizadas
+  }, [isActive, streamInfo, streamInfo?.type]); // Dependências atualizadas
 
   // Funções helper movidas para antes do return condicional
-  const isVOD = streamInfo?.type === 'movie' || streamInfo?.type === 'series';
-
   const handlePlayPause = () => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
@@ -1351,6 +1311,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           <iframe
             ref={iframeRef}
             src={streamUrl}
+            title={streamInfo?.name || 'Player de Vídeo'}
             className="video-element"
             style={{ 
               width: '100%', 

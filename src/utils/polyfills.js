@@ -209,38 +209,6 @@ export const formatEpisode = (season, episode) => {
   return `S${padNumber(season, 2)}E${padNumber(episode, 2)}`;
 };
 
-/**
- * Função auxiliar para formatação de duração
- * Uso: formatDuration(125) -> "2h 5min"
- */
-export const formatDuration = (minutes) => {
-  if (!minutes || minutes < 1) return 'N/A';
-  
-  if (minutes < 60) {
-    return `${minutes}min`;
-  }
-  
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  
-  if (remainingMinutes === 0) {
-    return `${hours}h`;
-  }
-  
-  return `${hours}h ${remainingMinutes}min`;
-};
-
-/**
- * Função para verificar suporte a recursos
- */
-export const featureSupport = {
-  padStart: typeof String.prototype.padStart === 'function',
-  scrollTo: typeof Element.prototype.scrollTo === 'function',
-  customElements: typeof window.customElements !== 'undefined',
-  promises: typeof Promise !== 'undefined',
-  fetch: typeof fetch !== 'undefined'
-};
-
 // Log de inicialização dos polyfills
 console.log('🔧 Polyfills carregados para Tizen TV:', {
   padStart: typeof String.prototype.padStart === 'function',
