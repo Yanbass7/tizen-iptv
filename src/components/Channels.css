@@ -76,7 +76,6 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -ms-flexbox;
   display: flex;
   
-  gap: 20px;
   height: 100%;
   
   /* GPU acceleration */
@@ -190,52 +189,57 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  
-  gap: 10px;
 }
 
-/* Botões de categoria - Estados de foco otimizados */
+/* Botões de categoria - Estilo unificado e otimizado */
 .category-button {
-  display: block;
   width: 100%;
   background-color: transparent;
-  color: #fff;
+  color: #ccc; /* Ajustado para consistência */
   border: none;
-  margin: 0;
+  margin-bottom: 10px; /* Re-adicionado explicitamente */
   padding: 12px 15px;
-  border-radius: 5px;
+  border-radius: 12px; /* Ajustado para consistência */
   cursor: pointer;
   text-align: left;
-  font-size: 1.4rem;
+  font-size: 1.4rem; /* Mantido - bom tamanho */
   font-family: inherit;
-  
+  font-weight: 500; /* Peso padrão */
+
   /* Transições otimizadas */
-  -webkit-transition: background-color 0.2s ease, outline 0.1s ease;
-  -moz-transition: background-color 0.2s ease, outline 0.1s ease;
-  -o-transition: background-color 0.2s ease, outline 0.1s ease;
-  transition: background-color 0.2s ease, outline 0.1s ease;
-  
+  -webkit-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
+  -moz-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
+  -o-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
+  transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
+
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  
-  /* Otimização de texto */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-.category-button:hover,
-.category-button.focused {
-  background: rgba(255, 140, 0, 0.1);
-  outline: 2px solid #FF8C00;
+.category-list > .category-button:last-child { /* Garantindo que esta regra esteja ativa */
+  margin-bottom: 0;
+}
+
+.category-button.active {
+  background-color: rgba(255, 140, 0, 0.2); /* Cor da Sidebar.css */
+  color: #FF8C00; /* Cor da Sidebar.css */
+  font-weight: bold; /* Destaque para ativo */
+}
+
+.category-button.focused,
+.category-button:hover {
+  background-color: rgba(255, 140, 0, 0.1); /* Cor da Sidebar.css */
+  color: white; /* Cor da Sidebar.css */
+  outline: 2px solid rgba(255, 140, 0, 0.3); /* Cor da Sidebar.css */
   outline-offset: 1px;
 }
 
-/* Estilos para botões de categoria ativos - Otimizados */
-.category-button.active {
-  font-weight: bold;
-  background-color: #FF8C00 !important;
-  color: #000 !important;
+/* Estado combinado de ativo e focado */
+.category-button.active.focused {
+  background-color: rgba(255, 140, 0, 0.3); /* Mais escuro que active ou focused sozinhos */
+  color: #FF8C00; /* Mantém cor do active */
+  outline: 2px solid rgba(255, 140, 0, 0.6); /* Outline mais forte */
 }
 
 /* Área principal de conteúdo */
@@ -282,6 +286,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 .channels-content {
   padding: 20px;
+  padding-bottom: 35px;
   
   /* Force o box-sizing com prefixos */
   -webkit-box-sizing: border-box;
@@ -351,8 +356,6 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   
-  gap: 15px;
-  
   /* Otimização de performance */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -367,6 +370,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  
+  /* Adicionando margens para simular o gap */
+  margin-right: 15px;
+  margin-bottom: 15px;
   
   /* Transições otimizadas */
   -webkit-transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
@@ -398,6 +405,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
   box-sizing: border-box;
+}
+
+/* Remove a margem direita do último item de cada linha (para 5 colunas) */
+.channels-grid > .channel:nth-child(5n) {
+  margin-right: 0;
 }
 
 .channel:hover,

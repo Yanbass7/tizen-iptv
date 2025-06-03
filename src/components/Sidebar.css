@@ -203,8 +203,6 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  
-  gap: 8px;
 }
 
 /* Itens do menu - Adaptáveis aos estados */
@@ -229,6 +227,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   cursor: pointer;
   position: relative;
   gap: 15px;
+  margin-bottom: 8px;
   
   /* Transições otimizadas */
   -webkit-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -243,6 +242,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.sidebar-menu > .sidebar-menu-item:last-child {
+  margin-bottom: 0;
 }
 
 /* Estado collapsed - ícones centralizados */

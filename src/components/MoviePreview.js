@@ -23,7 +23,7 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
           // Evento personalizado com configurações específicas para TV
           const playEvent = new CustomEvent('playContent', {
             detail: {
-              streamUrl: `https://rota66.bar/zBB82J/AMeDHq/${movie.stream_id}`,
+              streamUrl: `https://rota66.bar/movie/zBB82J/AMeDHq/${movie.stream_id}.mp4`,
               streamInfo: {
                 name: movie.name,
                 type: 'movie',
@@ -55,7 +55,7 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
           // Disparar evento para reproduzir filme
           const playEvent = new CustomEvent('playContent', {
             detail: {
-              streamUrl: `https://rota66.bar/zBB82J/AMeDHq/${movie.stream_id}`,
+              streamUrl: `https://rota66.bar/movie/zBB82J/AMeDHq/${movie.stream_id}.mp4`,
               streamInfo: {
                 name: movie.name,
                 type: 'movie',

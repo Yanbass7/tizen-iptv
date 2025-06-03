@@ -103,7 +103,7 @@ const Movies = ({ isActive }) => {
     console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
     
     // Construir URL do stream com a estrutura correta (mesma dos canais que funcionam)
-    const streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${movie.stream_id}`;
+    const streamUrl = `https://rota66.bar/movie/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${movie.stream_id}.mp4`;
     
     // Informações do filme para o player
     const streamInfo = {
