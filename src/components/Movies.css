@@ -198,8 +198,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   background-color: transparent;
   color: #ccc; /* Ajustado para consistência */
   border: none;
-  margin: 0;
-  margin-bottom: 10px;
+  margin: 0; /* Reset geral de margens para o botão */
   padding: 12px 15px;
   border-radius: 12px; /* Ajustado para consistência */
   cursor: pointer;
@@ -219,6 +218,12 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   transform: translateZ(0);
 }
 
+/* Aplicando margin-bottom a todos os botões de categoria dentro da lista */
+.category-list > .category-button {
+  margin-bottom: 15px; /* Aumentado para 15px */
+}
+
+/* Remove a margin-bottom do último botão para evitar espaço extra no final da lista */
 .category-list > .category-button:last-child {
   margin-bottom: 0;
 }
