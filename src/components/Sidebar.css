@@ -16,7 +16,6 @@ html, body {
 div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   margin: 0;
   padding: 0;
-  border: 0;
   outline: 0;
   vertical-align: baseline;
 }
@@ -226,7 +225,6 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   color: #ccc;
   cursor: pointer;
   position: relative;
-  gap: 15px;
   margin-bottom: 8px;
   
   /* Transições otimizadas */
@@ -284,6 +282,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   height: 24px;
   min-width: 24px;
   font-size: 1.2rem;
+  margin-right: 15px;
   
   /* Transição otimizada */
   -webkit-transition: -webkit-transform 0.2s ease;
@@ -445,7 +444,6 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -ms-flex-align: center;
   align-items: center;
   
-  gap: 10px;
   color: #888;
   font-size: 0.8rem;
   opacity: 1;
@@ -459,6 +457,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.sidebar-controls-hint > *:not(:last-child) {
+  margin-right: 10px;
 }
 
 .sidebar.collapsed .sidebar-controls-hint {

@@ -10,8 +10,75 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-  // Credenciais da API
-  const API_CREDENTIALS = 'username=zBB82J&password=AMeDHq';
+  const handleAction = useCallback((action) => {
+    switch (action) {
+      case 'play':
+        console.log('🎬 Reproduzindo filme:', movie);
+        console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
+        
+        // Para Tizen TV, usar configuração específica que força player interno
+        if (isTizenTV) {
+          console.log('📺 Configuração Tizen TV ativada para filme');
+          
+          // Evento personalizado com configurações específicas para TV
+          const playEvent = new CustomEvent('playContent', {
+            detail: {
+              streamUrl: `https://rota66.bar/movie/zBB82J/AMeDHq/${movie.stream_id}.mp4`,
+              streamInfo: {
+                name: movie.name,
+                type: 'movie',
+                category: movie.category_name || 'Filme',
+                description: movie.plot || 'Descrição não disponível',
+                year: movie.releasedate || 'N/A',
+                rating: movie.rating || 'N/A',
+                poster: movie.stream_icon,
+                // Flags específicas para Tizen TV
+                forceTizenPlayer: true,
+                preventBrowserRedirect: true,
+                useInternalPlayer: true
+              }
+            },
+            bubbles: false, // Não permitir propagação que pode causar redirect
+            cancelable: false // Não permitir cancelamento por outros handlers
+          });
+          
+          // Prevenir qualquer comportamento padrão que possa causar redirect
+          setTimeout(() => {
+            console.log('📺 Disparando evento playContent para Tizen TV (filme)');
+            window.dispatchEvent(playEvent);
+          }, 100); // Pequeno delay para garantir que o evento seja tratado corretamente
+          
+        } else {
+          // Para outros ambientes, usar o comportamento padrão
+          console.log('💻 Configuração padrão ativada para filme');
+          
+          // Disparar evento para reproduzir filme
+          const playEvent = new CustomEvent('playContent', {
+            detail: {
+              streamUrl: `https://rota66.bar/movie/zBB82J/AMeDHq/${movie.stream_id}.mp4`,
+              streamInfo: {
+                name: movie.name,
+                type: 'movie',
+                category: movie.category_name || 'Filme',
+                description: movie.plot || 'Descrição não disponível',
+                year: movie.releasedate || 'N/A',
+                rating: movie.rating || 'N/A',
+                poster: movie.stream_icon
+              }
+            }
+          });
+          window.dispatchEvent(playEvent);
+        }
+        break;
+      
+      case 'favorite':
+        toggleFavorite();
+        break;
+      
+      default:
+        break;
+    }
+  }, [movie, isTizenTV, isDevelopment]);
 
   const toggleFavorite = useCallback(() => {
     const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
@@ -31,73 +98,6 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
     
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [movie]);
-
-  const handleAction = useCallback((action) => {
-    console.log('🎬 MoviePreview - handleAction chamado com:', action);
-    console.log('🎬 MoviePreview - Filme atual:', movie);
-    console.log('🎬 MoviePreview - Ambiente:', { isTizenTV, isDevelopment });
-    
-    switch (action) {
-      case 'play':
-        // Construir URL do stream com a estrutura correta (mesma dos canais que funcionam)
-        const streamUrl = `https://rota66.bar/movie/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${movie.stream_id}.mp4`;
-        
-        // Informações do filme para o player
-        const streamInfo = {
-          name: movie.name,
-          category: movie.category_name || 'Filme',
-          description: movie.plot || `Filme - ${movie.name}`,
-          year: movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : null,
-          rating: movie.rating,
-          type: 'movie'
-        };
-
-        // Para Tizen TV, usar configuração específica que força player interno
-        if (isTizenTV) {
-          console.log('📺 MoviePreview - Configuração Tizen TV ativada');
-          
-          // Evento personalizado com configurações específicas para TV
-          const playEvent = new CustomEvent('playContent', {
-            detail: {
-              streamUrl,
-              streamInfo: {
-                ...streamInfo,
-                // Flags específicas para Tizen TV
-                forceTizenPlayer: true,
-                preventBrowserRedirect: true,
-                useInternalPlayer: true
-              }
-            },
-            bubbles: false, // Não permitir propagação que pode causar redirect
-            cancelable: false // Não permitir cancelamento por outros handlers
-          });
-          
-          // Prevenir qualquer comportamento padrão que possa causar redirect
-          setTimeout(() => {
-            console.log('📺 MoviePreview - Disparando evento playContent para Tizen TV');
-            window.dispatchEvent(playEvent);
-          }, 100); // Pequeno delay para garantir que o evento seja tratado corretamente
-          
-        } else {
-          // Para outros ambientes, usar o comportamento padrão
-          console.log('💻 MoviePreview - Configuração padrão ativada');
-          
-          // Disparar evento para reproduzir no VideoPlayer
-          const playEvent = new CustomEvent('playContent', {
-            detail: { streamUrl, streamInfo }
-          });
-          window.dispatchEvent(playEvent);
-        }
-        break;
-      
-      case 'favorite':
-        toggleFavorite();
-        break;
-      
-      default:
-        break;
-    }
-  }, [movie, isTizenTV, isDevelopment, toggleFavorite]);
 
   // Navegação das ações (botões Play/Favoritos)
   const handleActionsNavigation = useCallback((keyCode) => {

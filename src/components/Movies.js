@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import MoviePreview from './MoviePreview';
+import { buildStreamUrl, buildApiUrl } from '../config/serverConfig';
+import { iptvApi } from '../services/iptvApi';
 import { safeScrollIntoView } from '../utils/scrollUtils';
 import './Movies.css';
 

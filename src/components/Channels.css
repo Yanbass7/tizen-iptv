@@ -16,7 +16,6 @@ html, body {
 div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   margin: 0;
   padding: 0;
-  border: 0;
   outline: 0;
   vertical-align: baseline;
 }
@@ -197,7 +196,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   background-color: transparent;
   color: #ccc; /* Ajustado para consistência */
   border: none;
-  margin-bottom: 10px; /* Re-adicionado explicitamente */
+  margin-bottom: 12px; /* Aumentado de 10px para 12px */
   padding: 12px 15px;
   border-radius: 12px; /* Ajustado para consistência */
   cursor: pointer;
@@ -505,8 +504,14 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  
-  gap: 3px;
+}
+
+.channel-actions > * {
+  margin-bottom: 3px;
+}
+
+.channel-actions > *:last-child {
+  margin-bottom: 0;
 }
 
 .action-hint {
@@ -595,7 +600,15 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   }
   
   .channel {
-    width: calc(25% - 9px); /* 4 colunas */
+    width: calc(25% - 9px); /* 4 colunas, gap de 12px. (100% - 3*12px)/4 = 25% - 9px */
+    margin-right: 12px;
+    margin-bottom: 12px;
+  }
+  .channels-grid > .channel:nth-child(5n) { /* Reset da base */
+    margin-right: 12px;
+  }
+  .channels-grid > .channel:nth-child(4n) {
+    margin-right: 0;
   }
 }
 
@@ -640,8 +653,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     -ms-flex-direction: row;
     flex-direction: row;
     
-    gap: 10px;
     white-space: nowrap;
+  }
+  
+  .category-list > .category-button:not(:last-child) {
+    margin-right: 10px;
   }
   
   .category-button {
@@ -655,13 +671,38 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   }
   
   .channel {
-    width: calc(33.333% - 7px); /* 3 colunas */
+    width: calc(33.333% - 7px); /* 3 colunas, gap de 10px. (100% - 2*10px)/3 = 33.333% - 6.66px ~ 7px */
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+  .channels-grid > .channel:nth-child(5n) { /* Reset da base */
+    margin-right: 10px;
+  }
+  .channels-grid > .channel:nth-child(4n) { /* Reset da media query anterior */
+    margin-right: 10px;
+  }
+  .channels-grid > .channel:nth-child(3n) {
+    margin-right: 0;
   }
 }
 
 @media (max-width: 600px) {
   .channel {
-    width: calc(50% - 5px); /* 2 colunas */
+    width: calc(50% - 5px); /* 2 colunas, gap de 10px. (100% - 1*10px)/2 = 50% - 5px */
+    margin-right: 10px; /* Assume-se gap de 10px para consistência */
+    margin-bottom: 10px;
+  }
+  .channels-grid > .channel:nth-child(5n) { /* Reset da base */
+    margin-right: 10px;
+  }
+  .channels-grid > .channel:nth-child(4n) { /* Reset da media query anterior */
+    margin-right: 10px;
+  }
+  .channels-grid > .channel:nth-child(3n) { /* Reset da media query anterior */
+    margin-right: 10px;
+  }
+  .channels-grid > .channel:nth-child(2n) {
+    margin-right: 0;
   }
   
   .channel-title {
