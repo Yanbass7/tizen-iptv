@@ -10,6 +10,7 @@
 
 # production
 /build
+/APP-bigtv-main
 
 # misc
 .DS_Store
