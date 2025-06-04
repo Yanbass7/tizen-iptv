@@ -43,13 +43,6 @@ const Sidebar = ({ currentSection, onMenu, menuFocus, onSectionChange }) => {
           </div>
         ))}
       </div>
-      
-      <div className="sidebar-footer">
-        <div className="sidebar-controls-hint">
-          <i className="fa-solid fa-gamepad"></i>
-          <span>Use as setas para navegar</span>
-        </div>
-      </div>
     </nav>
   );
 };

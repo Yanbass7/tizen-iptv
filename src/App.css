@@ -233,17 +233,17 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   outline-offset: 2px;
 }
 
-/* Estados de foco globais - Performance otimizada */
+/* Estados de foco globais - Performance otimizada 
 .focused {
   outline: 2px solid #FF8C00 !important;
   outline-offset: 2px !important;
   
-  /* Transição otimizada */
+  
   -webkit-transition: outline 0.1s ease !important;
   -moz-transition: outline 0.1s ease !important;
   -o-transition: outline 0.1s ease !important;
   transition: outline 0.1s ease !important;
-}
+}*/
 
 /* Scrollbar personalizada - Otimizada */
 ::-webkit-scrollbar {

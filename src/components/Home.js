@@ -369,22 +369,7 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
                             )}
                           </div>
                         </div>
-                        
-                        {/* Indicadores de navegação para TV */}
-                        {isFocused && (
-                          <div className="card-controls">
-                            <div className="control-hint">
-                              <span className="key">OK</span>
-                              <span>Assistir</span>
-                            </div>
-                            {shelf.type === 'series' && (
-                              <div className="control-hint">
-                                <span className="key">INFO</span>
-                                <span>Detalhes</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                      
                       </div>
                     );
                   })}

@@ -47,12 +47,9 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   
   /* Fallback para gradiente */
   background: #1a1a1a;
-  background: -webkit-gradient(linear, left top, left bottom, from(#1a1a1a), to(#2a2a2a));
-  background: -webkit-linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-  background: -o-linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  background: linear-gradient(90deg, #1a1a1a 0%, #fffefe00 100%);
   
-  border-right: 2px solid #333;
+  
   overflow-y: auto;
   
   /* Otimizações de scroll cross-browser */
@@ -186,7 +183,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Menu de navegação */
 .sidebar-menu {
-  padding: 10px;
+  padding: 30px;
   
   /* Fallback para browsers antigos */
   display: block;

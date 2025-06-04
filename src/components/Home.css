@@ -405,10 +405,9 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  gap: 8px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 10px 4px 20px;
+  padding: 20px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
@@ -426,7 +425,8 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   min-width: 280px;
   max-width: 280px;
   position: relative;
-  border-radius: 8px;
+  border-radius: 30px;
+  padding: 10px;
   overflow: hidden;
   cursor: pointer;
   -webkit-transition: all 0.3s ease;
@@ -442,11 +442,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 .content-card.focused {
-  outline: 3px solid #e50914;
-  outline-offset: 2px;
-  -webkit-transform: scale(1.08) translateZ(0);
-  transform: scale(1.08) translateZ(0);
+  border: 3px solid #e57e09;
+  -webkit-transform: scale(1.04) translateZ(0);
+  transform: scale(1.04) translateZ(0);
   z-index: 10;
+  border-radius: 30px;
 }
 
 .card-image {

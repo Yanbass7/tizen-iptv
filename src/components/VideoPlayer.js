@@ -314,7 +314,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       try {
         setLoadingMessage('Carregando...');
         
-        const player = mpegts.createPlayer({
+        const mediaDataSource = {
           type: 'mp4',           // Tipo específico para MP4
           isLive: false,         // VOD não é ao vivo
           cors: true,            // Habilitar CORS
@@ -322,7 +322,16 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           hasAudio: true,        // MP4 tem áudio
           hasVideo: true,        // MP4 tem vídeo
           url: url
-        });
+        };
+
+        const playerConfig = {
+          enableWorker: false,  // Manter worker desabilitado
+          stashInitialSize: 1024 * 1024, // 1MB (default 384KB)
+          stashBufferSize: 2 * 1024 * 1024, // 2MB (default 1MB)
+          autoCleanupSourceBuffer: true // Adicionada nova opção
+        };
+
+        const player = mpegts.createPlayer(mediaDataSource, playerConfig);
 
         playerRef.current = player;
 
@@ -332,6 +341,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         });
 
         player.on(mpegts.Events.LOADING_COMPLETE, () => {
+          console.log('✅ mpegts VOD: LOADING_COMPLETE');
           setLoadingMessage('Iniciando...');
         });
 
@@ -368,9 +378,10 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         // Timeout para VOD (mais longo que live)
         errorTimeoutRef.current = setTimeout(() => {
           if (initializingRef.current) {
-            reject(new Error('Timeout mpegts VOD - verifique a URL do filme'));
+            console.error(`❌ Timeout mpegts VOD após 30s para URL: ${url}`);
+            reject(new Error(`Timeout mpegts VOD (${streamInfo?.title || 'Filme/Série'}) - verifique a URL e a conexão.`));
           }
-        }, 15000);
+        }, 30000);
 
       } catch (err) {
         console.error('💥 Erro ao criar mpegts VOD player:', err);
