@@ -31,15 +31,11 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
                 description: movie.plot || 'Descrição não disponível',
                 year: movie.releasedate || 'N/A',
                 rating: movie.rating || 'N/A',
-                poster: movie.stream_icon,
-                // Flags específicas para Tizen TV
-                forceTizenPlayer: true,
-                preventBrowserRedirect: true,
-                useInternalPlayer: true
+                poster: movie.stream_icon
               }
             },
-            bubbles: false, // Não permitir propagação que pode causar redirect
-            cancelable: false // Não permitir cancelamento por outros handlers
+            bubbles: false,
+            cancelable: false
           });
           
           // Prevenir qualquer comportamento padrão que possa causar redirect

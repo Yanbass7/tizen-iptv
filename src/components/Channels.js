@@ -127,6 +127,10 @@ const Channels = ({ isActive }) => {
 
   // Efeito para auto-scroll baseado no foco
   useEffect(() => {
+    // Limpar focos anteriores
+    categoriesRef.current.forEach(ref => ref?.classList.remove('focused'));
+    channelsRef.current.forEach(ref => ref?.classList.remove('focused'));
+
     // Auto-scroll para categoria focada
     if (focusArea === 'categories' && categoriesRef.current[categoryFocus]) {
       categoriesRef.current[categoryFocus].classList.add('focused');

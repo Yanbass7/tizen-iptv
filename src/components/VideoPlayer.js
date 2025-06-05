@@ -89,39 +89,25 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
   // Função para detectar tipo de player necessário
   const detectPlayerType = (url, info) => {
+    const type = info?.type;
     
-    // Se for Tizen TV com flags específicas, forçar mpegts
-    if (isTizenTV && info?.forceTizenPlayer) {
-      // Para séries/filmes no Tizen, usar mpegts configurado para VOD
-      if (info?.type === 'series' || info?.type === 'movie') {
-        return 'mpegts-vod';
-      }
-      return 'mpegts-live';
+    // 1. Streams ao vivo continuam usando mpegts.js
+    if (type === 'live' || url.includes('.ts')) {
+        return 'mpegts-live';
+    }
+
+    // 2. Para VOD (filmes/séries)
+    if (type === 'movie' || type === 'series' || url.includes('.mp4')) {
+        // No Tizen, voltamos a usar mpegts.js conforme solicitado, mas com uma configuração segura.
+        if (isTizenTV) {
+            console.log("Detector: VOD no Tizen. Usando mpegts-vod (modo de segurança).");
+            return 'mpegts-vod';
+        }
+        // Em outros ambientes, o player nativo é o ideal.
+        return 'html5-direct';
     }
     
-    // TV ao vivo sempre usa mpegts
-    if (info?.type === 'live') {
-      return 'mpegts-live';
-    }
-    
-    // Para Tizen TV, priorizar mpegts para filmes e séries
-    if (isTizenTV && (info?.type === 'movie' || info?.type === 'series')) {
-      return 'mpegts-vod';
-    }
-    
-    // Filmes e séries MP4 usam mpegts configurado para MP4
-    if (info?.type === 'movie' || info?.type === 'series') {
-      return 'mpegts-vod';
-    }
-    
-    
-    
-    // Fallback baseado na URL - priorizar mpegts para MP4 na TV
-    if (url.includes('.mp4') || url.includes('series/') || url.includes('movie/')) {
-      return isTizenTV ? 'mpegts-vod' : 'html5-direct';
-    }
-    
-    // Padrão: mpegts para streams
+    // 3. Fallback para streams ao vivo.
     return 'mpegts-live';
   };
 
@@ -190,18 +176,15 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
       try {
         if (type === 'mpegts-vod') {
-          console.log('📽️ Usando mpegts para MP4/VOD');
+          console.log('📽️ Usando mpegts para MP4/VOD (Modo de Segurança)');
           await initMpegtsVodPlayer(streamUrl, videoElement);
-          
         } else if (type === 'mpegts-live') {
           console.log('📡 Usando mpegts para live stream');
           await initMpegtsLivePlayer(streamUrl, videoElement);
-          
         } else if (type === 'html5-direct') {
           console.log('⚡ Usando HTML5 direto');
           const urlToTry = analysis.alternatives && analysis.alternatives.length > 0 ? analysis.alternatives[0].url : streamUrl;
           await initHtml5PlayerDirect(urlToTry, videoElement);
-          
         } else {
           // Fallback para mpegts live (ou outro se preferir, mas HLS e iframe removidos)
           console.log('📡 Usando mpegts player para stream (fallback principal agora)');
@@ -290,7 +273,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         if (initializingRef.current) {
           reject(new Error('Timeout na reprodução direta'));
         }
-      }, 15000);
+      }, 30000);
 
       // Configurar e carregar vídeo
       videoElement.src = url;
@@ -312,39 +295,29 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const initMpegtsVodPlayer = async (url, videoElement) => {
     return new Promise((resolve, reject) => {
       try {
-        setLoadingMessage('Carregando...');
+        setLoadingMessage('Carregando vídeo...');
         
         const mediaDataSource = {
-          type: 'mp4',           // Tipo específico para MP4
-          isLive: false,         // VOD não é ao vivo
-          cors: true,            // Habilitar CORS
-          withCredentials: false, // Evitar problemas de autenticação
-          hasAudio: true,        // MP4 tem áudio
-          hasVideo: true,        // MP4 tem vídeo
+          type: 'mp4',
+          isLive: false,
           url: url
         };
 
+        // Configuração ultra-mínima para máxima estabilidade no Tizen.
+        // O objetivo primário é evitar o congelamento da UI. O tempo de carregamento
+        // pode ser longo, mas o app deve permanecer responsivo.
         const playerConfig = {
-          enableWorker: false,  // Manter worker desabilitado
-          stashInitialSize: 1024 * 1024, // 1MB (default 384KB)
-          stashBufferSize: 2 * 1024 * 1024, // 2MB (default 1MB)
-          autoCleanupSourceBuffer: true // Adicionada nova opção
+          enableWorker: false, // Essencial para Tizen
         };
 
         const player = mpegts.createPlayer(mediaDataSource, playerConfig);
-
         playerRef.current = player;
 
         player.on(mpegts.Events.ERROR, (errorType, errorDetail, errorInfo) => {
           console.error('❌ Erro mpegts VOD:', errorType, errorDetail, errorInfo);
           reject(new Error(`mpegts VOD error: ${errorType} - ${errorDetail}`));
         });
-
-        player.on(mpegts.Events.LOADING_COMPLETE, () => {
-          console.log('✅ mpegts VOD: LOADING_COMPLETE');
-          setLoadingMessage('Iniciando...');
-        });
-
+        
         const handlePlaying = () => {
           console.log('✅ mpegts VOD: Reproduzindo');
           clearTimeouts();
@@ -354,34 +327,19 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           initializingRef.current = false;
           resolve();
         };
-
-        const handleCanPlay = () => {
-          setIsLoading(false);
-          setError(null);
-          initializingRef.current = false;
-          resolve();
-        };
-
-        videoElement.addEventListener('playing', handlePlaying);
-        videoElement.addEventListener('canplay', handleCanPlay);
+        
+        videoElement.addEventListener('playing', handlePlaying, { once: true });
 
         player.attachMediaElement(videoElement);
         player.load();
-
-        // Para VOD, aguardar um pouco antes de tentar reproduzir
-        setTimeout(() => {
-          if (playerRef.current && videoRef.current && initializingRef.current) {
-            // Não fazer autoplay para VOD, deixar usuário iniciar
-          }
-        }, 1000);
-
-        // Timeout para VOD (mais longo que live)
+        
+        // Timeout longo para permitir o carregamento de arquivos grandes
         errorTimeoutRef.current = setTimeout(() => {
           if (initializingRef.current) {
-            console.error(`❌ Timeout mpegts VOD após 30s para URL: ${url}`);
-            reject(new Error(`Timeout mpegts VOD (${streamInfo?.title || 'Filme/Série'}) - verifique a URL e a conexão.`));
+            console.error(`❌ Timeout mpegts VOD após 3 minutos para URL: ${url}`);
+            reject(new Error(`Timeout mpegts VOD (${streamInfo?.title || 'Filme/Série'})`));
           }
-        }, 30000);
+        }, 180000); // 3 minutos
 
       } catch (err) {
         console.error('💥 Erro ao criar mpegts VOD player:', err);

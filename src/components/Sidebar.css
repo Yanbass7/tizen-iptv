@@ -91,7 +91,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .sidebar.expanded {
   width: 320px;
   z-index: 1000;
-  background-image: linear-gradient(90deg, #222222,  #ce6e0046);
+  background-image: linear-gradient(90deg, #222222,  #ce6e0000);
   box-shadow: 4px 0 40px rgba(0, 0, 0, 0.8);
 }
 

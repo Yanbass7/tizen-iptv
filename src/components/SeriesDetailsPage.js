@@ -100,15 +100,11 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
             description: episode.plot || episode.info?.plot || series.plot || 'Descrição não disponível',
             year: series.releasedate || 'N/A',
             rating: series.rating || episode.rating || 'N/A',
-            poster: series.cover || series.stream_icon,
-            // Flags específicas para Tizen TV
-            forceTizenPlayer: true,
-            preventBrowserRedirect: true,
-            useInternalPlayer: true
+            poster: series.cover || series.stream_icon
           }
         },
-        bubbles: false, // Não permitir propagação que pode causar redirect
-        cancelable: false // Não permitir cancelamento por outros handlers
+        bubbles: false,
+        cancelable: false
       });
       
       // Prevenir qualquer comportamento padrão que possa causar redirect
