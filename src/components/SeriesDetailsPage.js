@@ -440,7 +440,7 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
               ref={(el) => (actionButtonsRef.current[0] = el)}
             >
               <i className="fas fa-play"></i>
-              Assistir T1 Ep. 1
+              <span>Assistir T1 Ep. 1</span>
             </button>
             
             <button 
@@ -449,16 +449,13 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
               ref={(el) => (actionButtonsRef.current[1] = el)}
             >
               <i className={`fas ${isFavorite ? 'fa-heart' : 'fa-plus'}`}></i>
+              <span>
               {isFavorite ? 'Na Minha Lista' : 'Minha Lista'}
+              </span>
             </button>
           </div>
 
-          {episodes.length > 0 && !episodesAreaExpanded && focusArea === 'actions' && (
-            <div className="episodes-navigation-hint">
-              <i className="fas fa-arrow-down"></i>
-              <span>Pressione ↓ para ver todos os episódios</span>
-            </div>
-          )}
+          {episodes.length > 0 && !episodesAreaExpanded && focusArea === 'actions'}
         </div>
         
         <div className="series-promotional-art">

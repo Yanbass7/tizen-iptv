@@ -1,38 +1,39 @@
 /* ==========================================================================
    RESET CSS ESPECÍFICO PARA TIZEN 5.0+
    ========================================================================== */
-
-/* Reset otimizado para Tizen 5.0+ */
-html, body {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  overflow: hidden !important;
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
+*,
+*::before,
+*::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-div, span, p, h1, h2, h3, h4, h5, h6, button, img {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  outline: 0;
-  vertical-align: baseline;
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
 }
 
-/* Force o box-sizing com prefixos para Tizen 5.0+ */
-*, *:before, *:after {
-  -webkit-box-sizing: border-box !important;
-  -moz-box-sizing: border-box !important;
-  -ms-box-sizing: border-box !important;
-  box-sizing: border-box !important;
-}
-
-/* Disable smooth scrolling para melhor performance */
-* {
-  scroll-behavior: auto !important;
-  -webkit-scroll-behavior: auto !important;
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+img {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    vertical-align: baseline;
 }
 
 /* ==========================================================================
@@ -40,495 +41,353 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
    ========================================================================== */
 
 .series-details-page {
-  /* Fallback para browsers antigos */
-  display: block;
-  /* Prefixos WebKit para Tizen */
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  /* Direção do flex com prefixos */
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  
-  height: 100vh;
-  width: 100%;
-  
-  /* Fallback para gradiente */
-  background: #1a1a2e;
-  background: -webkit-gradient(linear, left top, right bottom, from(#1a1a2e), to(#16213e));
-  background: -webkit-linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  background: -o-linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  
-  color: white;
-  overflow: hidden;
-  position: relative;
-  
-  /* Otimizações de performance para Tizen */
-  -webkit-transform: translateZ(0);
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  -moz-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-perspective: 1000px;
-  -moz-perspective: 1000px;
-  perspective: 1000px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    overflow: hidden;
+    position: relative;
 }
 
 /* Layout Principal com wrapper interno para padding */
 .series-main-layout {
-  /* Fallback para browsers antigos */
-  display: block;
-  /* Prefixos WebKit para Tizen */
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  height: 60vh;
-  width: 100%;
-  position: relative;
-  
-  /* Transição otimizada */
-  -webkit-transition: height 0.15s ease;
-  -moz-transition: height 0.15s ease;
-  -o-transition: height 0.15s ease;
-  transition: height 0.15s ease;
-  
-  /* GPU acceleration */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    display: -webkit-flex;
+    display: flex;
+    height: 60vh;
+    width: 100%;
+    position: relative;
+    -webkit-transition: height 0.15s ease;
+    transition: height 0.15s ease;
 }
 
 .series-main-layout.episodes-focused {
-  height: 40vh;
+    height: 40vh;
 }
 
 /* Wrapper interno para padding seguro no Tizen */
 .series-info-panel {
-  /* Fallback para browsers antigos */
-  width: 50%;
-  /* Prefixos WebKit para Tizen */
-  -webkit-box-flex: 1;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  
-  max-width: 50%;
-  padding: 40px;
-  position: relative;
-  z-index: 2;
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    max-width: 50%;
+    padding: 40px;
+    position: relative;
+    z-index: 2;
 }
 
 /* Garantir padding mesmo quando episódios expandem */
 .series-main-layout.episodes-focused .series-info-panel {
-  padding: 30px 40px;
+    padding: 30px 40px;
+}
+
+/* Oculta sinopse e gêneros para dar espaço aos botões quando focado nos episódios */
+.series-main-layout.episodes-focused .series-synopsis,
+.series-main-layout.episodes-focused .series-genres {
+    display: none;
 }
 
 .series-header-info {
-  margin-bottom: 25px;
-  position: relative;
+    margin-bottom: 25px;
+    position: relative;
 }
 
 .series-provider-logo {
-  height: 30px;
-  opacity: 0.8;
-  display: block;
-  margin-bottom: 20px;
-  max-width: 100%;
-  /* Otimização de imagem */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    height: 30px;
+    opacity: 0.8;
+    display: block;
+    margin-bottom: 20px;
+    max-width: 100%;
 }
 
 .new-episode-badge {
-  background: #ff6b35;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 15px;
-  font-size: 12px;
-  font-weight: bold;
-  display: inline-block;
-  margin-bottom: 25px;
-  /* GPU acceleration */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    background: #ff6b35;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 25px;
 }
 
 .series-title-main {
-  font-size: 3.5rem;
-  font-weight: bold;
-  line-height: 1.1;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-  margin-bottom: 25px;
-  /* Otimização de texto */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-size: 3.5rem;
+    font-weight: bold;
+    line-height: 1.1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin-bottom: 25px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .series-meta-info {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  
-  gap: 25px;
-  margin-bottom: 25px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.series-meta-info > *:not(:last-child) {
+    margin-right: 25px;
 }
 
 .meta-item {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  
-  gap: 8px;
-  color: #b3b3b3;
-  font-size: 14px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    color: #b3b3b3;
+    font-size: 14px;
+}
+
+.meta-item > *:not(:last-child) {
+    margin-right: 8px;
 }
 
 .age-rating {
-  color: #ffd700;
+    color: #ffd700;
 }
 
 .series-synopsis {
-  margin-bottom: 25px;
+    margin-bottom: 25px;
 }
 
 .synopsis-text {
-  font-size: 16px;
-  line-height: 1.6;
-  color: #cccccc;
-  max-height: 100px;
-  overflow: hidden;
-  /* Otimização de texto */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #cccccc;
+    max-height: 100px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .series-genres {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  gap: 15px;
-  margin-bottom: 35px;
+    display: -webkit-flex;
+    display: flex;
+    margin-bottom: 35px;
+}
+
+.series-genres > .genre-tag:not(:last-child) {
+    margin-right: 15px;
 }
 
 .genre-tag {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #e0e0e0;
-  /* GPU acceleration */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #e0e0e0;
 }
 
 /* Botões de Ação - Otimizados para Performance */
 .series-action-buttons {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  margin-top: auto;
-  margin-bottom: 20px;
+    display: -webkit-flex;
+    display: flex;
+    margin-top: auto;
+    margin-bottom: 20px;
 }
 
 .primary-action-btn,
 .secondary-action-btn {
-  padding: 16px 28px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  
-  gap: 10px;
-  
-  /* Transições otimizadas */
-  -webkit-transition: background-color 0.1s ease, outline 0.1s ease;
-  -moz-transition: background-color 0.1s ease, outline 0.1s ease;
-  -o-transition: background-color 0.1s ease, outline 0.1s ease;
-  transition: background-color 0.1s ease, outline 0.1s ease;
-  
-  /* GPU acceleration */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    padding: 16px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-transition: background-color 0.1s ease, outline 0.1s ease;
+    transition: background-color 0.1s ease, outline 0.1s ease;
+}
+
+.primary-action-btn > *:not(:last-child),
+.secondary-action-btn > *:not(:last-child) {
+    margin-right: 10px;
 }
 
 .primary-action-btn {
-  background: #e50914;
-  color: white;
-  margin-right: 15px;
+    background: #e97e03;
+    color: white;
+    margin-right: 15px;
 }
 
 .secondary-action-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgb(214, 214, 214);
+    color: rgb(32, 32, 32);
+    border: 2px solid rgba(255, 255, 255);
 }
 
 /* Estados de foco otimizados para performance */
 .primary-action-btn.focused,
 .secondary-action-btn.focused {
-  outline: 3px solid rgba(255, 107, 53, 0.6);
-  outline-offset: 2px;
+    border: 3px solid rgba(255, 107, 53, 0.6);
+    border-radius: 8px;
 }
 
 .primary-action-btn.focused {
-  background: #ff8c5a;
+    background: #ff8c5a;
 }
 
 .secondary-action-btn.focused {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: #ff6b35;
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #ff6b35;
 }
 
 /* Arte Promocional */
 .series-promotional-art {
-  -webkit-box-flex: 1;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
 }
 
 .promotional-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Otimização de imagem */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .promotional-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  /* Fallback para gradiente */
-  background: rgba(26, 26, 46, 0.8);
-  background: -webkit-gradient(linear, left top, right top, from(rgba(26, 26, 46, 0.8)), to(transparent));
-  background: -webkit-linear-gradient(left, rgba(26, 26, 46, 0.8) 0%, transparent 50%);
-  background: -o-linear-gradient(left, rgba(26, 26, 46, 0.8) 0%, transparent 50%);
-  background: linear-gradient(90deg, rgba(26, 26, 46, 0.8) 0%, transparent 50%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, rgba(26, 26, 46, 0.8) 0%, transparent 50%);
 }
 
 /* Área de Episódios com otimizações de performance */
 .series-episodes-area {
-  height: 40vh;
-  background: rgba(0, 0, 0, 0.8);
-  overflow: hidden;
-  position: relative;
-  
-  /* Transição otimizada */
-  -webkit-transition: height 0.15s ease;
-  -moz-transition: height 0.15s ease;
-  -o-transition: height 0.15s ease;
-  transition: height 0.15s ease;
-  
-  /* GPU acceleration */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    height: 40vh;
+    background: rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+    position: relative;
+    -webkit-transition: height 0.15s ease;
+    transition: height 0.15s ease;
 }
 
 .series-episodes-area.episodes-focused {
-  height: 60vh;
+    height: 60vh;
 }
 
 /* Wrapper interno para padding seguro */
 .episodes-tab-content {
-  height: 100%;
-  
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  
-  padding: 35px 0 30px 0;
+    height: 100%;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    padding: 35px 0 30px 0;
 }
 
 .episodes-section-header {
-  -webkit-flex-shrink: 0;
-  -ms-flex-negative: 0;
-  flex-shrink: 0;
-  
-  padding: 0 40px;
-  margin-bottom: 30px;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+    padding: 0 40px;
+    margin-bottom: 30px;
 }
 
 .episodes-section-title {
-  font-size: 2rem;
-  color: white;
-  margin-bottom: 12px;
-  /* Otimização de texto */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 12px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .episodes-section-subtitle {
-  color: #b3b3b3;
-  font-size: 14px;
+    color: #b3b3b3;
+    font-size: 14px;
 }
 
 /* Seletor de Temporadas otimizado para performance */
 .season-selector-hbo {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  
-  gap: 20px;
-  
-  -webkit-flex-shrink: 0;
-  -ms-flex-negative: 0;
-  flex-shrink: 0;
-  
-  padding: 0 40px;
-  margin-bottom: 35px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+    padding: 0 40px;
+    margin-bottom: 35px;
+}
+
+.season-selector-hbo > *:not(:last-child) {
+    margin-right: 20px;
 }
 
 .season-title-fixed {
-  color: #b3b3b3;
-  font-size: 16px;
-  font-weight: bold;
+    color: #b3b3b3;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .season-numbers-container {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  gap: 18px;
-  position: relative;
+    display: -webkit-flex;
+    display: flex;
+    position: relative;
+}
+
+.season-numbers-container > .season-number-item:not(:last-child) {
+    margin-right: 18px;
 }
 
 .season-number-item {
-  padding: 10px 18px;
-  background: transparent;
-  color: #b3b3b3;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: bold;
-  border: 0;
-  
-  /* Transição otimizada */
-  -webkit-transition: background-color 0.1s ease, color 0.1s ease;
-  -moz-transition: background-color 0.1s ease, color 0.1s ease;
-  -o-transition: background-color 0.1s ease, color 0.1s ease;
-  transition: background-color 0.1s ease, color 0.1s ease;
-  
-  /* GPU acceleration */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    padding: 10px 18px;
+    background: transparent;
+    color: #b3b3b3;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border: 0;
+    -webkit-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
+    transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
 }
 
 .season-number-item:hover,
 .season-number-item.focused {
-  background: rgba(255, 107, 53, 0.2);
-  color: #ff6b35;
+    background: rgba(255, 107, 53, 0.2);
+    color: #ff6b35;
+    border: 2px solid #ff8c00;
+    border-radius: 20px;
 }
 
 .season-number-item.active {
-  background: #ff6b35;
-  color: white;
+    background: #ff6b35;
+    color: white;
 }
 
 /* Carrossel de Episódios - Otimizado para Performance */
 .episodes-grid-container {
-  /* Fallback para browsers antigos */
-  display: block;
-  /* Prefixos WebKit para Tizen */
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  /* Direção com prefixos */
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
 }
 
 .episodes-grid-new {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 15px 0px 15px 0px;
-  
-  /* Otimizações de scroll */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  
-  /* GPU acceleration */
-  -webkit-transform: translateZ(0);
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 15px 40px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 .episodes-grid-new::-webkit-scrollbar {
@@ -536,335 +395,237 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 .episode-card-new {
-  flex: 0 0 220px;
-  margin-right: 20px;
-  min-height: 250px;
+    flex: 0 0 220px;
+    min-height: 250px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-transition: background-color 0.1s ease, outline 0.1s ease, -webkit-transform 0.1s ease;
+    transition: background-color 0.1s ease, outline 0.1s ease, transform 0.1s ease;
+    box-sizing: border-box;
+    position: relative;
+}
 
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  
-  /* Transição otimizada */
-  -webkit-transition: background-color 0.1s ease, outline 0.1s ease;
-  -moz-transition: background-color 0.1s ease, outline 0.1s ease;
-  -o-transition: background-color 0.1s ease, outline 0.1s ease;
-  transition: background-color 0.1s ease, outline 0.1s ease;
-  
-  /* GPU acceleration */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  box-sizing: border-box;
+.episode-card-new:not(:last-child) {
+    margin-right: 20px;
 }
 
 .episode-thumbnail {
-  position: relative;
-  width: 100%;
-  height: 160px;
-  overflow: hidden;
-  
-  -webkit-flex-shrink: 0;
-  -ms-flex-negative: 0;
-  flex-shrink: 0;
+    position: relative;
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
 }
 
 .episode-thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Otimização de imagem */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .episode-play-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  
-  /* Fallback para transform */
-  margin-top: -25px;
-  margin-left: -25px;
-  -webkit-transform: translate(-50%, -50%);
-  -moz-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  
-  color: white;
-  opacity: 0;
-  
-  /* Transição otimizada */
-  -webkit-transition: opacity 0.1s ease;
-  -moz-transition: opacity 0.1s ease;
-  -o-transition: opacity 0.1s ease;
-  transition: opacity 0.1s ease;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    -webkit-transition: opacity 0.1s ease;
+    transition: opacity 0.1s ease;
 }
 
 /* Adicionado para mostrar o overlay de play quando o card pai está focado ou em hover */
 .episode-card-new:hover .episode-play-overlay,
 .episode-card-new.focused .episode-play-overlay {
-  opacity: 1;
+    opacity: 1;
 }
 
 .episode-card-new:hover,
 .episode-card-new.focused {
-  background: rgba(255, 255, 255, 0.1);
-  outline: 2px solid rgba(255, 140, 0, 0.6);
-  outline-offset: 1px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 3px solid #ff8c00;
+    border-radius: 12px;
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05);
+    z-index: 10;
 }
 
 .episode-details {
-  padding: 18px;
-  
-  -webkit-box-flex: 1;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+    padding: 18px;
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
 }
 
 .episode-header {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  
-  margin-bottom: 12px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    -webkit-align-items: center;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
 .episode-number-badge {
-  background: #ff6b35;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: bold;
-  /* GPU acceleration */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+    background: #ff6b35;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .episode-duration {
-  color: #b3b3b3;
-  font-size: 12px;
+    color: #b3b3b3;
+    font-size: 12px;
 }
 
 .episode-title-new {
-  font-size: 16px;
-  color: white;
-  font-weight: bold;
-  line-height: 1.2;
-  margin-bottom: 10px;
-  /* Otimização de texto */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .episode-meta {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  gap: 10px;
-  margin-bottom: 10px;
+    display: -webkit-flex;
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.episode-meta > *:not(:last-child) {
+    margin-right: 10px;
 }
 
 .episode-meta span {
-  color: #b3b3b3;
-  font-size: 12px;
+    color: #b3b3b3;
+    font-size: 12px;
 }
 
 .episode-description-new {
-  color: #cccccc;
-  font-size: 14px;
-  line-height: 1.4;
-  overflow: hidden;
-  
-  -webkit-box-flex: 1;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  
-  /* Fallback para line-clamp */
-  max-height: 4.2em; /* 3 linhas * 1.4 line-height */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  
-  /* Otimização de texto */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    color: #cccccc;
+    font-size: 14px;
+    line-height: 1.4;
+    overflow: hidden;
+    -webkit-flex: 1;
+    flex: 1;
+    /* Fallback para line-clamp */
+    max-height: 4.2em; /* 3 linhas * 1.4 line-height */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Loading e Estados */
 .loading {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  
-  gap: 10px;
-  padding: 40px;
-  color: #b3b3b3;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    padding: 40px;
+    color: #b3b3b3;
+}
+
+.loading > *:not(:last-child) {
+    margin-right: 10px;
 }
 
 .loading i {
-  -webkit-animation: spin 1s linear infinite;
-  -moz-animation: spin 1s linear infinite;
-  -o-animation: spin 1s linear infinite;
-  animation: spin 1s linear infinite;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
 }
 
 @-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
-
-@-moz-keyframes spin {
-  0% { -moz-transform: rotate(0deg); }
-  100% { -moz-transform: rotate(360deg); }
-}
-
-@-o-keyframes spin {
-  0% { -o-transform: rotate(0deg); }
-  100% { -o-transform: rotate(360deg); }
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .no-episodes-message {
-  text-align: center;
-  padding: 60px 20px;
-  color: #b3b3b3;
+    text-align: center;
+    padding: 60px 20px;
+    color: #b3b3b3;
 }
 
 .no-episodes-message i {
-  font-size: 3rem;
-  opacity: 0.5;
-  margin-bottom: 15px;
-  display: block;
+    font-size: 3rem;
+    opacity: 0.5;
+    margin-bottom: 15px;
+    display: block;
 }
 
 .no-episodes-message h3 {
-  color: white;
-  margin-bottom: 10px;
-  /* Otimização de texto */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    color: white;
+    margin-bottom: 10px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .no-episodes-message p {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 /* Indicadores de Navegação - Animação simplificada */
 .episodes-navigation-hint {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  
-  gap: 8px;
-  color: #b3b3b3;
-  font-size: 14px;
-  opacity: 0.8;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    color: #b3b3b3;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.episodes-navigation-hint > *:not(:last-child) {
+    margin-right: 8px;
 }
 
 .episodes-navigation-hint i {
-  -webkit-animation: simple-bounce 2s ease-in-out infinite;
-  -moz-animation: simple-bounce 2s ease-in-out infinite;
-  -o-animation: simple-bounce 2s ease-in-out infinite;
-  animation: simple-bounce 2s ease-in-out infinite;
+    -webkit-animation: simple-bounce 2s ease-in-out infinite;
+    animation: simple-bounce 2s ease-in-out infinite;
 }
 
 @-webkit-keyframes simple-bounce {
-  0%, 100% { -webkit-transform: translateY(0); }
-  50% { -webkit-transform: translateY(-3px); }
-}
-
-@-moz-keyframes simple-bounce {
-  0%, 100% { -moz-transform: translateY(0); }
-  50% { -moz-transform: translateY(-3px); }
-}
-
-@-o-keyframes simple-bounce {
-  0%, 100% { -o-transform: translateY(0); }
-  50% { -o-transform: translateY(-3px); }
+    0%, 100% { -webkit-transform: translateY(0); }
+    50% { -webkit-transform: translateY(-3px); }
 }
 
 @keyframes simple-bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
 }
 
 /* ==========================================================================
@@ -873,68 +634,69 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Responsividade otimizada */
 @media (max-width: 1920px) {
-  .series-title-main {
-    font-size: 3rem;
-  }
-  
-  .episode-card-new {
-    -webkit-flex: 0 0 280px;
-    -ms-flex: 0 0 280px;
-    flex: 0 0 280px;
-    height: 250px;
-  }
-  
-  .episode-thumbnail {
-    height: 140px;
-  }
+    .series-title-main {
+        font-size: 3rem;
+    }
+
+    .episode-card-new {
+        -webkit-flex: 0 0 280px;
+        flex: 0 0 280px;
+        height: 250px;
+    }
+
+    .episode-thumbnail {
+        height: 140px;
+    }
 }
 
 @media (max-width: 1366px) {
-  .episode-card-new {
-    -webkit-flex: 0 0 260px;
-    -ms-flex: 0 0 260px;
-    flex: 0 0 260px;
-    height: 230px;
-  }
-  
-  .episode-thumbnail {
-    height: 130px;
-  }
-  
-  /* Reduzir espaçamentos em telas menores */
-  .series-meta-info {
-    gap: 20px;
-  }
-  
-  .series-genres {
-    gap: 12px;
-  }
-  
-  .series-action-buttons {
-    gap: 15px;
-  }
-  
-  .episodes-grid-new {
-    gap: 20px;
-    padding: 15px 30px;
-  }
-  
-  .episodes-section-header {
-    padding: 0 30px;
-  }
-  
-  .season-selector-hbo {
-    padding: 0 30px;
-  }
-  
-  /* Ajustar padding do painel info em telas menores */
-  .series-info-panel {
-    padding: 30px;
-  }
-  
-  .series-main-layout.episodes-focused .series-info-panel {
-    padding: 20px 30px;
-  }
+    .episode-card-new {
+        -webkit-flex: 0 0 260px;
+        flex: 0 0 260px;
+        height: 230px;
+    }
+
+    .episode-thumbnail {
+        height: 130px;
+    }
+
+    /* Reduzir espaçamentos em telas menores */
+    .series-meta-info > *:not(:last-child) {
+        margin-right: 20px;
+    }
+
+    .series-genres > .genre-tag:not(:last-child) {
+        margin-right: 12px;
+    }
+
+    .series-action-buttons > *:not(:last-child) {
+        margin-right: 15px;
+    }
+
+    .episodes-grid-new {
+        padding: 15px 30px;
+    }
+
+    .episodes-grid-new > .episode-card-new:not(:last-child) {
+        margin-right: 20px;
+    }
+
+    .episodes-section-header {
+        padding: 0 30px;
+    }
+
+    .season-selector-hbo {
+        padding: 0 30px;
+    }
+
+    /* Ajustar padding do painel info em telas menores */
+    .series-info-panel {
+        padding: 30px;
+    }
+
+    .series-main-layout.episodes-focused .series-info-panel {
+        padding: 20px 30px;
+    }
 }
 
 /* Otimizações GPU mínimas necessárias para Tizen 5.0+ */
@@ -943,22 +705,20 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .episode-card-new,
 .season-number-item,
 .primary-action-btn,
-.secondary-action-btn {
-  -webkit-transform: translateZ(0);
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  -moz-backface-visibility: hidden;
-  backface-visibility: hidden;
+.secondary-action-btn,
+.new-episode-badge,
+.genre-tag,
+.episode-number-badge {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 /* Forçar renderização por hardware para elementos críticos */
 .series-details-page,
 .promotional-image,
 .episode-thumbnail img {
-  -webkit-transform: translate3d(0, 0, 0);
-  -moz-transform: translate3d(0, 0, 0);
-  -ms-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
 } 

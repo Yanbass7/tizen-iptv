@@ -306,8 +306,8 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 .primary-action-btn.focused,
 .secondary-action-btn.focused {
-  outline: 3px solid #ffffff;
-  outline-offset: 2px;
+  border: 3px solid #ee930b;
+  border-radius: 8px;
   -webkit-transform: scale(1.05) translateZ(0);
   -moz-transform: scale(1.05) translateZ(0);
   -ms-transform: scale(1.05) translateZ(0);
