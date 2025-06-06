@@ -235,6 +235,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           streaming: {
             // Aumenta o tempo que o player espera por dados antes de dar erro.
             // Ajuda em conexões lentas ou com instabilidade.
+            preferNativeHls: false, // Adicionado para evitar erro 3016 em Tizen
             bufferingGoal: 120, // 2 minutos
             rebufferingGoal: 2,
             retryParameters: {
