@@ -420,37 +420,6 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
         ))}
       </section>
 
-      {/* Preview Modal - Estilo Netflix */}
-      {showPreview && previewContent && (
-        <div className="preview-modal">
-          <div className="preview-content">
-            <div className="preview-image">
-              <img 
-                src={previewContent.stream_icon || previewContent.cover} 
-                alt={previewContent.name}
-              />
-            </div>
-            <div className="preview-info">
-              <h3 className="preview-title">{previewContent.name}</h3>
-              <div className="preview-meta">
-                <span className="preview-type">
-                  {previewContent.type === 'series' ? 'SÉRIE' : 'FILME'}
-                </span>
-                {previewContent.rating && (
-                  <span className="preview-rating">
-                    <i className="fa-solid fa-star"></i>
-                    {previewContent.rating}
-                  </span>
-                )}
-              </div>
-              <p className="preview-description">
-                {previewContent.plot || 'Conteúdo de entretenimento de alta qualidade.'}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Navegação Helper - Canto inferior */}
       <div className="navigation-helper">
         <div className="nav-hint">

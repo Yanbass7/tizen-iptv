@@ -18,6 +18,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const errorTimeoutRef = useRef(null); 
   const previousStreamUrlRef = useRef(null);
   const blobUrlRef = useRef(null);
+  const controlsTimeoutRef = useRef(null);
   
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Carregando...');
@@ -25,6 +26,10 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const [error, setError] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerType, setPlayerType] = useState(null);
+  const [isControlsVisible, setIsControlsVisible] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [dateTime, setDateTime] = useState(new Date());
 
 
   // Detectar ambiente (desenvolvimento vs produção)
@@ -260,7 +265,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
         videoElement.addEventListener('playing', () => {
           setLoadingProgress(100);
-          setIsPlaying(true);
+          // O estado isPlaying será gerenciado por um useEffect central
           setTimeout(() => {
             setIsLoading(false);
             setLoadingProgress(0);
@@ -306,15 +311,15 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       const handlePlaying = () => {
         clearTimeouts();
         setLoadingProgress(100);
-        setIsPlaying(true);
+        // O estado isPlaying será gerenciado por um useEffect central
         // Pequeno delay antes de esconder o loading para mostrar 100%
         setTimeout(() => {
           setIsLoading(false);
           setLoadingProgress(0);
+          setError(null);
+          initializingRef.current = false;
+          resolve();
         }, 500);
-        setError(null);
-        initializingRef.current = false;
-        resolve();
       };
 
       const handleError = (err) => {
@@ -410,7 +415,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           console.log('✅ mpegts VOD: Reproduzindo');
           clearTimeouts();
           setLoadingProgress(100);
-          setIsPlaying(true);
+          // O estado isPlaying será gerenciado por um useEffect central
           setTimeout(() => {
             setIsLoading(false);
             setLoadingProgress(0);
@@ -468,7 +473,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           console.log('✅ mpegts Live: Reproduzindo');
           clearTimeouts();
           setLoadingProgress(100);
-          setIsPlaying(true);
+          // O estado isPlaying será gerenciado por um useEffect central
           setTimeout(() => {
             setIsLoading(false);
             setLoadingProgress(0);
@@ -557,6 +562,9 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     setError(null);
     setIsPlaying(false);
     setPlayerType(null);
+    setCurrentTime(0);
+    setDuration(0);
+    setIsControlsVisible(true);
     
     initializingRef.current = false;
     previousStreamUrlRef.current = null;
@@ -618,46 +626,157 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     };
   }, [isActive, isTizenTV, streamInfo?.preventBrowserRedirect]);
 
-  // Sistema de navegação por controle remoto
+  // Efeito para o relógio da UI de canal ao vivo
+  useEffect(() => {
+    if (isActive && streamInfo?.type === 'live') {
+      const timer = setInterval(() => {
+        setDateTime(new Date());
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [isActive, streamInfo?.type]);
+
+  // Formatar tempo para HH:MM:SS ou MM:SS
+  const formatTime = (timeInSeconds) => {
+    if (isNaN(timeInSeconds) || timeInSeconds < 0) {
+      return '00:00';
+    }
+    const hours = Math.floor(timeInSeconds / 3600);
+    const minutes = Math.floor((timeInSeconds % 3600) / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+
+    const pad = (num) => num.toString().padStart(2, '0');
+
+    if (hours > 0) {
+      return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+    return `${pad(minutes)}:${pad(seconds)}`;
+  };
+
+  const showControls = useCallback(() => {
+    setIsControlsVisible(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    controlsTimeoutRef.current = setTimeout(() => {
+      // Apenas esconde se estiver tocando
+      if (videoRef.current && !videoRef.current.paused) {
+        setIsControlsVisible(false);
+      }
+    }, 4000); // Esconder após 4 segundos
+  }, []);
+
+  const togglePlayPause = useCallback(() => {
+    if (videoRef.current) {
+      // Para canais ao vivo, a pausa não é permitida. Apenas tentamos play.
+      if (streamInfo?.type === 'live') {
+        if (videoRef.current.paused) {
+          videoRef.current.play();
+        }
+        // Se estiver tocando, não faz nada.
+      } else {
+        // Comportamento padrão para VOD (filmes/séries)
+        if (videoRef.current.paused) {
+          videoRef.current.play();
+        } else {
+          videoRef.current.pause();
+        }
+      }
+      showControls();
+    }
+  }, [showControls, streamInfo?.type]);
+
+  const handleSeek = useCallback((forward) => {
+    if (videoRef.current && duration > 0) {
+      const seekTime = 10; // Pular 10 segundos
+      const newTime = forward
+        ? Math.min(videoRef.current.currentTime + seekTime, duration)
+        : Math.max(videoRef.current.currentTime - seekTime, 0);
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime); // Atualiza o estado imediatamente
+    }
+  }, [duration]);
+
+  // Efeito para gerenciar estado do vídeo (tempo, duração, play/pause)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!isActive || !video) return;
+
+    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
+    const handleDurationChange = () => {
+      if (!isNaN(video.duration) && isFinite(video.duration)) {
+        setDuration(video.duration);
+      }
+    };
+    const handlePlay = () => {
+      setIsPlaying(true);
+      showControls();
+    };
+    const handlePause = () => {
+      setIsPlaying(false);
+      showControls(); // Mantém os controles visíveis quando pausado
+    };
+    
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('durationchange', handleDurationChange);
+    video.addEventListener('loadedmetadata', handleDurationChange);
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+
+    return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('durationchange', handleDurationChange);
+      video.removeEventListener('loadedmetadata', handleDurationChange);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+    };
+  }, [isActive, showControls]);
+
+  // Sistema de navegação por controle remoto e interações
   useEffect(() => {
     if (!isActive) return;
 
     const handlePlayerNavigation = (event) => {
+      showControls(); // Exibir controles em qualquer interação
       const { keyCode } = event.detail;
-      
-      if (keyCode === 8 || keyCode === 10009) {
-        handleBack();
-      } else if (isPlaying) {
-        
+
+      switch (keyCode) {
+        case 13: // OK/Enter
+        case 415: // Play
+        case 19: // Pause
+          togglePlayPause();
+          break;
+        case 39: // Seta Direita
+          handleSeek(true);
+          break;
+        case 37: // Seta Esquerda
+          handleSeek(false);
+          break;
+        case 8:
+        case 10009: // Voltar (Tizen)
+          handleBack();
+          break;
+        default:
+          break;
       }
     };
 
-    // Mostrar overlay ao mover mouse (para web)
-    const handleMouseMove = () => {
-      if (isPlaying && !isDevelopment) {
-        // showOverlayTemporarily(); // Removido
-      }
-    };
-
-    // Mostrar overlay ao tocar na tela (para mobile/TV)
-    const handleTouch = () => {
-      if (isPlaying) {
-        // showOverlayTemporarily(); // Removido
-      }
+    const handleInteraction = () => {
+      showControls();
     };
 
     window.addEventListener('playerNavigation', handlePlayerNavigation);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('touchstart', handleTouch);
-    document.addEventListener('click', handleTouch);
+    document.addEventListener('mousemove', handleInteraction);
+    document.addEventListener('touchstart', handleInteraction);
+    document.addEventListener('click', handleInteraction);
     
     return () => {
       window.removeEventListener('playerNavigation', handlePlayerNavigation);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('touchstart', handleTouch);
-      document.removeEventListener('click', handleTouch);
+      document.removeEventListener('mousemove', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+      document.removeEventListener('click', handleInteraction);
     };
-  }, [isActive, handleBack, isPlaying, isDevelopment]); // Removido showOverlayTemporarily das dependências
+  }, [isActive, handleBack, togglePlayPause, handleSeek, showControls]);
 
   const retryPlaybackSimple = () => { 
     console.log('🔄 Tentando reproduzir novamente...');
@@ -694,6 +813,74 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
             controls={isDevelopment || !isTizenTV} 
             style={{ width: '100%', height: '100%' }}
           />
+        
+        {/* Renderização Condicional da UI */}
+        {isControlsVisible && streamInfo?.type === 'live' ? (
+          <div className="live-info-overlay">
+            <div className="live-info-content">
+              
+              {/* Bloco da Esquerda: Logo e Info do Canal */}
+              <div className="live-info-left">
+                {streamInfo.logo && (
+                  <img src={streamInfo.logo} alt="Logo do Canal" className="channel-logo" />
+                )}
+                <div className="channel-details">
+                  <h2 className="channel-title">{streamInfo.number} {streamInfo.name}</h2>
+                  <div className="program-info">
+                    <p className="program-title">
+                      <span>Atual:</span> {streamInfo.currentProgram?.title || 'Programa não informado'}
+                    </p>
+                    <p className="program-time">
+                      Início: {streamInfo.currentProgram?.startTime || '--:--'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bloco da Direita: Informações Adicionais */}
+              <div className="live-info-right">
+                 <div className="datetime-display">
+                    <p>{dateTime.toLocaleDateString('pt-BR')}</p>
+                    <p>{dateTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
+                 </div>
+                 <div className="program-info next-program">
+                   <p className="program-title">
+                     <span>Próximo:</span> {streamInfo.nextProgram?.title || 'Programa não informado'}
+                   </p>
+                   <p className="program-time">
+                     Início: {streamInfo.nextProgram?.startTime || '--:--'}
+                   </p>
+                 </div>
+              </div>
+
+            </div>
+          </div>
+        ) : isControlsVisible && (
+          <div className="player-controls-overlay">
+            {/* Ícone de Play/Pause centralizado */}
+            {!isPlaying && (
+              <div className="play-pause-indicator">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+                </svg>
+              </div>
+            )}
+            
+            <div className="controls-bottom-bar">
+              <div className="progress-bar-container">
+                <div className="progress-bar-background" />
+                <div 
+                  className="progress-bar-current" 
+                  style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }} 
+                />
+              </div>
+              <div className="time-indicators">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
+          </div>
+        )}
        
         {/* Loading Overlay - Estilo Netflix */}
         {isLoading && !isPlaying && (
