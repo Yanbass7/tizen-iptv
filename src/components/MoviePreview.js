@@ -6,6 +6,10 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [focusArea, setFocusArea] = useState('actions');
 
+  // Credenciais da API (exemplo, idealmente viria de config)
+  const API_USERNAME = 'zBB82J';
+  const API_PASSWORD = 'AMeDHq';
+
   // Detectar ambiente Tizen TV
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -16,55 +20,28 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
         console.log('🎬 Reproduzindo filme:', movie);
         console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
         
-        // Para Tizen TV, usar configuração específica que força player interno
-        if (isTizenTV) {
-          console.log('📺 Configuração Tizen TV ativada para filme');
-          
-          // Evento personalizado com configurações específicas para TV
-          const playEvent = new CustomEvent('playContent', {
-            detail: {
-              streamUrl: `https://rota66.bar/movie/zBB82J/AMeDHq/${movie.stream_id}.mp4`,
-              streamInfo: {
-                name: movie.name,
-                type: 'movie',
-                category: movie.category_name || 'Filme',
-                description: movie.plot || 'Descrição não disponível',
-                year: movie.releasedate || 'N/A',
-                rating: movie.rating || 'N/A',
-                poster: movie.stream_icon
-              }
-            },
-            bubbles: false,
-            cancelable: false
-          });
-          
-          // Prevenir qualquer comportamento padrão que possa causar redirect
-          setTimeout(() => {
-            console.log('📺 Disparando evento playContent para Tizen TV (filme)');
-            window.dispatchEvent(playEvent);
-          }, 100); // Pequeno delay para garantir que o evento seja tratado corretamente
-          
-        } else {
-          // Para outros ambientes, usar o comportamento padrão
-          console.log('💻 Configuração padrão ativada para filme');
-          
-          // Disparar evento para reproduzir filme
-          const playEvent = new CustomEvent('playContent', {
-            detail: {
-              streamUrl: `https://rota66.bar/movie/zBB82J/AMeDHq/${movie.stream_id}.mp4`,
-              streamInfo: {
-                name: movie.name,
-                type: 'movie',
-                category: movie.category_name || 'Filme',
-                description: movie.plot || 'Descrição não disponível',
-                year: movie.releasedate || 'N/A',
-                rating: movie.rating || 'N/A',
-                poster: movie.stream_icon
-              }
+        // Construir a URL de stream correta para filmes
+        const streamUrl = `https://rota66.bar/movie/${API_USERNAME}/${API_PASSWORD}/${movie.stream_id}.mp4`;
+
+        // Simplificado para despachar o evento de forma síncrona e direta.
+        // O setTimeout e a lógica de branch do Tizen foram removidos para evitar congelamento.
+        const playEvent = new CustomEvent('playContent', {
+          detail: {
+            streamUrl: streamUrl,
+            streamInfo: {
+              name: movie.name,
+              type: 'movie',
+              category: movie.category_name || 'Filme',
+              description: movie.plot || 'Descrição não disponível',
+              year: movie.releasedate || 'N/A',
+              rating: movie.rating || 'N/A',
+              poster: movie.stream_icon
             }
-          });
-          window.dispatchEvent(playEvent);
-        }
+          }
+        });
+
+        console.log('📺 Disparando evento playContent para filme...');
+        window.dispatchEvent(playEvent);
         break;
       
       case 'favorite':

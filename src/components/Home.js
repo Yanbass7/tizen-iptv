@@ -16,6 +16,7 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
   const previewTimeoutRef = useRef(null);
   const shelfRefs = useRef([]);
   const itemRefs = useRef([]);
+  const heroButtonRefs = useRef([]);
 
   // Carregar dados da API quando o componente montar
   useEffect(() => {
@@ -98,7 +99,19 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
 
   // Scroll automático para o item focado
   useEffect(() => {
-    if (!onMenu && shelfFocus !== null && itemFocus !== null) {
+    if (onMenu) {
+      return;
+    }
+
+    // Foco nos botões do Hero
+    if (shelfFocus === -1 && itemFocus !== null && heroButtonRefs.current[itemFocus]) {
+      safeScrollIntoView(heroButtonRefs.current[itemFocus], {
+        behavior: 'smooth',
+        block: 'center'
+      });
+    } 
+    // Foco nas prateleiras
+    else if (shelfFocus !== null && shelfFocus > -1 && itemFocus !== null) {
       const currentShelfRef = shelfRefs.current[shelfFocus];
       const currentItemRef = itemRefs.current[`${shelfFocus}-${itemFocus}`];
       
@@ -201,6 +214,24 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
     };
   }, []);
 
+  // Listener para cliques nos botões do hero via navegação
+  useEffect(() => {
+    const handleHeroButtonClick = (event) => {
+      const { buttonIndex } = event.detail;
+      
+      if (buttonIndex === 0) {
+        // Botão "Assistir"
+        handleFeaturedPlay();
+      } else if (buttonIndex === 1) {
+        // Botão "Mais Informações"
+        handleFeaturedInfo();
+      }
+    };
+
+    window.addEventListener('heroButtonClick', handleHeroButtonClick);
+    return () => window.removeEventListener('heroButtonClick', handleHeroButtonClick);
+  }, [featuredContent]);
+
   // Estado de loading otimizado para TV
   if (loading) {
     return (
@@ -250,7 +281,7 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
               className="hero-bg-image"
               loading="eager"
             />
-            <div className="hero-gradient"></div>
+            <div className="hero-color"></div>
           </div>
           
           <div className="hero-content">
@@ -285,7 +316,8 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
               
               <div className="hero-actions">
                 <button 
-                  className="hero-btn primary"
+                  ref={el => (heroButtonRefs.current[0] = el)}
+                  className={`hero-btn primary ${!onMenu && shelfFocus === -1 && itemFocus === 0 ? 'focused' : ''}`}
                   onClick={handleFeaturedPlay}
                 >
                   <i className="fa-solid fa-play"></i>
@@ -293,8 +325,9 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
                 </button>
                 
                 {featuredContent.type === 'series' && (
-                  <button 
-                    className="hero-btn secondary"
+                  <button
+                    ref={el => (heroButtonRefs.current[1] = el)}
+                    className={`hero-btn secondary ${!onMenu && shelfFocus === -1 && itemFocus === 1 ? 'focused' : ''}`}
                     onClick={handleFeaturedInfo}
                   >
                     <i className="fa-solid fa-info-circle"></i>

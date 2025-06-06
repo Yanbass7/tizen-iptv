@@ -241,7 +241,13 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .category-button.active.focused {
   background-color: rgba(255, 140, 0, 0.3); /* Mais escuro que active ou focused sozinhos */
   color: #FF8C00; /* Mantém cor do active */
-  outline: 2px solid rgba(255, 140, 0, 0.6); /* Outline mais forte */
+  border: 3px solid #e57e09;
+  border-color: #e57e09;
+  -webkit-transform: scale(1.04) translateZ(0);
+  transform: scale(1.04) translateZ(0);
+  z-index: 10;
+  -webkit-box-shadow: 0 0 15px rgba(229, 126, 9, 0.7);
+  box-shadow: 0 0 15px rgba(229, 126, 9, 0.7);
 }
 
 /* Estilos para a área de exibição das séries */

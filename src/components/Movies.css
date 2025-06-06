@@ -237,15 +237,26 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .category-button:hover {
   background-color: rgba(255, 140, 0, 0.1); /* Cor da Sidebar.css */
   color: white; /* Cor da Sidebar.css */
-  outline: 2px solid rgba(255, 140, 0, 0.3); /* Cor da Sidebar.css */
-  outline-offset: 1px;
+  border: 3px solid #e57e09;
+  border-color: #e57e09;
+  -webkit-transform: scale(1.04) translateZ(0);
+  transform: scale(1.04) translateZ(0);
+  z-index: 10;
+  -webkit-box-shadow: 0 0 15px rgba(229, 126, 9, 0.7);
+  box-shadow: 0 0 15px rgba(229, 126, 9, 0.7);
 }
 
 /* Estado combinado de ativo e focado */
 .category-button.active.focused {
   background-color: rgba(255, 140, 0, 0.3); /* Mais escuro que active ou focused sozinhos */
   color: #FF8C00; /* Mantém cor do active */
-  outline: 2px solid rgba(255, 140, 0, 0.6); /* Outline mais forte */
+  border: 3px solid #e57e09;
+  border-color: #e57e09;
+  -webkit-transform: scale(1.04) translateZ(0);
+  transform: scale(1.04) translateZ(0);
+  z-index: 10;
+  -webkit-box-shadow: 0 0 15px rgba(229, 126, 9, 0.7);
+  box-shadow: 0 0 15px rgba(229, 126, 9, 0.7);
 }
 
 /* Área principal de conteúdo */
@@ -428,8 +439,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   transform: scale(1.05) translateZ(0);
   
   box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4);
-  outline: 3px solid #FF8C00;
-  outline-offset: 2px;
+  border: 3px solid #FF8C00;
+  border-color: #FF8C00;
+  -webkit-transform: scale(1.05) translateZ(0);
+  transform: scale(1.05) translateZ(0);
   z-index: 10;
 }
 

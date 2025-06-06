@@ -1,7 +1,14 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import mpegts from 'mpegts.js';
+import shaka from 'shaka-player';
 
 import './VideoPlayer.css';
+
+// Instalar polyfills do Shaka Player para garantir compatibilidade
+shaka.polyfill.installAll();
+
+// A versão do Shaka Player foi fixada em 2.5.4, a mesma usada nos exemplos da Samsung
+// para garantir máxima compatibilidade com TVs Tizen mais antigas.
 
 const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const videoRef = useRef(null);
@@ -14,6 +21,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Carregando...');
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerType, setPlayerType] = useState(null);
@@ -98,12 +106,12 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
     // 2. Para VOD (filmes/séries)
     if (type === 'movie' || type === 'series' || url.includes('.mp4')) {
-        // No Tizen, voltamos a usar mpegts.js conforme solicitado, mas com uma configuração segura.
+        // No Tizen, usamos Shaka Player v2.5.4, que é a versão de referência da Samsung.
         if (isTizenTV) {
-            console.log("Detector: VOD no Tizen. Usando mpegts-vod (modo de segurança).");
-            return 'mpegts-vod';
+            console.log("Detector: VOD no Tizen. Usando Shaka Player v2.5.4.");
+            return 'shaka';
         }
-        // Em outros ambientes, o player nativo é o ideal.
+        // Para outros, o método direto é suficiente.
         return 'html5-direct';
     }
     
@@ -167,6 +175,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       console.log(`🚀 Inicializando player ${type} com URL:`, streamUrl);
       setIsLoading(true);
       setLoadingMessage('Carregando...');
+      setLoadingProgress(5);
       setError(null);
       setIsPlaying(false);
       
@@ -175,7 +184,10 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       const videoElement = videoRef.current;
 
       try {
-        if (type === 'mpegts-vod') {
+        if (type === 'shaka') {
+          console.log('✨ Usando Shaka Player para VOD');
+          await initShakaPlayer(streamUrl, videoElement);
+        } else if (type === 'mpegts-vod') {
           console.log('📽️ Usando mpegts para MP4/VOD (Modo de Segurança)');
           await initMpegtsVodPlayer(streamUrl, videoElement);
         } else if (type === 'mpegts-live') {
@@ -205,25 +217,101 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     initPlayer(detectedPlayerType);
   }, [isActive, streamUrl, streamInfo, isDevelopment, isTizenTV]);
 
+  // Função para inicializar o Shaka Player (v2.5.4)
+  const initShakaPlayer = async (url, videoElement) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const player = new shaka.Player(videoElement);
+        playerRef.current = player; // Armazena a instância do player
+
+        // Configuração mínima e segura para Tizen, baseada na versão 2.5.4
+        // Menos configurações complexas significam menos pontos de falha no Tizen.
+        player.configure({
+          streaming: {
+            // Aumenta o tempo que o player espera por dados antes de dar erro.
+            // Ajuda em conexões lentas ou com instabilidade.
+            bufferingGoal: 120, // 2 minutos
+            rebufferingGoal: 2,
+            retryParameters: {
+              timeout: 30000, // 30 segundos
+              maxAttempts: 5,
+            }
+          }
+        });
+
+        // Listeners para sucesso e erro
+        player.addEventListener('error', (event) => {
+          console.error('💥 Erro no Shaka Player:', event.detail);
+          reject(new Error(`Erro no Shaka Player: ${event.detail.code}`));
+        });
+
+        // Event listeners para progresso
+        videoElement.addEventListener('loadstart', () => {
+          setLoadingProgress(20);
+        });
+
+        videoElement.addEventListener('loadeddata', () => {
+          setLoadingProgress(60);
+        });
+
+        videoElement.addEventListener('canplay', () => {
+          setLoadingProgress(85);
+        });
+
+        videoElement.addEventListener('playing', () => {
+          setLoadingProgress(100);
+          setIsPlaying(true);
+          setTimeout(() => {
+            setIsLoading(false);
+            setLoadingProgress(0);
+          }, 500);
+          initializingRef.current = false;
+        });
+
+        // Carregar a mídia
+        player.load(url).then(() => {
+          console.log('✅ Shaka Player carregou a mídia com sucesso.');
+          setLoadingProgress(90);
+          resolve();
+        }).catch((error) => {
+          console.error('💥 Erro ao carregar mídia no Shaka Player:', error);
+          reject(error);
+        });
+
+      } catch (error) {
+        console.error('💥 Falha ao inicializar o Shaka Player:', error);
+        reject(error);
+      }
+    });
+  };
+
   // Função para inicializar HTML5 player direto (sem fetch)
   const initHtml5PlayerDirect = async (url, videoElement) => {
     return new Promise((resolve, reject) => {
       const handleLoadStart = () => {
+        setLoadingProgress(10);
         setLoadingMessage('Carregando...');
       };
 
       const handleLoadedData = () => {
+        setLoadingProgress(50);
         setLoadingMessage('Preparando...');
       };
 
       const handleCanPlay = () => {
+        setLoadingProgress(80);
         setLoadingMessage('Iniciando...');
       };
 
       const handlePlaying = () => {
         clearTimeouts();
+        setLoadingProgress(100);
         setIsPlaying(true);
-        setIsLoading(false);
+        // Pequeno delay antes de esconder o loading para mostrar 100%
+        setTimeout(() => {
+          setIsLoading(false);
+          setLoadingProgress(0);
+        }, 500);
         setError(null);
         initializingRef.current = false;
         resolve();
@@ -321,8 +409,12 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         const handlePlaying = () => {
           console.log('✅ mpegts VOD: Reproduzindo');
           clearTimeouts();
+          setLoadingProgress(100);
           setIsPlaying(true);
-          setIsLoading(false);
+          setTimeout(() => {
+            setIsLoading(false);
+            setLoadingProgress(0);
+          }, 500);
           setError(null);
           initializingRef.current = false;
           resolve();
@@ -369,13 +461,18 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
         player.on(mpegts.Events.LOADING_COMPLETE, () => {
           setLoadingMessage('Iniciando...');
+          setLoadingProgress(90);
         });
 
         const handlePlaying = () => {
           console.log('✅ mpegts Live: Reproduzindo');
           clearTimeouts();
+          setLoadingProgress(100);
           setIsPlaying(true);
-          setIsLoading(false);
+          setTimeout(() => {
+            setIsLoading(false);
+            setLoadingProgress(0);
+          }, 500);
           setError(null);
           initializingRef.current = false;
           resolve();
@@ -456,6 +553,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     
     setIsLoading(false);
     setLoadingMessage('Carregando...');
+    setLoadingProgress(0);
     setError(null);
     setIsPlaying(false);
     setPlayerType(null);
@@ -570,6 +668,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     setError(null);
     setIsLoading(true);
     setLoadingMessage('Tentando novamente...');
+    setLoadingProgress(0);
     setIsPlaying(false);
     
     initializingRef.current = false;
@@ -596,18 +695,21 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
             style={{ width: '100%', height: '100%' }}
           />
        
-        {/* Loading Overlay */}
+        {/* Loading Overlay - Estilo Netflix */}
         {isLoading && !isPlaying && (
-          <div className="loading-overlay">
-            <div className="loading-spinner">⏳</div>
-            <p className="loading-message">{loadingMessage}</p>
-            {streamInfo && (
-              <p className="loading-content-info">
-                {streamInfo.type === 'series' ? 'Série' : 
-                 streamInfo.type === 'movie' ? 'Filme' : 
-                 streamInfo.type === 'live' ? 'TV ao Vivo' : 'Conteúdo'}
-              </p>
-            )}
+          <div className="netflix-loading-overlay">
+            <div className="netflix-loading-container">
+              <div className="netflix-loading-ring">
+                <div className="netflix-loading-circle"></div>
+                <div 
+                  className="netflix-loading-progress" 
+                  style={{ 
+                    background: `conic-gradient(#e50914 ${loadingProgress * 3.6}deg, transparent 0deg)` 
+                  }}
+                ></div>
+              </div>
+              <div className="netflix-loading-percentage">{loadingProgress}%</div>
+            </div>
           </div>
         )}
 

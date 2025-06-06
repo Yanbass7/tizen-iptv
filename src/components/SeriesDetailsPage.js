@@ -85,54 +85,26 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
     
     const streamUrl = `https://rota66.bar/series/zBB82J/AMeDHq/${episode.id || episode.stream_id}.mp4`;
     
-    // Para Tizen TV, usar configuração específica que força player interno
-    if (isTizenTV) {
-      console.log('📺 Configuração Tizen TV ativada');
-      
-      // Evento personalizado com configurações específicas para TV
-      const playEvent = new CustomEvent('playContent', {
-        detail: {
-          streamUrl: streamUrl,
-          streamInfo: {
-            name: `${series.name} - ${formatEpisode(selectedSeason, episode.episode_num || 1)} - ${episode.title || episode.name || 'Episódio'}`,
-            type: 'series',
-            category: series.category_name || 'Série',
-            description: episode.plot || episode.info?.plot || series.plot || 'Descrição não disponível',
-            year: series.releasedate || 'N/A',
-            rating: series.rating || episode.rating || 'N/A',
-            poster: series.cover || series.stream_icon
-          }
-        },
-        bubbles: false,
-        cancelable: false
-      });
-      
-      // Prevenir qualquer comportamento padrão que possa causar redirect
-      setTimeout(() => {
-        console.log('📺 Disparando evento playContent para Tizen TV');
-        window.dispatchEvent(playEvent);
-      }, 100); // Pequeno delay para garantir que o evento seja tratado corretamente
-      
-    } else {
-      // Para outros ambientes, usar o comportamento padrão
-      console.log('💻 Configuração padrão ativada');
-      
-      const playEvent = new CustomEvent('playContent', {
-        detail: {
-          streamUrl: streamUrl,
-          streamInfo: {
-            name: `${series.name} - ${formatEpisode(selectedSeason, episode.episode_num || 1)} - ${episode.title || episode.name || 'Episódio'}`,
-            type: 'series',
-            category: series.category_name || 'Série',
-            description: episode.plot || episode.info?.plot || series.plot || 'Descrição não disponível',
-            year: series.releasedate || 'N/A',
-            rating: series.rating || episode.rating || 'N/A',
-            poster: series.cover || series.stream_icon
-          }
+    // Lógica unificada e síncrona para disparar o evento de reprodução.
+    // O setTimeout foi removido por ser a causa provável do congelamento no Tizen.
+    const playEvent = new CustomEvent('playContent', {
+      detail: {
+        streamUrl: streamUrl,
+        streamInfo: {
+          name: `${series.name} - ${formatEpisode(selectedSeason, episode.episode_num || 1)} - ${episode.title || episode.name || 'Episódio'}`,
+          type: 'series',
+          category: series.category_name || 'Série',
+          description: episode.plot || episode.info?.plot || series.plot || 'Descrição não disponível',
+          year: series.releasedate || 'N/A',
+          rating: series.rating || episode.rating || 'N/A',
+          poster: series.cover || series.stream_icon
         }
-      });
-      window.dispatchEvent(playEvent);
-    }
+      }
+    });
+    
+    console.log('📺 Disparando evento playContent...');
+    window.dispatchEvent(playEvent);
+    
   }, [series, selectedSeason, isTizenTV, isDevelopment]);
 
   const loadFirstEpisode = useCallback(async () => {

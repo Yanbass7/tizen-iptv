@@ -34,7 +34,7 @@ const menuItems = [
 function App() {
   const [currentSection, setCurrentSection] = useState(SECTIONS.LOGIN);
   const [menuFocus, setMenuFocus] = useState(0);
-  const [shelfFocus, setShelfFocus] = useState(0);
+  const [shelfFocus, setShelfFocus] = useState(-1);
   const [itemFocus, setItemFocus] = useState(0);
   const [onMenu, setOnMenu] = useState(false);
   const [playerData, setPlayerData] = useState(null);
@@ -130,24 +130,45 @@ function App() {
         // Navegação no conteúdo principal
         if (currentSection === SECTIONS.HOME) {
           if (keyCode === 38) { // Cima
-            if (shelfFocus > 0) {
+            if (shelfFocus > -1) {
               setShelfFocus(shelfFocus - 1);
               setItemFocus(0);
             }
           } else if (keyCode === 40) { // Baixo
-            setShelfFocus((prev) => Math.min(prev + 1, 2)); // Máximo 3 prateleiras
-            setItemFocus(0);
+            if (shelfFocus < 2) {
+              setShelfFocus(shelfFocus + 1);
+              setItemFocus(0);
+            }
           } else if (keyCode === 37) { // Esquerda
-            if (itemFocus > 0) {
-              setItemFocus(itemFocus - 1);
+            if (shelfFocus === -1) {
+              if (itemFocus > 0) {
+                setItemFocus(itemFocus - 1);
+              } else {
+                setOnMenu(true);
+              }
             } else {
-              setOnMenu(true);
+              if (itemFocus > 0) {
+                setItemFocus(itemFocus - 1);
+              } else {
+                setOnMenu(true);
+              }
             }
           } else if (keyCode === 39) { // Direita
-            setItemFocus((prev) => Math.min(prev + 1, 9)); // Máximo 10 itens por prateleira
+            if (shelfFocus === -1) {
+              setItemFocus((prev) => Math.min(prev + 1, 1));
+            } else {
+              setItemFocus((prev) => Math.min(prev + 1, 9));
+            }
           } else if (keyCode === 13) { // OK
-            console.log('Item selecionado:', { shelfFocus, itemFocus });
-            // TODO: Implementar seleção de item
+            if (shelfFocus === -1) {
+              const heroButtonEvent = new CustomEvent('heroButtonClick', {
+                detail: { buttonIndex: itemFocus }
+              });
+              window.dispatchEvent(heroButtonEvent);
+            } else {
+              console.log('Item selecionado:', { shelfFocus, itemFocus });
+              // TODO: Implementar seleção de item das prateleiras
+            }
           }
         } else if (currentSection === SECTIONS.CHANNELS) {
           // Navegação específica para canais - delegar todas as teclas

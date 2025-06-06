@@ -90,38 +90,28 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img, video {
    OVERLAYS - OTIMIZADOS PARA TIZEN 5.0+
    ========================================================================== */
 
-/* Overlay de Loading */
-.loading-overlay {
+/* Overlay de Loading - Estilo Netflix */
+.netflix-loading-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
+  background: rgba(0, 0, 0, 0.95);
   z-index: 10;
   
   /* Transições suaves para fade in/out */
   opacity: 1;
-  -webkit-transition: opacity 0.5s ease-in-out;
-  -moz-transition: opacity 0.5s ease-in-out;
-  -o-transition: opacity 0.5s ease-in-out;
-  transition: opacity 0.5s ease-in-out;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  -moz-transition: opacity 0.3s ease-in-out;
+  -o-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
   
-  /* Fallback para browsers antigos */
-  display: block;
-  /* Prefixos WebKit para Tizen */
+  /* Flexbox com prefixos para Tizen */
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  
-  /* Direção com prefixos */
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
   
   /* Alinhamento com prefixos */
   -webkit-box-align: center;
@@ -143,20 +133,87 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img, video {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.loading-spinner {
-  font-size: 4rem;
-  margin-bottom: 20px;
+.netflix-loading-container {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
   
-  /* Animação com prefixos */
-  -webkit-animation: spin 1s linear infinite;
-  -moz-animation: spin 1s linear infinite;
-  -o-animation: spin 1s linear infinite;
-  animation: spin 1s linear infinite;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  gap: 30px;
 }
 
-.loading-overlay p {
-  font-size: 1.5rem;
-  margin: 0;
+.netflix-loading-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.netflix-loading-circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 8px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.netflix-loading-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  mask: radial-gradient(circle at center, transparent 40px, black 48px);
+  -webkit-mask: radial-gradient(circle at center, transparent 40px, black 48px);
+  
+  /* Animação de rotação suave */
+  -webkit-animation: netflix-spin 2s linear infinite;
+  -moz-animation: netflix-spin 2s linear infinite;
+  -o-animation: netflix-spin 2s linear infinite;
+  animation: netflix-spin 2s linear infinite;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.netflix-loading-percentage {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  min-width: 80px;
+  
+  /* Sombra sutil para melhor legibilidade */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  
+  /* Transição suave na mudança de número */
+  -webkit-transition: all 0.2s ease-out;
+  -moz-transition: all 0.2s ease-out;
+  -o-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
   
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
@@ -1239,4 +1296,25 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img, video {
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animação Netflix para o loading ring */
+@-webkit-keyframes netflix-spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@-moz-keyframes netflix-spin {
+  0% { -moz-transform: rotate(0deg); }
+  100% { -moz-transform: rotate(360deg); }
+}
+
+@-o-keyframes netflix-spin {
+  0% { -o-transform: rotate(0deg); }
+  100% { -o-transform: rotate(360deg); }
+}
+
+@keyframes netflix-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 } 
