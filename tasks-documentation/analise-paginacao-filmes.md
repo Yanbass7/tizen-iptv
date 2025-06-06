@@ -1,0 +1,1 @@
+- [ ] Analisar como a paginação está implementada no componente `Movies.js`. 

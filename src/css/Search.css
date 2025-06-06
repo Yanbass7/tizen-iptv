@@ -1,0 +1,1004 @@
+/* ==========================================================================
+   RESET CSS ESPECÍFICO PARA TIZEN 5.0+
+   ========================================================================== */
+
+/* Reset otimizado para Tizen 5.0+ */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+div, span, p, h1, h2, h3, h4, h5, h6, button, img {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  vertical-align: baseline;
+}
+
+/* Force o box-sizing com prefixos para Tizen 5.0+ */
+*, *:before, *:after {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+  -webkit-scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL - OTIMIZADO PARA TIZEN 5.0+
+   ========================================================================== */
+
+/* Layout principal da busca */
+.search-container {
+  width: 100%;
+  height: 100vh;
+  color: white;
+  overflow: hidden;
+  
+  /* Fallback para gradiente */
+  background: #0c0c0c;
+  background: -webkit-gradient(linear, left top, right bottom, from(#0c0c0c), to(#1a1a1a));
+  background: -webkit-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  background: -o-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.search-layout {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* gap: 30px; */ /* Removido para compatibilidade */
+  height: 100%;
+  padding: 20px;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Área do teclado virtual - Otimizada */
+.search-input-area {
+  width: 400px;
+  min-width: 400px;
+  margin-right: 30px; /* Substitui o gap no .search-layout */
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* gap: 20px; */ /* Removido para compatibilidade */
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.search-header {
+  margin-bottom: 20px; /* Substitui o gap no .search-input-area */
+}
+
+.search-header h2 {
+  margin: 0 0 15px 0;
+  font-size: 2rem;
+  color: #FF8C00;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* gap: 10px; */ /* Removido */
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.search-input-display {
+  background: rgba(20, 20, 20, 0.8);
+  border: 2px solid #FF8C00;
+  border-radius: 8px;
+  padding: 15px;
+  font-size: 1.2rem;
+  min-height: 50px;
+  position: relative;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.search-query {
+  color: white;
+  word-break: break-all;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.cursor {
+  color: #FF8C00;
+  margin-left: 2px;
+  
+  /* Animação com prefixos */
+  -webkit-animation: blink 1s infinite;
+  -moz-animation: blink 1s infinite;
+  -o-animation: blink 1s infinite;
+  animation: blink 1s infinite;
+}
+
+/* Keyframes com prefixos */
+@-webkit-keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@-moz-keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@-o-keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Teclado Virtual - Otimizado */
+.virtual-keyboard {
+  background: rgba(20, 20, 20, 0.9);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #333;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* gap: 10px; */ /* Removido para compatibilidade */
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.keyboard-row {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* gap: 8px; */ /* Removido para compatibilidade */
+  margin-bottom: 10px; /* Substitui o gap do .virtual-keyboard */
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.keyboard-row:last-child {
+  margin-bottom: 0;
+}
+
+/* Teclas do teclado - Estados de foco otimizados */
+.keyboard-key {
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 12px;
+  min-width: 35px;
+  min-height: 45px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  margin: 0;
+  margin-right: 8px; /* Substitui o gap do .keyboard-row */
+  
+  /* Fallback para gradiente */
+  background: #2a2a2a;
+  background: -webkit-gradient(linear, left top, right bottom, from(#2a2a2a), to(#1a1a1a));
+  background: -webkit-linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  background: -o-linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  /* Transições otimizadas */
+  -webkit-transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
+  -moz-transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
+  -o-transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
+  transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.keyboard-key:last-child {
+  margin-right: 0;
+}
+
+.keyboard-key:hover,
+.keyboard-key.focused {
+  background: rgba(255, 140, 0, 0.9);
+  color: black;
+  outline: 2px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 1px;
+  border-color: #FF8C00;
+}
+
+.keyboard-key.special-key {
+  min-width: 60px;
+  font-size: 0.9rem;
+  
+  /* Fallback para gradiente */
+  background: #4a4a4a;
+  background: -webkit-gradient(linear, left top, right bottom, from(#4a4a4a), to(#3a3a3a));
+  background: -webkit-linear-gradient(145deg, #4a4a4a, #3a3a3a);
+  background: -o-linear-gradient(145deg, #4a4a4a, #3a3a3a);
+  background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
+}
+
+.keyboard-key.special-key:hover,
+.keyboard-key.special-key.focused {
+  background: rgba(255, 140, 0, 0.9);
+  outline: 2px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 1px;
+}
+
+/* Área de resultados - Otimizada */
+.search-results {
+  /* Flex com prefixos */
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  
+  background: rgba(20, 20, 20, 0.5);
+  border-radius: 12px;
+  padding: 20px;
+  overflow-y: auto;
+  height: calc(100vh - 40px);
+  scrollbar-width: none;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Otimizações de scroll cross-browser */
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+}
+
+.search-results::-webkit-scrollbar {
+  display: none;
+}
+
+.search-results::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+  background: rgba(255, 140, 0, 0.3);
+  border-radius: 4px;
+}
+
+/* Estados de loading e placeholder - Otimizados */
+.loading {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  height: 200px;
+  font-size: 1.5rem;
+  color: #FF8C00;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.loading i {
+  margin-right: 10px;
+  
+  /* Animação com prefixos */
+  -webkit-animation: spin 1s linear infinite;
+  -moz-animation: spin 1s linear infinite;
+  -o-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+/* Keyframes com prefixos */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@-moz-keyframes spin {
+  0% { -moz-transform: rotate(0deg); }
+  100% { -moz-transform: rotate(360deg); }
+}
+
+@-o-keyframes spin {
+  0% { -o-transform: rotate(0deg); }
+  100% { -o-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.search-placeholder,
+.no-results {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  height: 300px;
+  text-align: center;
+  color: #888;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.search-placeholder i,
+.no-results i {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  color: #555;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.search-placeholder h3,
+.no-results h3 {
+  font-size: 1.5rem;
+  margin: 0 0 10px 0;
+  color: #ccc;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.search-placeholder p,
+.no-results p {
+  font-size: 1rem;
+  margin: 0;
+  color: #888;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Seções de resultados - Otimizadas */
+.results-section {
+  margin-bottom: 30px;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.results-section h3 {
+  font-size: 1.3rem;
+  margin: 0 0 15px 0;
+  color: #FF8C00;
+  border-bottom: 2px solid #FF8C00;
+  padding-bottom: 8px;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* gap: 10px; */ /* Removido */
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  /* gap: 15px; */ /* Removido para compatibilidade */
+  column-gap: 15px; /* Suportado em Tizen */
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Items dos resultados - Performance otimizada */
+.search-result-item {
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  height: 260px;
+  margin: 0;
+  margin-bottom: 15px; /* Substitui o row-gap */
+  padding: 0;
+  
+  /* Fallback para gradiente */
+  background: #2a2a2a;
+  background: -webkit-gradient(linear, left top, right bottom, from(#2a2a2a), to(#1a1a1a));
+  background: -webkit-linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  background: -o-linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* Transições otimizadas */
+  -webkit-transition: background-color 0.1s ease, outline 0.1s ease;
+  -moz-transition: background-color 0.1s ease, outline 0.1s ease;
+  -o-transition: background-color 0.1s ease, outline 0.1s ease;
+  transition: background-color 0.1s ease, outline 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.search-result-item:hover,
+.search-result-item.focused {
+  background: rgba(255, 140, 0, 0.1);
+  outline: 2px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 1px;
+  border-color: #FF8C00;
+}
+
+.search-result-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  margin: 0;
+  padding: 0;
+  
+  /* Transição otimizada */
+  -webkit-transition: opacity 0.1s ease;
+  -moz-transition: opacity 0.1s ease;
+  -o-transition: opacity 0.1s ease;
+  transition: opacity 0.1s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.result-info {
+  padding: 12px;
+  
+  /* Flex com prefixos */
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.result-info h4 {
+  font-size: 0.9rem;
+  margin: 0;
+  color: white;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 1.2;
+  text-align: center;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  
+  /* Line clamp com prefixos */
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.result-info .type-indicator {
+  font-size: 0.75rem;
+  color: #FF8C00;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 4px;
+  text-align: center;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tipos específicos de resultado */
+.channel-result .result-type {
+  background: rgba(0, 123, 255, 0.2);
+  color: #007bff;
+}
+
+.movie-result .result-type {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+.serie-result .result-type {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE OTIMIZADA PARA TIZEN 5.0+
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .search-layout {
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    
+    /* gap: 20px; */ /* Removido */
+  }
+  
+  .search-input-area {
+    width: 100%;
+    min-width: auto;
+    margin-right: 0; /* Reseta a margem para layout em coluna */
+    margin-bottom: 20px; /* Adiciona margem inferior no layout de coluna */
+  }
+  
+  .search-results {
+    height: calc(100vh - 350px);
+  }
+  
+  .results-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    /* gap: 12px; */ /* Removido */
+    column-gap: 12px;
+  }
+  
+  .search-result-item {
+    height: 220px;
+    margin-bottom: 12px; /* Substitui o row-gap */
+  }
+  
+  .search-result-item img {
+    height: 140px;
+  }
+}
+
+@media (max-width: 800px) {
+  .keyboard-row {
+    /* gap: 6px; */ /* Removido */
+  }
+  
+  .keyboard-key {
+    min-width: 30px;
+    min-height: 40px;
+    font-size: 0.9rem;
+    padding: 10px;
+    margin-right: 6px; /* Ajusta a margem para o novo gap */
+  }
+  
+  .keyboard-key.special-key {
+    min-width: 50px;
+    font-size: 0.8rem;
+  }
+  
+  .results-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    /* gap: 10px; */ /* Removido */
+    column-gap: 10px;
+  }
+  
+  .search-result-item {
+    height: 200px;
+    margin-bottom: 10px; /* Substitui o row-gap */
+  }
+  
+  .search-result-item img {
+    height: 120px;
+  }
+  
+  .result-info h4 {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .search-layout {
+    padding: 15px;
+  }
+  
+  .search-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .search-input-display {
+    padding: 12px;
+    font-size: 1rem;
+  }
+  
+  .virtual-keyboard {
+    padding: 15px;
+  }
+  
+  .results-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+  
+  .search-result-item {
+    height: 180px;
+  }
+  
+  .search-result-item img {
+    height: 110px;
+  }
+}
+
+/* Animações simplificadas - Performance otimizada para Tizen 5.0+ */
+@-webkit-keyframes fadeInUp {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+  }
+}
+
+@-moz-keyframes fadeInUp {
+  from {
+    opacity: 0;
+    -moz-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -moz-transform: translateY(0);
+  }
+}
+
+@-o-keyframes fadeInUp {
+  from {
+    opacity: 0;
+    -o-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -o-transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-result-item {
+  /* Animação com prefixos */
+  -webkit-animation: fadeInUp 0.2s ease forwards;
+  -moz-animation: fadeInUp 0.2s ease forwards;
+  -o-animation: fadeInUp 0.2s ease forwards;
+  animation: fadeInUp 0.2s ease forwards;
+}
+
+.search-result-item:nth-child(1) { 
+  -webkit-animation-delay: 0.02s;
+  -moz-animation-delay: 0.02s;
+  -o-animation-delay: 0.02s;
+  animation-delay: 0.02s; 
+}
+.search-result-item:nth-child(2) { 
+  -webkit-animation-delay: 0.04s;
+  -moz-animation-delay: 0.04s;
+  -o-animation-delay: 0.04s;
+  animation-delay: 0.04s; 
+}
+.search-result-item:nth-child(3) { 
+  -webkit-animation-delay: 0.06s;
+  -moz-animation-delay: 0.06s;
+  -o-animation-delay: 0.06s;
+  animation-delay: 0.06s; 
+}
+.search-result-item:nth-child(4) { 
+  -webkit-animation-delay: 0.08s;
+  -moz-animation-delay: 0.08s;
+  -o-animation-delay: 0.08s;
+  animation-delay: 0.08s; 
+}
+
+/* Efeito de loading para imagens - Otimizado */
+.search-result-item img[src=""],
+.search-result-item img:not([src]) {
+  /* Fallback para gradiente */
+  background: #2a2a2a;
+  background: -webkit-gradient(linear, left top, right top, 
+    color-stop(25%, #2a2a2a), 
+    color-stop(50%, #3a3a3a), 
+    color-stop(75%, #2a2a2a));
+  background: -webkit-linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background: -o-linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  
+  background-size: 200% 100%;
+  
+  /* Animação com prefixos */
+  -webkit-animation: loading 1.5s infinite;
+  -moz-animation: loading 1.5s infinite;
+  -o-animation: loading 1.5s infinite;
+  animation: loading 1.5s infinite;
+}
+
+/* Keyframes com prefixos */
+@-webkit-keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@-moz-keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@-o-keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* GPU acceleration para elementos críticos */
+.search-container,
+.search-layout,
+.search-input-area,
+.virtual-keyboard,
+.search-results,
+.results-section,
+.results-grid,
+.search-result-item,
+.loading,
+.search-placeholder,
+.no-results {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+} 
