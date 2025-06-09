@@ -109,15 +109,11 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         return 'mpegts-live';
     }
 
-    // 2. Para VOD (filmes/séries)
+    // 2. Para VOD (filmes/séries), usar Shaka Player
     if (type === 'movie' || type === 'series' || url.includes('.mp4')) {
-        // No Tizen, usamos Shaka Player v2.5.4, que é a versão de referência da Samsung.
-        if (isTizenTV) {
-            console.log("Detector: VOD no Tizen. Usando Shaka Player v2.5.4.");
-            return 'shaka';
-        }
-        // Para outros, o método direto é suficiente.
-        return 'html5-direct';
+        // Usaremos Shaka Player para VOD em todas as plataformas para consistência.
+        console.log("Detector: VOD. Usando Shaka Player.");
+        return 'shaka';
     }
     
     // 3. Fallback para streams ao vivo.
@@ -198,10 +194,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         } else if (type === 'mpegts-live') {
           console.log('📡 Usando mpegts para live stream');
           await initMpegtsLivePlayer(streamUrl, videoElement);
-        } else if (type === 'html5-direct') {
-          console.log('⚡ Usando HTML5 direto');
-          const urlToTry = analysis.alternatives && analysis.alternatives.length > 0 ? analysis.alternatives[0].url : streamUrl;
-          await initHtml5PlayerDirect(urlToTry, videoElement);
         } else {
           // Fallback para mpegts live (ou outro se preferir, mas HLS e iframe removidos)
           console.log('📡 Usando mpegts player para stream (fallback principal agora)');
@@ -235,7 +227,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           streaming: {
             // Aumenta o tempo que o player espera por dados antes de dar erro.
             // Ajuda em conexões lentas ou com instabilidade.
-            preferNativeHls: false, // Adicionado para evitar erro 3016 em Tizen
+            preferNativeHls: true, // Em Tizen, é melhor usar o player nativo para HLS.
             bufferingGoal: 120, // 2 minutos
             rebufferingGoal: 2,
             retryParameters: {
@@ -288,100 +280,6 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         console.error('💥 Falha ao inicializar o Shaka Player:', error);
         reject(error);
       }
-    });
-  };
-
-  // Função para inicializar HTML5 player direto (sem fetch)
-  const initHtml5PlayerDirect = async (url, videoElement) => {
-    return new Promise((resolve, reject) => {
-      const handleLoadStart = () => {
-        setLoadingProgress(10);
-        setLoadingMessage('Carregando...');
-      };
-
-      const handleLoadedData = () => {
-        setLoadingProgress(50);
-        setLoadingMessage('Preparando...');
-      };
-
-      const handleCanPlay = () => {
-        setLoadingProgress(80);
-        setLoadingMessage('Iniciando...');
-      };
-
-      const handlePlaying = () => {
-        clearTimeouts();
-        setLoadingProgress(100);
-        // O estado isPlaying será gerenciado por um useEffect central
-        // Pequeno delay antes de esconder o loading para mostrar 100%
-        setTimeout(() => {
-          setIsLoading(false);
-          setLoadingProgress(0);
-          setError(null);
-          initializingRef.current = false;
-          resolve();
-        }, 500);
-      };
-
-      const handleError = (err) => {
-        clearTimeouts();
-        
-        // Tentar diagnóstico do erro
-        if (videoElement.error) {
-          const errorDetails = {
-            1: 'MEDIA_ERR_ABORTED - Download abortado',
-            2: 'MEDIA_ERR_NETWORK - Erro de rede',
-            3: 'MEDIA_ERR_DECODE - Erro de decodificação',
-            4: 'MEDIA_ERR_SRC_NOT_SUPPORTED - Formato não suportado'
-          };
-          console.error('Detalhes do erro HTML5:', errorDetails[videoElement.error.code] || 'Erro desconhecido no elemento video');
-        }
-        
-        reject(new Error('Erro na reprodução HTML5 direta'));
-      };
-
-      // Limpar listeners anteriores
-      const events = ['loadstart', 'loadeddata', 'canplay', 'playing', 'error'];
-      events.forEach(event => {
-        videoElement.removeEventListener(event, () => {});
-      });
-
-      // Adicionar event listeners
-      videoElement.addEventListener('loadstart', handleLoadStart);
-      videoElement.addEventListener('loadeddata', handleLoadedData);
-      videoElement.addEventListener('canplay', handleCanPlay);
-      videoElement.addEventListener('playing', handlePlaying);
-      videoElement.addEventListener('error', handleError);
-
-      // Configurar crossOrigin para tentar contornar CORS
-      if (isDevelopment) {
-        videoElement.crossOrigin = 'anonymous';
-      } else if (isTizenTV) {
-        videoElement.crossOrigin = null; // Tizen pode não precisar
-      } else {
-        videoElement.crossOrigin = 'use-credentials';
-      }
-
-      // Timeout para HTML5
-      errorTimeoutRef.current = setTimeout(() => {
-        if (initializingRef.current) {
-          reject(new Error('Timeout na reprodução direta'));
-        }
-      }, 30000);
-
-      // Configurar e carregar vídeo
-      videoElement.src = url;
-      videoElement.load();
-      
-      // Auto-play após pequeno delay
-      setTimeout(() => {
-        if (videoRef.current && initializingRef.current) {
-          videoRef.current.play().catch(playError => {
-            console.error('Erro no auto-play:', playError);
-            // Não rejeitar imediatamente, aguardar timeout
-          });
-        }
-      }, 500);
     });
   };
 
