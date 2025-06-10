@@ -76,21 +76,24 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
   const shelves = [
     { 
       id: 'lancamentos',
-      title: '🎬 Lançamentos em Destaque', 
+      title: 'Lançamentos em Destaque', 
+      /* icon: 'fa-solid fa-film', /* Ícone para Lançamentos */
       items: lancamentos, 
       type: 'movie',
       emptyMessage: 'Nenhum lançamento disponível'
     },
     { 
       id: 'telenovelas',
-      title: '📺 Séries e Telenovelas', 
+      title: 'Séries e Telenovelas', 
+      /* icon: 'fa-solid fa-tv', /* Ícone para Séries e Telenovelas */
       items: telenovelas, 
       type: 'series',
       emptyMessage: 'Nenhuma série disponível'
     },
     { 
       id: 'classicos',
-      title: '🏆 Clássicos do Cinema', 
+      title: 'Clássicos do Cinema', 
+      /* icon: 'fa-solid fa-trophy', /* Ícone para Clássicos do Cinema */
       items: classicos, 
       type: 'movie',
       emptyMessage: 'Nenhum clássico disponível'
@@ -286,13 +289,6 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
           
           <div className="hero-content">
             <div className="hero-info">
-              <div className="hero-logo">
-                <img 
-                  src="/images/BIGTV-transparente.png" 
-                  alt="BIGTV" 
-                  className="brand-logo"
-                />
-              </div>
               
               <h1 className="hero-title">{featuredContent.name}</h1>
               
@@ -348,7 +344,9 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
             className="content-shelf"
             ref={el => shelfRefs.current[shelfIndex] = el}
           >
-            <h2 className="shelf-title">{shelf.title}</h2>
+            <h2 className="shelf-title">
+              <i className={shelf.icon}></i> {shelf.title}
+            </h2>
             
             <div className="shelf-carousel">
               {shelf.items.length > 0 ? (
@@ -422,13 +420,10 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
 
       {/* Navegação Helper - Canto inferior */}
       <div className="navigation-helper">
-        <div className="nav-hint">
-          <i className="fa-solid fa-gamepad"></i>
-          <span>Use as setas para navegar • OK para assistir • Voltar para menu</span>
-        </div>
+        
       </div>
     </div>
   );
 };
 
-export default Home; 
+export default Home;
