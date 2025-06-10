@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './LoginScreen.css';
-import { loginCliente } from '../services/authService';
+import './LoginScreen.css'; // Reutilizar os mesmos estilos da tela de login
+import { cadastrarCliente, validarSenha } from '../services/authService';
 
-const LoginScreen = ({ onLogin, onGoToSignup, isActive }) => {
+const SignupScreen = ({ onSignup, onBackToLogin, isActive }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const [focusIndex, setFocusIndex] = useState(0);
   const focusableElements = useRef([]);
@@ -15,7 +17,7 @@ const LoginScreen = ({ onLogin, onGoToSignup, isActive }) => {
     // Foca o primeiro elemento quando a tela se torna ativa
     if (isActive) {
       focusableElements.current[0]?.focus();
-      setFocusIndex(0); // Garante que o foco visual seja aplicado
+      setFocusIndex(0);
     }
   }, [isActive]);
 
@@ -55,71 +57,64 @@ const LoginScreen = ({ onLogin, onGoToSignup, isActive }) => {
     });
   }, [focusIndex, isActive]);
 
-  // Obtém o MAC address do dispositivo se possível (Tizen / WebAPI)
-  const getMacAddress = () => {
-    // Samsung Tizen (webapis)
-    if (window.webapis && window.webapis.network && typeof window.webapis.network.getMac === 'function') {
-      try {
-        const mac = window.webapis.network.getMac();
-        console.log('MAC obtido via webapis:', mac);
-        return mac;
-      } catch (e) {
-        console.log('Erro ao obter MAC via webapis:', e);
-        // continua fallback
-      }
-    }
-
-    // Tizen systeminfo API
-    if (window.tizen && window.tizen.systeminfo) {
-      try {
-        // Esta API é assíncrona, mas tentaremos obter de forma síncrona via variável local
-        let macAddress = '';
-        window.tizen.systeminfo.getPropertyValue(
-          'WIFI_NETWORK',
-          function (network) {
-            macAddress = network.macAddress || '';
-          },
-          function () {}
-        );
-        if (macAddress) {
-          console.log('MAC obtido via systeminfo:', macAddress);
-          return macAddress;
-        }
-      } catch (e) {
-        console.log('Erro ao obter MAC via systeminfo:', e);
-        // continua fallback
-      }
-    }
-
-    // Retorna string vazia se não for possível obter o MAC real
-    console.error('Não foi possível obter MAC address real do dispositivo.');
-    return '';
-  };
-
-  const handleContinue = async () => {
+  const handleCadastro = async () => {
     if (loading) return; // Evita múltiplos envios
 
     setError('');
+    setSuccess('');
+
+    // Validações locais
+    if (!email) {
+      setError('Email é obrigatório');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError('Email deve ser válido');
+      return;
+    }
+
+    if (!password) {
+      setError('Senha é obrigatória');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem');
+      return;
+    }
+
+    // Validar critérios de senha
+    const validacao = validarSenha(password);
+    if (!validacao.isValid) {
+      setError(validacao.message);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const mac_disp = getMacAddress();
-      console.log('MAC que será enviado na requisição:', mac_disp); // Debug
+      const data = await cadastrarCliente({ email, senha: password });
       
-      if (!mac_disp) {
-        throw new Error('Não foi possível obter o MAC do dispositivo. Login não pode ser concluído.');
+      setSuccess('Cliente criado com sucesso! Agora você pode fazer login.');
+      
+      // Limpar campos após sucesso
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      
+      // Opcional: chamar callback se definido
+      if (onSignup) {
+        onSignup(data);
       }
       
-      const data = await loginCliente({ email, senha: password, mac_disp });
+      // Voltar para login após 2 segundos
+      setTimeout(() => {
+        onBackToLogin();
+      }, 2000);
 
-      // Armazenar token e email localmente para uso posterior
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('authEmail', data.email);
-
-      console.log('Dados de login para enviar ao App:', data); // Debug
-      onLogin(data); // Informa App que login foi bem-sucedido
     } catch (err) {
-      setError(err.message || 'Erro ao logar');
+      setError(err.message || 'Erro ao cadastrar cliente');
     } finally {
       setLoading(false);
     }
@@ -138,6 +133,11 @@ const LoginScreen = ({ onLogin, onGoToSignup, isActive }) => {
           className="logo-login" 
           alt="BIGTV Logo" 
         />
+        
+        <h2 style={{color: 'white', marginBottom: '20px', textAlign: 'center'}}>
+          Criar Conta
+        </h2>
+        
         <input
           ref={el => (focusableElements.current[0] = el)}
           type="email"
@@ -152,21 +152,34 @@ const LoginScreen = ({ onLogin, onGoToSignup, isActive }) => {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Senha"
         />
-        {error && <div className="error-message">{error}</div>}
-
-        <button
+        <input
           ref={el => (focusableElements.current[2] = el)}
-          id="continueButton"
-          onClick={handleContinue}
-          disabled={loading}
-        >
-          {loading ? 'Entrando...' : 'Continuar'}
-        </button>
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirmar Senha"
+        />
+
+        <div style={{fontSize: '12px', color: '#ccc', margin: '10px 0', textAlign: 'center'}}>
+          A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo
+        </div>
+
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message" style={{color: '#4CAF50', textAlign: 'center', margin: '10px 0'}}>{success}</div>}
 
         <button
           ref={el => (focusableElements.current[3] = el)}
-          className="signup-btn"
-          onClick={onGoToSignup}
+          id="continueButton"
+          onClick={handleCadastro}
+          disabled={loading}
+        >
+          {loading ? 'Cadastrando...' : 'Criar Conta'}
+        </button>
+
+        <button
+          ref={el => (focusableElements.current[4] = el)}
+          className="back-to-login-btn"
+          onClick={onBackToLogin}
           style={{
             marginTop: '15px',
             background: 'transparent',
@@ -177,11 +190,11 @@ const LoginScreen = ({ onLogin, onGoToSignup, isActive }) => {
             cursor: 'pointer'
           }}
         >
-          Criar Nova Conta
+          Voltar ao Login
         </button>
       </div>
     </div>
   );
 };
 
-export default LoginScreen; 
+export default SignupScreen; 
