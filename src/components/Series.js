@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { iptvApi } from '../services/iptvApi';
 import { safeScrollIntoView } from '../utils/scrollUtils';
-import { formatEpisode } from '../utils/polyfills';
+import { formatEpisode } from '../utils/formatters';
 import SeriesDetailsPage from './SeriesDetailsPage';
 import './Series.css';
 

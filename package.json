@@ -8,8 +8,9 @@
     "cra-template-pwa": "2.0.0",
     "hls.js": "^1.6.4",
     "mpegts.js": "^1.7.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^18.2.0",
+    "react-app-polyfill": "^3.0.0",
+    "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "shaka-player": "^4.15.2",
     "web-vitals": "^5.0.1"

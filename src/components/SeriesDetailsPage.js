@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { safeScrollTo, scrollToElementInCarousel } from '../utils/scrollUtils';
-import { formatEpisode, padNumber } from '../utils/polyfills';
+import { formatEpisode, padNumber } from '../utils/formatters';
 import './SeriesDetailsPage.css';
+
+import VideoPlayer from './VideoPlayer';
 
 const SeriesDetailsPage = ({ series, isActive, onBack }) => {
   const [focusedElement, setFocusedElement] = useState('play');
