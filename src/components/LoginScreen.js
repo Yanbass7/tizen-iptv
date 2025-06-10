@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './LoginScreen.css';
 import { loginCliente } from '../services/authService';
 
-const LoginScreen = ({ onLogin, onGoToSignup, isActive }) => {
+const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -178,6 +178,25 @@ const LoginScreen = ({ onLogin, onGoToSignup, isActive }) => {
           }}
         >
           Criar Nova Conta
+        </button>
+
+        <button
+          ref={el => (focusableElements.current[4] = el)}
+          className="skip-login-btn-dev"
+          onClick={onSkipLogin}
+          style={{
+            marginTop: '10px',
+            background: '#6a0dad',
+            border: '1px solid #8a2be2',
+            color: '#fff',
+            padding: '8px 15px',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 'bold'
+          }}
+        >
+          Pular Login (Dev)
         </button>
       </div>
     </div>

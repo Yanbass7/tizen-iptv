@@ -358,6 +358,12 @@ function App() {
     // Pode adicionar lógica adicional aqui se necessário
   };
 
+  const handleSkipLogin = () => {
+    console.warn('Login pulado para fins de desenvolvimento.');
+    setCurrentSection(SECTIONS.HOME);
+    setOnMenu(false); // Garante que o foco vá para o conteúdo principal
+  };
+
   const handleIptvSetupComplete = (iptvData) => {
     console.log('Configuração IPTV concluída:', iptvData);
     setCurrentSection(SECTIONS.HOME);
@@ -395,6 +401,7 @@ function App() {
           <LoginScreen 
             onLogin={handleLogin} 
             onGoToSignup={handleGoToSignup}
+            onSkipLogin={handleSkipLogin}
             isActive={currentSection === SECTIONS.LOGIN}
           />
         );
