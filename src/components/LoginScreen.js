@@ -13,8 +13,11 @@ const LoginScreen = ({ onLogin, onGoToSignup }) => {
     // Samsung Tizen (webapis)
     if (window.webapis && window.webapis.network && typeof window.webapis.network.getMac === 'function') {
       try {
-        return window.webapis.network.getMac();
-      } catch (_) {
+        const mac = window.webapis.network.getMac();
+        console.log('MAC obtido via webapis:', mac);
+        return mac;
+      } catch (e) {
+        console.log('Erro ao obter MAC via webapis:', e);
         // continua fallback
       }
     }
@@ -31,13 +34,18 @@ const LoginScreen = ({ onLogin, onGoToSignup }) => {
           },
           function () {}
         );
-        if (macAddress) return macAddress;
-      } catch (_) {
+        if (macAddress) {
+          console.log('MAC obtido via systeminfo:', macAddress);
+          return macAddress;
+        }
+      } catch (e) {
+        console.log('Erro ao obter MAC via systeminfo:', e);
         // continua fallback
       }
     }
 
-    // Fallback vazio caso não seja possível obter
+    // Retorna string vazia se não for possível obter o MAC real
+    console.error('Não foi possível obter MAC address real do dispositivo.');
     return '';
   };
 
@@ -49,6 +57,12 @@ const LoginScreen = ({ onLogin, onGoToSignup }) => {
 
     try {
       const mac_disp = getMacAddress();
+      console.log('MAC que será enviado na requisição:', mac_disp); // Debug
+      
+      if (!mac_disp) {
+        throw new Error('Não foi possível obter o MAC do dispositivo. Login não pode ser concluído.');
+      }
+      
       const data = await loginCliente({ email, senha: password, mac_disp });
 
       // Armazenar token e email localmente para uso posterior
