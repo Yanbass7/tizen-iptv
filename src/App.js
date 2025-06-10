@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import LoginScreen from './components/LoginScreen';
+import SignupScreen from './components/SignupScreen';
+import IptvSetupScreen from './components/IptvSetupScreen';
 import Home from './components/Home';
 import Sidebar from './components/Sidebar';
 import Channels from './components/Channels';
@@ -13,6 +15,8 @@ import VideoPlayer from './components/VideoPlayer';
 // Estado das seções (migrado do conceito original)
 const SECTIONS = {
   LOGIN: 'login',
+  SIGNUP: 'signup',
+  IPTV_SETUP: 'iptv_setup',
   HOME: 'home',
   CHANNELS: 'channels', 
   MOVIES: 'movies',
@@ -41,6 +45,7 @@ function App() {
   const [selectedSeriesData, setSelectedSeriesData] = useState(null);
   const [sectionHistory, setSectionHistory] = useState([]);
   const [moviePreviewActive, setMoviePreviewActive] = useState(false);
+  const [clienteData, setClienteData] = useState(null);
 
   // Função para navegar para uma seção e rastrear histórico
   const navigateToSection = useCallback((newSection, addToHistory = true) => {
@@ -78,10 +83,13 @@ function App() {
     const handleKeyDown = (e) => {
       const keyCode = e.keyCode;
       
-      // Se estiver na tela de login, apenas permite Enter para continuar
-      if (currentSection === SECTIONS.LOGIN) {
+      // Se estiver na tela de login, cadastro ou configuração IPTV, apenas permite Enter para continuar
+      if (currentSection === SECTIONS.LOGIN || currentSection === SECTIONS.SIGNUP || currentSection === SECTIONS.IPTV_SETUP) {
         if (keyCode === 13) { // Enter
-          handleLogin();
+          if (currentSection === SECTIONS.LOGIN) {
+            handleLogin();
+          }
+          // Para SIGNUP e IPTV_SETUP, o Enter será tratado pelos próprios componentes
         }
         return;
       }
@@ -201,56 +209,29 @@ function App() {
             });
             window.dispatchEvent(seriesEvent);
           }
-        } else if (currentSection === SECTIONS.SERIES_DETAILS) {
-          // Navegação específica para detalhes da série - delegar todas as teclas
-          if (keyCode === 38 || keyCode === 40 || keyCode === 37 || keyCode === 39 || keyCode === 13) {
-            // Delegar navegação para o componente SeriesDetailsPage através de eventos customizados
-            const seriesDetailsEvent = new CustomEvent('seriesDetailsNavigation', {
-              detail: { keyCode }
-            });
-            window.dispatchEvent(seriesDetailsEvent);
-          }
         } else if (currentSection === SECTIONS.SEARCH) {
           // Navegação específica para busca - delegar todas as teclas
           if (keyCode === 38 || keyCode === 40 || keyCode === 37 || keyCode === 39 || keyCode === 13) {
-            // Delegar navegação para o componente Search através de eventos customizados
             const searchEvent = new CustomEvent('searchNavigation', {
               detail: { keyCode }
             });
             window.dispatchEvent(searchEvent);
           }
-        } else {
-          // Para outras seções, apenas navegação básica
-          if (keyCode === 37) { // Esquerda - voltar ao menu
-            setOnMenu(true);
-          }
         }
-      }
 
-      // Botões especiais (mantidos)
-      if (keyCode === 10009 || keyCode === 8) { // Return/Back
-        if (currentSection === SECTIONS.PLAYER) {
-          // Voltar do player para a seção anterior
-          handleBackFromPlayer();
-        } else if (currentSection === SECTIONS.SERIES_DETAILS) {
-          // Usar histórico inteligente para voltar para a tela anterior
-          if (!navigateBack()) {
-            // Se não há histórico, voltar para SERIES como fallback
-            setCurrentSection(SECTIONS.SERIES);
-          }
-          setSelectedSeriesData(null);
-        } else if (currentSection !== SECTIONS.HOME) {
-          // Para outras seções, tentar usar histórico ou ir para HOME
-          if (!navigateBack()) {
+        // Tecla de voltar/back
+        if (keyCode === 8) { // Backspace
+          const success = navigateBack();
+          if (!success) {
+            // Se não há histórico, volta para Home
             setCurrentSection(SECTIONS.HOME);
           }
-          setOnMenu(false);
         }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [currentSection, onMenu, menuFocus, shelfFocus, itemFocus, moviePreviewActive, navigateBack]);
 
   // Listener para eventos de reprodução de conteúdo
@@ -335,7 +316,47 @@ function App() {
     return () => window.removeEventListener('moviePreviewActive', handleMoviePreviewActive);
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = (loginData) => {
+    console.log('Login realizado:', loginData);
+    setClienteData(loginData);
+    
+    // Verificar se já tem conta IPTV configurada
+    const contaIptvId = localStorage.getItem('contaIptvId');
+    const contaIptvStatus = localStorage.getItem('contaIptvStatus');
+    
+    // Se não tem conta IPTV ou está pendente, ir para configuração
+    if (!contaIptvId || contaIptvStatus === 'pendente') {
+      setCurrentSection(SECTIONS.IPTV_SETUP);
+    } else {
+      // Se já tem conta IPTV vinculada, ir direto para Home
+      setCurrentSection(SECTIONS.HOME);
+    }
+    
+    setOnMenu(false);
+  };
+
+  const handleGoToSignup = () => {
+    setCurrentSection(SECTIONS.SIGNUP);
+  };
+
+  const handleBackToLogin = () => {
+    setCurrentSection(SECTIONS.LOGIN);
+  };
+
+  const handleSignup = (signupData) => {
+    // Cadastro realizado com sucesso
+    console.log('Cliente cadastrado:', signupData);
+    // Pode adicionar lógica adicional aqui se necessário
+  };
+
+  const handleIptvSetupComplete = (iptvData) => {
+    console.log('Configuração IPTV concluída:', iptvData);
+    setCurrentSection(SECTIONS.HOME);
+    setOnMenu(false);
+  };
+
+  const handleSkipIptvSetup = () => {
+    console.log('Configuração IPTV pulada');
     setCurrentSection(SECTIONS.HOME);
     setOnMenu(false);
   };
@@ -361,7 +382,29 @@ function App() {
   const renderCurrentSection = () => {
     switch (currentSection) {
       case SECTIONS.LOGIN:
-        return <LoginScreen onLogin={handleLogin} />;
+        return (
+          <LoginScreen 
+            onLogin={handleLogin} 
+            onGoToSignup={handleGoToSignup}
+          />
+        );
+
+      case SECTIONS.SIGNUP:
+        return (
+          <SignupScreen 
+            onSignup={handleSignup}
+            onBackToLogin={handleBackToLogin}
+          />
+        );
+
+      case SECTIONS.IPTV_SETUP:
+        return (
+          <IptvSetupScreen 
+            clienteData={clienteData}
+            onSetupComplete={handleIptvSetupComplete}
+            onSkip={handleSkipIptvSetup}
+          />
+        );
       
       case SECTIONS.HOME:
         return (
@@ -426,8 +469,10 @@ function App() {
     }
   };
 
-  // Não mostrar sidebar na tela de login, no player ou na página de detalhes
+  // Não mostrar sidebar na tela de login, cadastro, configuração IPTV, no player ou na página de detalhes
   const showSidebar = currentSection !== SECTIONS.LOGIN && 
+                     currentSection !== SECTIONS.SIGNUP &&
+                     currentSection !== SECTIONS.IPTV_SETUP &&
                      currentSection !== SECTIONS.PLAYER && 
                      currentSection !== SECTIONS.SERIES_DETAILS;
 

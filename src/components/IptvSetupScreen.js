@@ -1,0 +1,189 @@
+import React, { useState } from 'react';
+import './LoginScreen.css'; // Reutilizar os mesmos estilos da tela de login
+import { criarContaIptv } from '../services/authService';
+
+const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip }) => {
+  const [codigo, setCodigo] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // Obtém o MAC address do dispositivo se possível (Tizen / WebAPI)
+  const getMacAddress = () => {
+    // Samsung Tizen (webapis)
+    if (window.webapis && window.webapis.network && typeof window.webapis.network.getMac === 'function') {
+      try {
+        return window.webapis.network.getMac();
+      } catch (_) {
+        // continua fallback
+      }
+    }
+
+    // Tizen systeminfo API
+    if (window.tizen && window.tizen.systeminfo) {
+      try {
+        // Esta API é assíncrona, mas tentaremos obter de forma síncrona via variável local
+        let macAddress = '';
+        window.tizen.systeminfo.getPropertyValue(
+          'WIFI_NETWORK',
+          function (network) {
+            macAddress = network.macAddress || '';
+          },
+          function () {}
+        );
+        if (macAddress) return macAddress;
+      } catch (_) {
+        // continua fallback
+      }
+    }
+
+    // Fallback: gerar um MAC fictício baseado em dados do navegador
+    const userAgent = navigator.userAgent;
+    const screen = `${window.screen.width}x${window.screen.height}`;
+    const hash = btoa(`${userAgent}${screen}`).slice(0, 12);
+    return hash.match(/.{2}/g).join(':').toUpperCase();
+  };
+
+  const handleConfigurar = async () => {
+    if (loading) return; // Evita múltiplos envios
+
+    setError('');
+    setSuccess('');
+
+    // Validações locais
+    if (!codigo) {
+      setError('Código do grupo é obrigatório');
+      return;
+    }
+
+    if (codigo.length < 3) {
+      setError('Código deve ter pelo menos 3 caracteres');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const mac_disp = getMacAddress();
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        throw new Error('Token de autenticação não encontrado');
+      }
+
+      const data = await criarContaIptv({
+        clienteId: clienteData.id,
+        codigo,
+        mac_disp
+      }, token);
+
+      setSuccess('Conta IPTV criada com sucesso! Aguardando vinculação pelo administrador.');
+      
+      // Armazenar informações da conta IPTV
+      localStorage.setItem('contaIptvId', data.ContaIptv.id);
+      localStorage.setItem('contaIptvStatus', data.ContaIptv.status);
+      
+      // Limpar campo após sucesso
+      setCodigo('');
+      
+      // Opcional: chamar callback se definido
+      if (onSetupComplete) {
+        onSetupComplete(data);
+      }
+      
+      // Avançar para Home após 3 segundos
+      setTimeout(() => {
+        onSetupComplete(data);
+      }, 3000);
+
+    } catch (err) {
+      setError(err.message || 'Erro ao configurar conta IPTV');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePular = () => {
+    if (onSkip) {
+      onSkip();
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleConfigurar();
+    }
+  };
+
+  return (
+    <div className="login-screen">
+      <img 
+        src="/images/image-mesh-gradient.png" 
+        className="background-image" 
+        alt="Background" 
+      />
+      <div className="login-form">
+        <img 
+          src="/images/BIGTV-transparente.png" 
+          className="logo-login" 
+          alt="BIGTV Logo" 
+        />
+        
+        <h2 style={{color: 'white', marginBottom: '20px', textAlign: 'center'}}>
+          Configurar Conta IPTV
+        </h2>
+        
+        <div style={{fontSize: '14px', color: '#ccc', margin: '20px 0', textAlign: 'center'}}>
+          Olá, <strong>{clienteData.email}</strong>!<br/>
+          Para acessar o catálogo de filmes e séries, você precisa vincular sua conta a um grupo IPTV.
+        </div>
+        
+        <input
+          type="text"
+          value={codigo}
+          onChange={(e) => setCodigo(e.target.value)}
+          placeholder="Código do Grupo (ex: 2b03512)"
+          onKeyPress={handleKeyPress}
+          style={{marginBottom: '10px'}}
+        />
+
+        <div style={{fontSize: '12px', color: '#ccc', margin: '10px 0', textAlign: 'center'}}>
+          Digite o código fornecido pelo seu administrador para vincular sua conta ao grupo IPTV correspondente.
+        </div>
+
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message" style={{color: '#4CAF50', textAlign: 'center', margin: '10px 0'}}>{success}</div>}
+
+        <button
+          id="continueButton"
+          onClick={handleConfigurar}
+          disabled={loading}
+        >
+          {loading ? 'Configurando...' : 'Configurar Conta IPTV'}
+        </button>
+
+        <button
+          className="skip-btn"
+          onClick={handlePular}
+          style={{
+            marginTop: '15px',
+            background: 'transparent',
+            border: '1px solid #666',
+            color: '#ccc',
+            padding: '10px 20px',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          Pular (Configurar Depois)
+        </button>
+
+        <div style={{fontSize: '11px', color: '#999', margin: '15px 0', textAlign: 'center'}}>
+          Você pode configurar sua conta IPTV mais tarde nas configurações do aplicativo.
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default IptvSetupScreen; 

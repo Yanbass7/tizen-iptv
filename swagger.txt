@@ -1,0 +1,2795 @@
+IPTV Api
+ 1.0 
+OAS 3.0
+Back do IPTV
+
+
+Authorize
+App
+
+
+GET
+/
+
+Parameters
+Try it out
+No parameters
+
+Responses
+Code	Description	Links
+200	
+No links
+
+GET
+/health
+
+Parameters
+Try it out
+No parameters
+
+Responses
+Code	Description	Links
+200	
+No links
+Autenticação
+
+
+POST
+/auth/admin
+Logar como admin
+
+Informe o email e a senha do admin para retornar um token de autenticação
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "email": "victor@gmail.com",
+  "senha": "Victor2025!"
+}
+Responses
+Code	Description	Links
+200	
+Retorna um token de autenticação, nome e email do admin
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "id": 2,
+  "email": "victor@gmail.com",
+  "nome": "victor",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoidmljdG9yQGdtYWlsLmNvbSIsImlhdCI6MTc0MzUyOTkzOSwiZXhwIjoxNzQ2MTIxOTM5LCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAvIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwLyJ9.0ISqsiRLTr1QHNt2wiWfFyBkDYzzvAqv0KA5VpRD8Tk"
+}
+No links
+404	
+Admin não encontrado
+
+No links
+500	
+Erro ao logar
+
+No links
+
+POST
+/auth/cliente
+Logar como Cliente
+
+Informe o email, a senha e o mac do dispositivo do cliente para retornar um token de autenticação
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "email": "victor@gmail.com",
+  "senha": "Victor2025!",
+  "mac_disp": "00-B0-D0-63-C2-26"
+}
+Responses
+Code	Description	Links
+200	
+Retorna um token de autenticação e o email do cliente
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "id": 1,
+  "email": "victorrfs@gmail.com",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidmljdG9ycmZzQGdtYWlsLmNvbSIsImlhdCI6MTc0MzUyOTgyMSwiZXhwIjoxNzQ2MTIxODIxLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAvIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwLyJ9.Tzkp5eluqOY_YDK5OUPdkmg8aYKL3g39ex4Pyb6C68w"
+}
+No links
+404	
+Cliente não encontrado
+
+No links
+500	
+Erro ao logar
+
+No links
+
+POST
+/auth/validar-token
+Validar Token
+
+Informe o token de autenticação para validar
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{}
+Responses
+Code	Description	Links
+200	
+Retorna o payload do token
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "id": 1,
+  "email": "victorrfs@gmail.com",
+  "tipo": "CLIENT",
+  "iat": 1743529821,
+  "exp": 1746612281,
+  "aud": "http://localhost:3000/"
+}
+No links
+401	
+Token inválido
+
+No links
+500	
+Erro ao logar
+
+No links
+Admin
+
+
+POST
+/user-admin
+Cria um novo admin
+
+End-point para criar um novo admin
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Dados para criar um admin novo. O Código Hex para invite é gerado automaticamente
+
+Example Value
+Schema
+{
+  "nome": "Júnior",
+  "email": "junior@gmail.com",
+  "senha": "Junior2025!"
+}
+Responses
+Code	Description	Links
+201	
+Admin criado com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Admin criado com sucesso",
+  "novoAdmin": {
+    "id": 1,
+    "nome": "Junior",
+    "email": "junior@gmail.com",
+    "codigoHex": "231X43"
+  }
+}
+No links
+400	
+Dados inválidos
+
+No links
+409	
+Conflito - Email ou códigoHex já existente
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 409,
+  "message": "Email já cadastrado",
+  "error": "Conflict"
+}
+No links
+500	
+Erro interno do servidor
+
+No links
+
+GET
+/user-admin
+Busca todos os admins
+
+End-point para buscar todos os admins
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Responses
+Code	Description	Links
+200	
+Admins encontrados com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Admins encontrados com sucesso",
+  "admins": [
+    {
+      "id": 1,
+      "nome": "Junior",
+      "email": "junior@gmail.com",
+      "codigoHex": "231X43"
+    },
+    {
+      "id": 2,
+      "nome": "Junior 2",
+      "email": "junior2@gmail.com",
+      "codigoHex": "ABCHD1"
+    }
+  ]
+}
+No links
+500	
+Erro interno do servidor
+
+No links
+
+PATCH
+/user-admin/{id}
+Atualiza um admin
+
+End-point para atualizar um admin
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Request body
+
+application/json
+Dados para atualizar um admin (Opcionais)
+
+Example Value
+Schema
+{
+  "nome": "Júnior",
+  "email": "junior@gmail.com",
+  "senha": "Junior2025!"
+}
+Responses
+Code	Description	Links
+200	
+Admin atualizado com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Admin atualizado com sucesso",
+  "admin": {
+    "id": 1,
+    "nome": "Junior",
+    "email": "junior@gmail.com",
+    "codigoHex": "231X43"
+  }
+}
+No links
+404	
+Admin não encontrado pelo ID
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Admin não encontrado"
+}
+No links
+500	
+Erro interno do servidor
+
+No links
+
+GET
+/user-admin/{id}
+Busca um admin pelo ID
+
+End-point para buscar um admin pelo ID
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+200	
+Admin encontrado com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Admin encontrado com sucesso",
+  "admin": {
+    "id": 1,
+    "nome": "Junior",
+    "email": "junior@gmail.com",
+    "codigoHex": "231X43"
+  }
+}
+No links
+404	
+Admin não encontrado pelo ID
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Admin nao encontrado"
+}
+No links
+500	
+Erro interno do servidor
+
+No links
+IPTV Links
+
+
+POST
+/iptv-link
+Criar novo link IPTV
+
+
+Cria um novo registro de link IPTV no sistema. Requer autenticação de administrador.
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Dados necessários para criação de um novo link
+
+Example Value
+Schema
+{
+  "url": "www.link.com.br"
+}
+Responses
+Code	Description	Links
+201	
+Link criado com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Link criado com sucesso",
+  "link": {
+    "id": 1,
+    "url": "https://exemplo.com/stream",
+    "status": "disponivel",
+    "userAdminId": 1
+  }
+}
+No links
+400	
+Dados inválidos na requisição
+
+No links
+401	
+Quando o token é inválido ou o usuário não tem permissão
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+409	
+Quando a URL informada já está cadastrada
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 409,
+  "message": "URL já está em uso",
+  "error": "Conflict"
+}
+No links
+
+GET
+/iptv-link
+Listar links IPTV
+
+
+Retorna uma lista paginada de links IPTV com filtros opcionais. Apenas retorna links do administrador autenticado.
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+status
+string
+(query)
+Filtrar por status: todos, disponivel, indisponivel
+
+Available values : todos, disponivel, indisponivel
+
+Default value : todos
+
+
+todos
+Responses
+Code	Description	Links
+200	
+Lista de links retornada com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Links encontrados com sucesso",
+  "links": [
+    {
+      "id": 1,
+      "url": "https://exemplo.com/stream1",
+      "status": "disponivel",
+      "userAdminId": 1
+    },
+    {
+      "id": 2,
+      "url": "https://exemplo.com/stream2",
+      "status": "indisponivel",
+      "userAdminId": 1
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "limit": 10,
+    "offset": 0,
+    "filteredBy": "todos"
+  }
+}
+No links
+401	
+Quando o token é inválido
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+
+PATCH
+/iptv-link/{id}
+Atualizar link IPTV
+
+
+Atualiza os dados de um link IPTV existente. Requer autenticação e o link deve pertencer ao administrador.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Request body
+
+application/json
+Dados que podem ser atualizados (todos opcionais)
+
+Example Value
+Schema
+{
+  "url": "www.link.com.br",
+  "status": "disponivel"
+}
+Responses
+Code	Description	Links
+200	
+Link atualizado com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Link atualizado com sucesso",
+  "link": {
+    "id": 1,
+    "url": "https://exemplo.com/stream-novo",
+    "status": "indisponivel",
+    "userAdminId": 1
+  }
+}
+No links
+401	
+Quando o token é inválido ou o usuário não tem permissão para editar este link
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Quando o ID do link não existe
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Link não encontrado",
+  "error": "Not Found"
+}
+No links
+409	
+Quando a nova URL já está cadastrada em outro link
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 409,
+  "message": "Nova URL já está em uso",
+  "error": "Conflict"
+}
+No links
+
+GET
+/iptv-link/{id}
+Obter link por ID
+
+
+Retorna os detalhes de um link IPTV específico. O link deve pertencer ao administrador autenticado.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+200	
+Detalhes do link retornados com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Link encontrado com sucesso",
+  "link": {
+    "id": 1,
+    "url": "https://exemplo.com/stream",
+    "status": "disponivel",
+    "userAdminId": 1
+  }
+}
+No links
+401	
+Quando o token é inválido
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Quando o ID do link não existe ou não pertence ao administrador
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Link não encontrado",
+  "error": "Not Found"
+}
+No links
+
+DELETE
+/iptv-link/{id}
+Remover link IPTV
+
+
+Remove permanentemente um link IPTV do sistema. O link deve pertencer ao administrador autenticado.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+200	
+Link removido com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Link removido com sucesso",
+  "link": {
+    "id": 1,
+    "url": "https://exemplo.com/stream",
+    "status": "disponivel",
+    "userAdminId": 1
+  }
+}
+No links
+401	
+Quando o token é inválido ou o usuário não tem permissão para remover este link
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Quando o ID do link não existe ou não pertence ao administrador
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Link não encontrado",
+  "error": "Not Found"
+}
+No links
+Cliente
+
+
+POST
+/user-cliente
+Cria um novo cliente
+
+
+End Point para criar um novo cliente, por enquanto sem acesso ao catalogo de filmes/series
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Informações para criar um novo cliente
+
+Example Value
+Schema
+{
+  "email": "victor@gmail.com",
+  "senha": "Victor2025!"
+}
+Responses
+Code	Description	Links
+201	
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Cliente criado com sucesso",
+  "novoCliente": {
+    "id": 1,
+    "email": "victor@gmail.com",
+    "diasFree": "2025-03-24T03:00:00.000Z"
+  }
+}
+No links
+400	
+Dados inválidos
+
+No links
+409	
+Conflito - Email ou códigoHex já existente
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 409,
+  "message": "Email já cadastrado",
+  "error": "Conflict"
+}
+No links
+500	
+Erro interno do servidor
+
+No links
+
+PATCH
+/user-cliente/{id}
+Atualiza o cliente pelo seu ID
+
+
+End Point para atualizar um cliente. Requer autenticação e só o próprio usuário pode atualizar seus dados.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Request body
+
+application/json
+Informações para atualizar um cliente
+
+Example Value
+Schema
+{
+  "email": "victor@gmail.com",
+  "senha": "Victor2025!"
+}
+Responses
+Code	Description	Links
+200	
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Cliente atualizado com sucesso",
+  "cliente": {
+    "id": 1,
+    "email": "victor@gmail.com",
+    "diasFree": "2025-03-24T03:00:00.000Z"
+  }
+}
+No links
+400	
+Dados inválidos
+
+No links
+401	
+Não autorizado - Token inválido ou usuário tentando modificar outro usuário
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Apenas o proprietário pode atualizar a conta",
+  "error": "Unauthorized"
+}
+No links
+404	
+Cliente não encontrado
+
+No links
+409	
+Conflito - Email ou códigoHex já existente
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 409,
+  "message": "Email já cadastrado",
+  "error": "Conflict"
+}
+No links
+500	
+Erro interno do servidor
+
+No links
+
+GET
+/user-cliente/{id}
+Retorna um cliente pelo seu ID
+
+
+End Point para listar um cliente. Requer autenticação de administrador do mesmo grupo.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+401	
+Não autorizado - Token inválido ou tentativa de acessar cliente de outro grupo
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Administradores não podem visualizar clientes de outros grupos",
+  "error": "Unauthorized"
+}
+No links
+404	
+Cliente não encontrado
+
+No links
+500	
+Erro interno do servidor
+
+No links
+default	
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Cliente listado com sucesso",
+  "cliente": {
+    "id": 1,
+    "email": "victor@gmail.com",
+    "cod_grupo": "grupo1",
+    "diasFree": "2025-03-24T03:00:00.000Z"
+  }
+}
+No links
+
+DELETE
+/user-cliente/{id}
+Deleta um cliente pelo seu ID
+
+
+End Point para deletar um cliente. Requer autenticação e só o próprio usuário pode deletar sua conta.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+401	
+Não autorizado - Token inválido ou tentativa de deletar outro usuário
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Apenas o proprietário pode deletar a conta",
+  "error": "Unauthorized"
+}
+No links
+404	
+Cliente não encontrado
+
+No links
+500	
+Erro interno do servidor
+
+No links
+default	
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Cliente deletado com sucesso",
+  "cliente": {
+    "id": 1,
+    "email": "victor@gmail.com",
+    "cod_grupo": "grupo1",
+    "diasFree": "2025-03-24T03:00:00.000Z"
+  }
+}
+No links
+Grupos de Clientes
+
+
+POST
+/cliente-grupo
+Criar novo grupo de clientes
+
+
+Cria um novo grupo para vincular clientes. Requer autenticação de administrador.
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Dados necessários para criação de um novo grupo
+
+Example Value
+Schema
+{
+  "nome": "Grupo Vivo"
+}
+Responses
+Code	Description	Links
+201	
+Grupo criado com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Grupo criado com sucesso",
+  "novoGrupo": {
+    "id": 1,
+    "nome": "Grupo Premium",
+    "userAdminId": 1
+  }
+}
+No links
+401	
+Não autorizado - Token inválido
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+409	
+Conflito - Nome do grupo já existe
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 409,
+  "message": "Grupo já cadastrado",
+  "error": "Conflict"
+}
+No links
+
+GET
+/cliente-grupo
+Listar grupos de clientes
+
+
+Retorna uma lista paginada de grupos. Apenas retorna grupos do administrador autenticado.
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+status
+string
+(query)
+Filtrar por status: todos, ativo, inativo
+
+Available values : todos, ativo, inativo
+
+Default value : todos
+
+
+todos
+Responses
+Code	Description	Links
+200	
+Lista de grupos retornada com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Grupos encontrados com sucesso",
+  "grupos": [
+    {
+      "id": 1,
+      "nome": "Grupo Premium",
+      "status": "ATIVO",
+      "userAdminId": 1
+    },
+    {
+      "id": 2,
+      "nome": "Grupo Básico",
+      "status": "INATIVO",
+      "userAdminId": 1
+    }
+  ],
+  "total": 2
+}
+No links
+401	
+Não autorizado - Token inválido
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+
+PATCH
+/cliente-grupo/{id}
+Atualizar grupo de clientes
+
+
+Atualiza os dados de um grupo existente. O grupo deve pertencer ao administrador autenticado.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Request body
+
+application/json
+Dados que podem ser atualizados (todos opcionais)
+
+Example Value
+Schema
+{
+  "nome": "Grupo Vivo"
+}
+Responses
+Code	Description	Links
+200	
+Grupo atualizado com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Grupo atualizado com sucesso",
+  "grupoAtualizado": {
+    "id": 1,
+    "nome": "Grupo Premium Atualizado",
+    "userAdminId": 1
+  }
+}
+No links
+401	
+Não autorizado - Token inválido ou tentativa de modificar grupo de outro admin
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Grupo não encontrado
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Grupo não encontrado",
+  "error": "Not Found"
+}
+No links
+409	
+Conflito - Novo nome já existe
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 409,
+  "message": "Grupo já cadastrado",
+  "error": "Conflict"
+}
+No links
+
+GET
+/cliente-grupo/{id}
+Obter grupo por ID
+
+
+Retorna os detalhes de um grupo específico. O grupo deve pertencer ao administrador autenticado.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+200	
+Detalhes do grupo retornados com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Grupo encontrado com sucesso",
+  "grupo": {
+    "id": 1,
+    "nome": "Grupo Premium",
+    "status": "ATIVO",
+    "userAdminId": 1
+  }
+}
+No links
+401	
+Não autorizado - Token inválido ou tentativa de acessar grupo de outro admin
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Grupo não encontrado
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Grupo não encontrado",
+  "error": "Not Found"
+}
+No links
+
+DELETE
+/cliente-grupo/{id}
+Remover grupo de clientes
+
+
+Remove permanentemente um grupo do sistema. O grupo deve pertencer ao administrador autenticado.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+200	
+Grupo removido com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Grupo deletado com sucesso",
+  "grupoDeletado": {
+    "id": 1,
+    "nome": "Grupo Premium",
+    "status": "ATIVO",
+    "userAdminId": 1
+  }
+}
+No links
+401	
+Não autorizado - Token inválido ou tentativa de remover grupo de outro admin
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Grupo não encontrado
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Grupo não encontrado",
+  "error": "Not Found"
+}
+No links
+Contas IPTV
+
+
+POST
+/cliente-conta-iptv
+Criar conta IPTV
+
+
+Cria uma nova conta IPTV vinculada a um cliente. Requer autenticação de cliente. (Cadastro inicial, aguarda vinculo)
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Dados necessários para criação da conta IPTV
+
+Example Value
+Schema
+{
+  "clienteId": 1,
+  "codigo": "2b03512",
+  "mac_disp": "A0:B1:C2:D3:E4:F5"
+}
+Responses
+Code	Description	Links
+201	
+Conta IPTV criada com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Conta iptv criada com sucesso (aguardando vinculo)",
+  "ContaIptv": {
+    "id": 1,
+    "userClienteId": 1,
+    "userAdminId": 1,
+    "status": "pendente"
+  }
+}
+No links
+401	
+Não autorizado - Token inválido
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Recurso não encontrado
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Cliente não encontrado",
+  "error": "Not Found"
+}
+No links
+
+GET
+/cliente-conta-iptv
+Listar contas IPTV
+
+
+Retorna uma lista paginada de contas IPTV. Apenas retorna contas do administrador autenticado.
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+status
+string
+(query)
+Filtrar por status: todos, vinculado, pendente
+
+Available values : todos, vinculado, pendente
+
+Default value : todos
+
+
+todos
+Responses
+Code	Description	Links
+200	
+Lista de contas IPTV retornada com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Contas iptv encontradas com sucesso (vinculo)",
+  "contasIptv": [
+    {
+      "id": 1,
+      "user": "usuario1",
+      "clienteGrupoId": 1,
+      "iptvLinkId": 1,
+      "userAdminId": 1
+    },
+    {
+      "id": 2,
+      "user": "usuario2",
+      "clienteGrupoId": 1,
+      "iptvLinkId": 1,
+      "userAdminId": 1
+    }
+  ],
+  "total": 2
+}
+No links
+401	
+Não autorizado - Token inválido
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+
+PATCH
+/cliente-conta-iptv/{id}
+Atualizar conta IPTV
+
+
+Atualiza os dados de uma conta IPTV existente para liberar o acesso. O administrador só pode atualizar suas próprias contas e que estejam vinculadas.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Request body
+
+application/json
+Dados que podem ser atualizados (todos opcionais)
+
+Example Value
+Schema
+{
+  "codigo": "2b03512",
+  "mac_disp": "A0:B1:C2:D3:E4:F5",
+  "user": "Mike",
+  "senha": "1234",
+  "grupoId": 1,
+  "linkIptvId": 1
+}
+Responses
+Code	Description	Links
+200	
+Conta IPTV atualizada com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Conta iptv atualizada com sucesso (vinculo)",
+  "ContaIptv": {
+    "id": 1,
+    "user": "novoUsuario",
+    "senha": "novaSenhaSegura",
+    "clienteGrupoId": 2,
+    "iptvLinkId": 1
+  }
+}
+No links
+401	
+Não autorizado - Token inválido ou tentativa de modificar conta de outro admin
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Conta não encontrada
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Conta nao encontrada",
+  "error": "Not Found"
+}
+No links
+409	
+Conflito - Novo usuário já existe
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 409,
+  "message": "Usuário duplicado",
+  "error": "Conflict"
+}
+No links
+
+GET
+/cliente-conta-iptv/{id}
+Obter conta IPTV por ID
+
+
+Retorna os detalhes de uma conta IPTV específica. O administrador só pode visualizar suas próprias contas.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+200	
+Conta IPTV encontrada com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Conta iptv encontrada com sucesso (vinculo)",
+  "ContaIptv": {
+    "id": 1,
+    "user": "usuario123",
+    "senha": "senhaSegura",
+    "clienteGrupoId": 1,
+    "userClienteId": 1,
+    "iptvLinkId": 1,
+    "userAdminId": 1
+  }
+}
+No links
+401	
+Não autorizado - Token inválido ou tentativa de acessar conta de outro admin
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Conta não encontrada
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Conta nao encontrada",
+  "error": "Not Found"
+}
+No links
+
+DELETE
+/cliente-conta-iptv/{id}
+Remover conta IPTV
+
+
+Remove permanentemente uma conta IPTV. O administrador só pode remover suas próprias contas.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+200	
+Conta IPTV removida com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Conta iptv deletada com sucesso (vinculo)",
+  "ContaIptv": {
+    "id": 1,
+    "user": "usuario123",
+    "clienteGrupoId": 1,
+    "iptvLinkId": 1
+  }
+}
+No links
+401	
+Não autorizado - Token inválido ou tentativa de remover conta de outro admin
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Acesso não autorizado",
+  "error": "Unauthorized"
+}
+No links
+404	
+Conta não encontrada
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Conta nao encontrada",
+  "error": "Not Found"
+}
+No links
+
+PATCH
+/cliente-conta-iptv/vincular/{id}
+Vincular conta IPTV
+
+
+Vincula uma conta IPTV a um cliente e a torna ativa. Requer autenticação de admin.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+200	
+Conta IPTV vinculada com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Conta iptv vinculada com sucesso",
+  "ContaIptv": {
+    "id": 1,
+    "userClienteId": 1,
+    "userAdminId": 1,
+    "mac_disp": "00:00:00:00:00:00",
+    "status": "vinculado"
+  }
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+404	
+Conta nao encontrada
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Conta nao encontrada",
+  "error": "Not Found"
+}
+No links
+
+GET
+/cliente-conta-iptv/filmes/categorias
+Listar categorias de filmes
+
+
+Retorna as categorias de filmes disponíveis na conta IPTV. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Responses
+Code	Description	Links
+200	
+Categorias de filmes retornadas com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Categorias encontradas com sucesso",
+  "categorias": [
+    {
+      "id": "1",
+      "nome": "Ação"
+    },
+    {
+      "id": "2",
+      "nome": "Comédia"
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "limit": 10,
+    "offset": 0
+  }
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+
+GET
+/cliente-conta-iptv/filmes/categorias/{categoriaId}
+Listar filmes por categoria
+
+
+Retorna os filmes disponíveis na categoria informada. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+categoriaId *
+number
+(path)
+categoriaId
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Responses
+Code	Description	Links
+200	
+Filmes retornados com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Filmes encontrados com sucesso",
+  "filmes": [
+    {
+      "id": "1",
+      "titulo": "Filme 1",
+      "data": "..."
+    },
+    {
+      "id": "2",
+      "titulo": "Filme 2",
+      "data": "..."
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "limit": 10,
+    "offset": 0
+  }
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+
+GET
+/cliente-conta-iptv/filmes/{filmeId}
+Listar filme por id
+
+
+Retorna o filme disponível pelo id informado. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+filmeId *
+number
+(path)
+filmeId
+Responses
+Code	Description	Links
+200	
+Filme retornado com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Filme encontrado com sucesso",
+  "filme": {
+    "id": "1",
+    "title": "Filme 1"
+  }
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+
+GET
+/cliente-conta-iptv/filmes/nome
+Listar filmes por nome
+
+
+Retorna os filmes disponíveis pelo nome informado no body. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "nome": "Filme 1"
+}
+Responses
+Code	Description	Links
+200	
+Filmes retornados com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Filmes encontrados com sucesso",
+  "filmes": [
+    {
+      "id": "1",
+      "title": "Filme 1"
+    },
+    {
+      "id": "2",
+      "title": "Filme 2"
+    }
+  ]
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+404	
+Nenhum filme encontrado para o nome informado
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Nenhum filme encontrado para o nome informado",
+  "error": "Not Found"
+}
+No links
+
+GET
+/cliente-conta-iptv/filmes/genero
+Listar filmes por genero
+
+
+Retorna os filmes disponíveis pelo genero informado no body. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "genero": "Aventura"
+}
+Responses
+Code	Description	Links
+200	
+Filmes retornados com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Filmes encontrados com sucesso",
+  "filmes": [
+    {
+      "id": "1",
+      "title": "Filme 1"
+    },
+    {
+      "id": "2",
+      "title": "Filme 2"
+    }
+  ]
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV"
+}
+No links
+404	
+Nenhum filme encontrado para o genero informado
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Nenhum filme encontrado para o genero informado"
+}
+No links
+
+GET
+/cliente-conta-iptv/live/categorias
+Listar categorias de live
+
+
+Retorna as categorias de live disponíveis na conta IPTV. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Responses
+Code	Description	Links
+200	
+Categorias de live retornadas com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Categorias encontradas com sucesso",
+  "categorias": [
+    {
+      "id": "1",
+      "nome": "Globo"
+    },
+    {
+      "id": "2",
+      "nome": "Hbo"
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "limit": 10,
+    "offset": 0
+  }
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+
+GET
+/cliente-conta-iptv/live/categorias/{categoriaId}
+Listar live por categoria
+
+
+Retorna as lives disponíveis na categoria informada. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+categoriaId *
+number
+(path)
+categoriaId
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Responses
+Code	Description	Links
+200	
+Lives retornadas com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Lives encontradas com sucesso",
+  "lives": [
+    {
+      "id": "1",
+      "titulo": "Live 1",
+      "data": "..."
+    },
+    {
+      "id": "2",
+      "titulo": "Live 2",
+      "data": "..."
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "limit": 10,
+    "offset": 0
+  }
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+
+GET
+/cliente-conta-iptv/live/{id}
+Listar live por id
+
+
+Retorna a live disponível pelo id informado. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+id
+Responses
+Code	Description	Links
+200	
+Live retornada com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Live encontrada com sucesso",
+  "live": {
+    "id": "1",
+    "titulo": "Live 1",
+    "data": "..."
+  }
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+
+GET
+/cliente-conta-iptv/series/categorias
+Listar categorias de séries
+
+
+Retorna todas as categorias de séries disponíveis. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Responses
+Code	Description	Links
+200	
+Categorias retornadas com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Categorias encontradas com sucesso",
+  "data": [
+    {
+      "id": 1,
+      "nome": "Drama"
+    },
+    {
+      "id": 2,
+      "nome": "Comédia"
+    }
+  ]
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+404	
+Nenhuma categoria encontrada
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Nenhuma categoria encontrada"
+}
+No links
+
+GET
+/cliente-conta-iptv/series/nome
+Buscar séries por nome
+
+
+Retorna as séries que contém o nome informado. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "nome": "Breaking Bad"
+}
+Responses
+Code	Description	Links
+200	
+Séries retornadas com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Séries encontradas com sucesso",
+  "data": [
+    {
+      "id": 1,
+      "nome": "Breaking Bad",
+      "descricao": "..."
+    },
+    {
+      "id": 2,
+      "nome": "Better Call Saul",
+      "descricao": "..."
+    }
+  ]
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+404	
+Nenhuma série encontrada para o nome informado
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Nenhuma série encontrada para o nome informado"
+}
+No links
+
+GET
+/cliente-conta-iptv/series/categoria/{categoriaId}
+Listar séries por categoria
+
+
+Retorna as séries disponíveis na categoria informada. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+categoriaId *
+number
+(path)
+ID da categoria
+
+1
+limit
+number
+(query)
+Default value : 10
+
+10
+offset
+number
+(query)
+Default value : 0
+
+0
+Responses
+Code	Description	Links
+200	
+Séries retornadas com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Séries encontradas com sucesso",
+  "data": [
+    {
+      "id": 1,
+      "nome": "Série 1",
+      "descricao": "..."
+    },
+    {
+      "id": 2,
+      "nome": "Série 2",
+      "descricao": "..."
+    }
+  ]
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+404	
+Nenhuma série encontrada para a categoria informada
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Nenhuma série encontrada para a categoria informada"
+}
+No links
+
+GET
+/cliente-conta-iptv/series/{id}
+Obter série por ID
+
+
+Retorna os detalhes da série com o ID informado. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+ID da série
+
+1
+Responses
+Code	Description	Links
+200	
+Série retornada com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Série encontrada com sucesso",
+  "data": {
+    "id": 1,
+    "nome": "Breaking Bad",
+    "descricao": "Um professor de química se transforma em um chefão das drogas...",
+    "categoriaId": 1
+  }
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+404	
+Nenhuma série encontrada para o ID informado
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Nenhuma série encontrada para o ID informado"
+}
+No links
+
+GET
+/cliente-conta-iptv/series/temporadas/{id}
+Obter temporadas e episódios de uma série
+
+
+Retorna todas as temporadas e episódios da série com o ID informado. Requer autenticação de cliente vinculado e deve ter o mesmo mac da conta.
+
+Parameters
+Try it out
+Name	Description
+id *
+number
+(path)
+ID da série
+
+1
+Responses
+Code	Description	Links
+200	
+Temporadas e episódios retornados com sucesso
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "message": "Temporadas e episódios encontradas com sucesso",
+  "temporadas": [
+    {
+      "id": 1,
+      "numero": 1,
+      "serieId": 1
+    },
+    {
+      "id": 2,
+      "numero": 2,
+      "serieId": 1
+    }
+  ],
+  "eposodios": [
+    {
+      "id": 1,
+      "nome": "Piloto",
+      "numero": 1,
+      "temporadaId": 1
+    },
+    {
+      "id": 2,
+      "nome": "O Gato na Bolsa",
+      "numero": 2,
+      "temporadaId": 1
+    }
+  ]
+}
+No links
+401	
+Credenciais inválidas para a API IPTV
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 401,
+  "message": "Credenciais inválidas para a API IPTV",
+  "error": "Unauthorized"
+}
+No links
+404	
+Nenhuma temporada ou episódio encontrado para a série informada
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "statusCode": 404,
+  "message": "Nenhuma temporada encontrada para esta serie"
+}
+No links
