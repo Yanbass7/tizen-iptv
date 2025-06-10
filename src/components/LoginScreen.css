@@ -383,4 +383,25 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img, input {
   -moz-transform: translate3d(0, 0, 0);
   -ms-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
+}
+
+/* Estilos para indicar foco em navegação por controle remoto */
+.login-form input.focused,
+.login-form button.focused {
+  outline: 3px solid #00a8e6;
+  box-shadow: 0 0 15px rgba(0, 168, 230, 0.7);
+  border-color: #00a8e6;
+  transform: scale(1.02); /* Leve aumento para destaque */
+  transition: all 0.2s ease-in-out;
+}
+
+.login-form .error-message {
+  color: #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.1);
+  border: 1px solid #ff4d4d;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 14px;
 } 

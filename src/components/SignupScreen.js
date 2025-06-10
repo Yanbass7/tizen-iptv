@@ -1,14 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './LoginScreen.css'; // Reutilizar os mesmos estilos da tela de login
 import { cadastrarCliente, validarSenha } from '../services/authService';
 
-const SignupScreen = ({ onSignup, onBackToLogin }) => {
+const SignupScreen = ({ onSignup, onBackToLogin, isActive }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const [focusIndex, setFocusIndex] = useState(0);
+  const focusableElements = useRef([]);
+
+  useEffect(() => {
+    // Foca o primeiro elemento quando a tela se torna ativa
+    if (isActive) {
+      focusableElements.current[0]?.focus();
+      setFocusIndex(0);
+    }
+  }, [isActive]);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    const handleAuthNav = (e) => {
+      const { keyCode } = e.detail;
+      const elementsCount = focusableElements.current.filter(el => el).length;
+
+      if (keyCode === 40) { // Down
+        setFocusIndex(prev => (prev + 1) % elementsCount);
+      } else if (keyCode === 38) { // Up
+        setFocusIndex(prev => (prev - 1 + elementsCount) % elementsCount);
+      } else if (keyCode === 13) { // Enter
+        const currentElement = focusableElements.current[focusIndex];
+        currentElement?.click();
+      }
+    };
+
+    window.addEventListener('authNavigation', handleAuthNav);
+    return () => window.removeEventListener('authNavigation', handleAuthNav);
+  }, [isActive, focusIndex]);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    focusableElements.current.forEach((el, index) => {
+      if (el) {
+        if (index === focusIndex) {
+          el.focus();
+          el.classList.add('focused');
+        } else {
+          el.classList.remove('focused');
+        }
+      }
+    });
+  }, [focusIndex, isActive]);
 
   const handleCadastro = async () => {
     if (loading) return; // Evita múltiplos envios
@@ -73,12 +120,6 @@ const SignupScreen = ({ onSignup, onBackToLogin }) => {
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleCadastro();
-    }
-  };
-
   return (
     <div className="login-screen">
       <img 
@@ -98,25 +139,25 @@ const SignupScreen = ({ onSignup, onBackToLogin }) => {
         </h2>
         
         <input
+          ref={el => (focusableElements.current[0] = el)}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          onKeyPress={handleKeyPress}
         />
         <input
+          ref={el => (focusableElements.current[1] = el)}
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Senha"
-          onKeyPress={handleKeyPress}
         />
         <input
+          ref={el => (focusableElements.current[2] = el)}
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Confirmar Senha"
-          onKeyPress={handleKeyPress}
         />
 
         <div style={{fontSize: '12px', color: '#ccc', margin: '10px 0', textAlign: 'center'}}>
@@ -127,6 +168,7 @@ const SignupScreen = ({ onSignup, onBackToLogin }) => {
         {success && <div className="success-message" style={{color: '#4CAF50', textAlign: 'center', margin: '10px 0'}}>{success}</div>}
 
         <button
+          ref={el => (focusableElements.current[3] = el)}
           id="continueButton"
           onClick={handleCadastro}
           disabled={loading}
@@ -135,6 +177,7 @@ const SignupScreen = ({ onSignup, onBackToLogin }) => {
         </button>
 
         <button
+          ref={el => (focusableElements.current[4] = el)}
           className="back-to-login-btn"
           onClick={onBackToLogin}
           style={{

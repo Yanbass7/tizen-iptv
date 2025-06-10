@@ -1,12 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './LoginScreen.css';
 import { loginCliente } from '../services/authService';
 
-const LoginScreen = ({ onLogin, onGoToSignup }) => {
+const LoginScreen = ({ onLogin, onGoToSignup, isActive }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [focusIndex, setFocusIndex] = useState(0);
+  const focusableElements = useRef([]);
+
+  useEffect(() => {
+    // Foca o primeiro elemento quando a tela se torna ativa
+    if (isActive) {
+      focusableElements.current[0]?.focus();
+      setFocusIndex(0); // Garante que o foco visual seja aplicado
+    }
+  }, [isActive]);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    const handleAuthNav = (e) => {
+      const { keyCode } = e.detail;
+      const elementsCount = focusableElements.current.filter(el => el).length;
+
+      if (keyCode === 40) { // Down
+        setFocusIndex(prev => (prev + 1) % elementsCount);
+      } else if (keyCode === 38) { // Up
+        setFocusIndex(prev => (prev - 1 + elementsCount) % elementsCount);
+      } else if (keyCode === 13) { // Enter
+        const currentElement = focusableElements.current[focusIndex];
+        currentElement?.click();
+      }
+    };
+
+    window.addEventListener('authNavigation', handleAuthNav);
+    return () => window.removeEventListener('authNavigation', handleAuthNav);
+  }, [isActive, focusIndex]);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    focusableElements.current.forEach((el, index) => {
+      if (el) {
+        if (index === focusIndex) {
+          el.focus();
+          el.classList.add('focused');
+        } else {
+          el.classList.remove('focused');
+        }
+      }
+    });
+  }, [focusIndex, isActive]);
 
   // Obtém o MAC address do dispositivo se possível (Tizen / WebAPI)
   const getMacAddress = () => {
@@ -78,12 +125,6 @@ const LoginScreen = ({ onLogin, onGoToSignup }) => {
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleContinue();
-    }
-  };
-
   return (
     <div className="login-screen">
       <img 
@@ -98,22 +139,23 @@ const LoginScreen = ({ onLogin, onGoToSignup }) => {
           alt="BIGTV Logo" 
         />
         <input
+          ref={el => (focusableElements.current[0] = el)}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          onKeyPress={handleKeyPress}
         />
         <input
+          ref={el => (focusableElements.current[1] = el)}
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Senha"
-          onKeyPress={handleKeyPress}
         />
         {error && <div className="error-message">{error}</div>}
 
         <button
+          ref={el => (focusableElements.current[2] = el)}
           id="continueButton"
           onClick={handleContinue}
           disabled={loading}
@@ -122,6 +164,7 @@ const LoginScreen = ({ onLogin, onGoToSignup }) => {
         </button>
 
         <button
+          ref={el => (focusableElements.current[3] = el)}
           className="signup-btn"
           onClick={onGoToSignup}
           style={{

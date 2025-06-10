@@ -83,14 +83,13 @@ function App() {
     const handleKeyDown = (e) => {
       const keyCode = e.keyCode;
       
-      // Se estiver na tela de login, cadastro ou configuração IPTV, apenas permite Enter para continuar
-      if (currentSection === SECTIONS.LOGIN || currentSection === SECTIONS.SIGNUP || currentSection === SECTIONS.IPTV_SETUP) {
-        if (keyCode === 13) { // Enter
-          if (currentSection === SECTIONS.LOGIN) {
-            handleLogin();
-          }
-          // Para SIGNUP e IPTV_SETUP, o Enter será tratado pelos próprios componentes
-        }
+      const authSections = [SECTIONS.LOGIN, SECTIONS.SIGNUP, SECTIONS.IPTV_SETUP];
+      if (authSections.includes(currentSection)) {
+        // Delegar navegação para os componentes de autenticação através de eventos customizados
+        const authEvent = new CustomEvent('authNavigation', {
+          detail: { keyCode }
+        });
+        window.dispatchEvent(authEvent);
         return;
       }
 
@@ -396,6 +395,7 @@ function App() {
           <LoginScreen 
             onLogin={handleLogin} 
             onGoToSignup={handleGoToSignup}
+            isActive={currentSection === SECTIONS.LOGIN}
           />
         );
 
@@ -404,6 +404,7 @@ function App() {
           <SignupScreen 
             onSignup={handleSignup}
             onBackToLogin={handleBackToLogin}
+            isActive={currentSection === SECTIONS.SIGNUP}
           />
         );
 
@@ -413,6 +414,7 @@ function App() {
             clienteData={clienteData}
             onSetupComplete={handleIptvSetupComplete}
             onSkip={handleSkipIptvSetup}
+            isActive={currentSection === SECTIONS.IPTV_SETUP}
           />
         );
       

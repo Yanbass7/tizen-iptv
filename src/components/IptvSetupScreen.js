@@ -1,12 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './LoginScreen.css'; // Reutilizar os mesmos estilos da tela de login
 import { criarContaIptv } from '../services/authService';
 
-const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip }) => {
+const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive }) => {
   const [codigo, setCodigo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const [focusIndex, setFocusIndex] = useState(0);
+  const focusableElements = useRef([]);
+
+  useEffect(() => {
+    // Foca o primeiro elemento quando a tela se torna ativa
+    if (isActive) {
+      focusableElements.current[0]?.focus();
+      setFocusIndex(0);
+    }
+  }, [isActive]);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    const handleAuthNav = (e) => {
+      const { keyCode } = e.detail;
+      const elementsCount = focusableElements.current.filter(el => el).length;
+
+      if (keyCode === 40) { // Down
+        setFocusIndex(prev => (prev + 1) % elementsCount);
+      } else if (keyCode === 38) { // Up
+        setFocusIndex(prev => (prev - 1 + elementsCount) % elementsCount);
+      } else if (keyCode === 13) { // Enter
+        const currentElement = focusableElements.current[focusIndex];
+        currentElement?.click();
+      }
+    };
+
+    window.addEventListener('authNavigation', handleAuthNav);
+    return () => window.removeEventListener('authNavigation', handleAuthNav);
+  }, [isActive, focusIndex]);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    focusableElements.current.forEach((el, index) => {
+      if (el) {
+        if (index === focusIndex) {
+          el.focus();
+          el.classList.add('focused');
+        } else {
+          el.classList.remove('focused');
+        }
+      }
+    });
+  }, [focusIndex, isActive]);
 
   // Verificar se clienteData está disponível
   if (!clienteData) {
@@ -144,12 +191,6 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip }) => {
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleConfigurar();
-    }
-  };
-
   return (
     <div className="login-screen">
       <img 
@@ -174,11 +215,11 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip }) => {
         </div>
         
         <input
+          ref={el => (focusableElements.current[0] = el)}
           type="text"
           value={codigo}
           onChange={(e) => setCodigo(e.target.value)}
           placeholder="Código do Grupo (ex: 2b03512)"
-          onKeyPress={handleKeyPress}
           style={{marginBottom: '10px'}}
         />
 
@@ -190,6 +231,7 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip }) => {
         {success && <div className="success-message" style={{color: '#4CAF50', textAlign: 'center', margin: '10px 0'}}>{success}</div>}
 
         <button
+          ref={el => (focusableElements.current[1] = el)}
           id="continueButton"
           onClick={handleConfigurar}
           disabled={loading}
@@ -198,6 +240,7 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip }) => {
         </button>
 
         <button
+          ref={el => (focusableElements.current[2] = el)}
           className="skip-btn"
           onClick={handlePular}
           style={{
