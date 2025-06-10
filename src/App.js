@@ -318,6 +318,13 @@ function App() {
 
   const handleLogin = (loginData) => {
     console.log('Login realizado:', loginData);
+    
+    // Garantir que temos os dados do cliente antes de prosseguir
+    if (!loginData || !loginData.id || !loginData.email) {
+      console.error('Dados de login inválidos:', loginData);
+      return;
+    }
+    
     setClienteData(loginData);
     
     // Verificar se já tem conta IPTV configurada
@@ -326,7 +333,10 @@ function App() {
     
     // Se não tem conta IPTV ou está pendente, ir para configuração
     if (!contaIptvId || contaIptvStatus === 'pendente') {
-      setCurrentSection(SECTIONS.IPTV_SETUP);
+      // Pequeno delay para garantir que clienteData foi atualizado
+      setTimeout(() => {
+        setCurrentSection(SECTIONS.IPTV_SETUP);
+      }, 100);
     } else {
       // Se já tem conta IPTV vinculada, ir direto para Home
       setCurrentSection(SECTIONS.HOME);

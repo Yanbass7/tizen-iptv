@@ -8,6 +8,32 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Verificar se clienteData está disponível
+  if (!clienteData) {
+    return (
+      <div className="login-screen">
+        <img 
+          src="/images/image-mesh-gradient.png" 
+          className="background-image" 
+          alt="Background" 
+        />
+        <div className="login-form">
+          <img 
+            src="/images/BIGTV-transparente.png" 
+            className="logo-login" 
+            alt="BIGTV Logo" 
+          />
+          <h2 style={{color: 'white', marginBottom: '20px', textAlign: 'center'}}>
+            Carregando...
+          </h2>
+          <div style={{fontSize: '14px', color: '#ccc', margin: '20px 0', textAlign: 'center'}}>
+            Aguarde enquanto carregamos suas informações...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Obtém o MAC address do dispositivo se possível (Tizen / WebAPI)
   const getMacAddress = () => {
     // Samsung Tizen (webapis)

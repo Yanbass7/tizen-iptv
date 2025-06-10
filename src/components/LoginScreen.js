@@ -55,6 +55,7 @@ const LoginScreen = ({ onLogin, onGoToSignup }) => {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('authEmail', data.email);
 
+      console.log('Dados de login para enviar ao App:', data); // Debug
       onLogin(data); // Informa App que login foi bem-sucedido
     } catch (err) {
       setError(err.message || 'Erro ao logar');
