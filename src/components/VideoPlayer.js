@@ -346,14 +346,51 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
   // Função para inicializar mpegts player para Live (canais ao vivo)
   const initMpegtsLivePlayer = async (url, videoElement) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         setLoadingMessage('Carregando...');
         
+        let streamUrlForPlayer = url;
+
+        // Forçar HTTPS em ambiente de produção para evitar erros de conteúdo misto
+        const isProdHttps = !isDevelopment && window.location.protocol === 'https:';
+        if (isProdHttps) {
+            try {
+                console.log(`[HTTPS Enforcer] Verificando URL para mpegts-live: ${url}`);
+                const response = await fetch(url);
+                const finalUrl = response.url;
+                const contentType = response.headers.get('content-type') || '';
+
+                const isManifest = contentType.includes('mpegurl') || finalUrl.includes('.m3u8');
+
+                if (isManifest) {
+                    console.log('[HTTPS Enforcer] Manifesto detectado. Modificando para HTTPS.');
+                    const manifestText = await response.text();
+                    const modifiedManifest = manifestText.replace(/http:\/\//g, 'https://');
+
+                    if (blobUrlRef.current) {
+                        URL.revokeObjectURL(blobUrlRef.current);
+                    }
+                    const blob = new Blob([modifiedManifest], { type: contentType });
+                    streamUrlForPlayer = URL.createObjectURL(blob);
+                    blobUrlRef.current = streamUrlForPlayer;
+                    console.log(`[HTTPS Enforcer] Usando Blob URL: ${streamUrlForPlayer}`);
+                } else if (finalUrl.startsWith('http://')) {
+                    streamUrlForPlayer = finalUrl.replace('http://', 'https://');
+                    console.log(`[HTTPS Enforcer] URL final é HTTP, trocando para HTTPS: ${streamUrlForPlayer}`);
+                } else {
+                    streamUrlForPlayer = finalUrl;
+                }
+            } catch (e) {
+                console.error('[HTTPS Enforcer] Falha ao forçar HTTPS, usando URL original. Erro:', e);
+                streamUrlForPlayer = url; // Fallback para a URL original
+            }
+        }
+
         const player = mpegts.createPlayer({
           type: 'mpegts',
           isLive: true,
-          url: url
+          url: streamUrlForPlayer
         });
 
         playerRef.current = player;
