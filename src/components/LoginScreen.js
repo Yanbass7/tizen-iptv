@@ -7,9 +7,23 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [macAddress, setMacAddress] = useState('');
 
   const [focusIndex, setFocusIndex] = useState(0);
   const focusableElements = useRef([]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const mac = params.get('mac');
+    if (mac && mac !== 'unknown' && mac !== 'unsupported') {
+      setMacAddress(mac);
+      console.log(`MAC Address obtido da URL: ${mac}`);
+    } else if (mac) {
+        const errorMessage = `Dispositivo não suportado ou erro na leitura do MAC (${mac}).`;
+        console.error(errorMessage);
+        setError(errorMessage);
+    }
+  }, []); // Executa apenas uma vez na montagem do componente
 
   useEffect(() => {
     // Foca o primeiro elemento quando a tela se torna ativa
@@ -103,7 +117,7 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
     setLoading(true);
 
     try {
-      const mac_disp = getMacAddress();
+      const mac_disp = macAddress || getMacAddress();
       console.log('MAC que será enviado na requisição:', mac_disp); // Debug
       
       if (!mac_disp) {
