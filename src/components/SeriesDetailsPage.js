@@ -366,18 +366,10 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
               className="series-provider-logo"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
-            
-            <div className="new-episode-badge">
-              Novo Episódio
-            </div>
-            
+        
             <h1 className="series-title-main">{series.name}</h1>
             
             <div className="series-meta-info">
-              <div className="meta-item age-rating">
-                <i className="fas fa-shield-alt"></i>
-                <span>14+</span>
-              </div>
               <div className="meta-item season-count">
                 <i className="fas fa-list"></i>
                 <span>{seasons.length} Temporadas</span>
@@ -532,7 +524,6 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
                             
                             <div className="episode-meta">
                               <span>2023</span>
-                              <span>14+</span>
                             </div>
                             
                             {episode.plot && (
