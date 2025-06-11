@@ -271,7 +271,7 @@ img {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to right, #222222 0%, #22222200 20%);
+    background: linear-gradient(to right, #222222 0%, #222222 0%, #22222200 100%);
 }
 
 /* Área de Episódios com otimizações de performance */
