@@ -467,26 +467,9 @@ const Series = ({ isActive }) => {
                         onError={handleImageError}
                       />
                       <div className="serie-overlay">
-                        <h3 className="serie-title">{series.name}</h3>
-                        <div className="serie-info">
-                          <span className="serie-year">{series.year || 'N/A'}</span>
-                          <span className="serie-rating">
-                            ⭐ {series.rating || 'N/A'}
-                          </span>
-                        </div>
-                        <p className="serie-description">
-                          {series.plot ? 
-                            (series.plot.length > 120 ? 
-                              series.plot.substring(0, 120) + '...' : 
-                              series.plot
-                            ) : 
-                            'Descrição não disponível'
-                          }
-                        </p>
-                        <div className="serie-actions">
-                          <span className="action-hint">ENTER Ver detalhes</span>
-                          <span className="action-hint">P Reproduzir</span>
-                        </div>
+                        <h3 className="serie-title">
+                        <span>{series.name}</span>
+                        </h3>
                       </div>
                     </div>
                   </div>

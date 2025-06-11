@@ -495,21 +495,49 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 .movie-title {
-  font-size: 1rem;
+  font-size: 1.4rem;
   font-weight: bold;
   color: white;
   margin-bottom: 5px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  
-  /* Truncar texto longo */
-  white-space: nowrap;
+  width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  
-  /* Otimização de texto */
+  position: relative;
+  white-space: nowrap;
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.movie-title span {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  padding-left: 0; /* sem espaçamento extra */
+}
+
+.movie.focused .movie-title span,
+.movie:hover .movie-title span {
+  animation-name: scroll-text;
+  animation-duration: 10s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+  padding-left: 0; /* começa colado */
+}
+
+@keyframes scroll-text {
+  0% {
+    transform: translateX(0); /* começa colado na esquerda */
+  }
+  100% {
+    transform: translateX(-100%); /* rola até sumir completamente */
+  }
+}
+
+
+
 
 .movie-info {
   /* Fallback para browsers antigos */
@@ -525,7 +553,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -webkit-justify-content: space-between;
   -ms-flex-pack: justify;
   justify-content: space-between;
-  
+  width: 100%;
   margin-bottom: 8px;
 }
 

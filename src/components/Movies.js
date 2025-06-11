@@ -414,26 +414,9 @@ const Movies = ({ isActive }) => {
                         />
                       )}
                       <div className="movie-overlay">
-                        <h3 className="movie-title">{movie.name}</h3>
-                        <div className="movie-info">
-                          <span className="movie-year">{movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'N/A'}</span>
-                          <span className="movie-rating">
-                            ⭐ {movie.rating || 'N/A'}
-                          </span>
-                        </div>
-                        <p className="movie-description">
-                          {movie.plot ? 
-                            (movie.plot.length > 120 ? 
-                              movie.plot.substring(0, 120) + '...' : 
-                              movie.plot
-                            ) : 
-                            'Descrição não disponível'
-                          }
-                        </p>
-                        <div className="movie-actions">
-                          <span className="action-hint">ENTER Preview</span>
-                          <span className="action-hint">I Info</span>
-                        </div>
+                        <h3 className="movie-title">
+                          <span>{movie.name}</span>
+                          </h3>
                       </div>
                     </div>
                   </div>
