@@ -157,7 +157,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 .hero-banner {
   position: relative;
-  height: 80vh;
+  height: 70vh;
   min-height: 600px;
   display: -webkit-flex;
   display: flex;
@@ -191,7 +191,8 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(20, 20, 20, 0.363);
+  /* Gradiente de baixo para cima, cobrindo os 20% inferiores da imagem */
+  background: linear-gradient(to top, rgba(20, 20, 20) 0%, rgba(20, 20, 20, 0) 20%);
 }
 
 .hero-content {
@@ -349,7 +350,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 .content-shelves {
   padding: 0 60px 60px;
-  margin-top: -100px;
+  margin-top: 80px;
   position: relative;
   z-index: 3;
 }
@@ -375,7 +376,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 20px 4px;
+  padding: 20px 20px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -833,4 +834,3 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     padding: 0 40px 40px;
   }
 }
-
