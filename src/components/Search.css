@@ -226,11 +226,19 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   /* Fallback para browsers antigos */
   display: block;
   /* Prefixos WebKit para Tizen */
-  display: -webkit-grid; /* Usar grid */
-  display: grid;
+  display: -webkit-box; /* Usar flexbox */
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
   
-  grid-template-columns: repeat(6, 1fr); /* 6 colunas */
-  gap: 10px; /* Espaço entre as teclas */
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  gap: 10px; /* Espaço entre as linhas */
   
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
@@ -241,8 +249,16 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   /* Fallback para browsers antigos */
   display: block;
   /* Prefixos WebKit para Tizen */
-  display: -webkit-contents; /* Permite que os itens da grade sejam filhos diretos do contêiner da grade */
-  display: contents;
+  display: -webkit-box; /* Usar flexbox */
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  -webkit-flex-wrap: wrap; /* Quebra de linha */
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  
+  gap: 10px; /* Espaço entre as teclas na linha */
 }
 
 /* Teclas do teclado - Estados de foco otimizados */
@@ -251,7 +267,8 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   font-size: 1.4rem;
   font-weight: 500;
   padding: 12px;
-  width: 100%;
+  flex: 1; /* Distribuir espaço */
+  max-width: calc((100% / 6) - (10px * 5 / 6)); /* Para 6 colunas com gap */
   height: 100%;
   min-width: 45px;
   min-height: 45px;
@@ -323,7 +340,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   background: -o-linear-gradient(145deg, #4a4a4a, #3a3a3a);
   background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
 
-  grid-column: span 2; /* Ocupa 2 colunas */
+  flex: 2; /* Ocupa o dobro do espaço de uma tecla normal */
   aspect-ratio: auto; /* Cancela o quadrado */
   height: 55px; /* Altura fixa */
 }

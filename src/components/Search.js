@@ -216,39 +216,34 @@ const keyboardLayout = [
   const handleKeyPress = useCallback((key) => {
     // Se a "key" for um objeto (nossa nova estrutura)
     if (typeof key === 'object' && key !== null && key.type) {
-        if (key.type === 'action') {
-            if (key.action === 'backspace') {
-                setSearchQuery(prev => prev.slice(0, -1));
-            } else if (key.action === 'clear') {
-                setSearchQuery('');
-                setSearchResults({ channels: [], movies: [], series: [] });
-            }
+        if (key.action === 'backspace') {
+            setSearchQuery(prev => prev.slice(0, -1));
+        } else if (key.action === 'clear') {
+            setSearchQuery('');
+            setSearchResults({ channels: [], movies: [], series: [] });
         } else if (key.type === 'char') {
-            setSearchQuery(prev => prev + key.value); // Adiciona o valor, ex: ' ' para o espaço
+            setSearchQuery(prev => prev + key.value);
         }
-    } else if (typeof key === 'string') { // Se for uma string normal (letras/números)
+    } else if (typeof key === 'string') {
         setSearchQuery(prev => prev + key);
     }
-    // ... resto da lógica de debounce ...
-}, [performSearch, searchQuery, setSearchQuery, setSearchResults]);   
+  }, [performSearch, searchQuery, setSearchQuery, setSearchResults]);
 
   const handleKeyboardNavigation = useCallback((keyCode) => {
     const maxRows = keyboardLayout.length;
     let currentRow = selectedKey.row;
     let currentCol = selectedKey.col;
 
-    if (keyCode === 40) { // Baixo (agora age como Cima)
+    if (keyCode === 38) { // Cima
       if (currentRow > 0) {
         currentRow--;
         const newMaxCols = keyboardLayout[currentRow].length;
         currentCol = Math.min(currentCol, newMaxCols - 1);
         setSelectedKey({ row: currentRow, col: currentCol });
       } else {
-        // Se estiver na primeira linha, pode ir para a última linha de resultados se houver
         if (searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0) {
           setActiveSection('results');
-          // Tenta focar no último item da última seção com resultados
-          const sections = ['series', 'movies', 'channels']; // Ordem inversa para ir para o "último"
+          const sections = ['series', 'movies', 'channels'];
           for (const section of sections) {
             if (searchResults[section].length > 0) {
               setResultFocus({ section: section, index: searchResults[section].length - 1 });
@@ -257,35 +252,32 @@ const keyboardLayout = [
           }
         }
       }
-    } else if (keyCode === 38) { // Cima (agora age como Baixo)
+    } else if (keyCode === 40) { // Baixo
       if (currentRow < maxRows - 1) {
         currentRow++;
         const newMaxCols = keyboardLayout[currentRow].length;
         currentCol = Math.min(currentCol, newMaxCols - 1);
         setSelectedKey({ row: currentRow, col: currentCol });
       } else if (searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0) {
-        // Ir para resultados se existirem
         setActiveSection('results');
         setResultFocus({ section: 'channels', index: 0 });
       }
-    } else if (keyCode === 39) { // Direita (agora age como Esquerda)
+    } else if (keyCode === 37) { // Esquerda
       if (currentCol > 0) {
         currentCol--;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
       } else {
-        // Se estiver na primeira coluna, pode ir para o final da linha anterior (se houver)
         if (currentRow > 0) {
           currentRow--;
           currentCol = keyboardLayout[currentRow].length - 1;
           setSelectedKey({ row: currentRow, col: currentCol });
         }
       }
-    } else if (keyCode === 37) { // Esquerda (agora age como Direita)
+    } else if (keyCode === 39) { // Direita
       if (currentCol < keyboardLayout[currentRow].length - 1) {
         currentCol++;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
       } else {
-        // Se estiver na última coluna, pode ir para o início da próxima linha (se houver)
         if (currentRow < maxRows - 1) {
           currentRow++;
           currentCol = 0;
@@ -306,11 +298,10 @@ const keyboardLayout = [
 
     if (!currentResults) return;
 
-    if (keyCode === 40) { // Baixo (agora age como Cima)
+    if (keyCode === 38) { // Cima
       if (resultFocus.index >= itemsPerRow) {
         setResultFocus(prev => ({ ...prev, index: prev.index - itemsPerRow }));
       } else {
-        // Ir para seção anterior ou voltar ao teclado
         if (currentSectionIndex > 0) {
           const prevSection = sections[currentSectionIndex - 1];
           const prevSectionLength = searchResults[prevSection].length;
@@ -324,11 +315,10 @@ const keyboardLayout = [
           setActiveSection('keyboard');
         }
       }
-    } else if (keyCode === 38) { // Cima (agora age como Baixo)
+    } else if (keyCode === 40) { // Baixo
       if (resultFocus.index + itemsPerRow < currentResults.length) {
         setResultFocus(prev => ({ ...prev, index: prev.index + itemsPerRow }));
       } else {
-        // Ir para próxima seção
         if (currentSectionIndex < sections.length - 1) {
           const nextSection = sections[currentSectionIndex + 1];
           if (searchResults[nextSection].length > 0) {
@@ -336,17 +326,16 @@ const keyboardLayout = [
           }
         }
       }
-    } else if (keyCode === 39) { // Direita (agora age como Esquerda)
+    } else if (keyCode === 37) { // Esquerda
       if (resultFocus.index > 0) {
         setResultFocus(prev => ({ ...prev, index: prev.index - 1 }));
       }
-    } else if (keyCode === 37) { // Esquerda (agora age como Direita)
+    } else if (keyCode === 39) { // Direita
       if (resultFocus.index < currentResults.length - 1) {
         setResultFocus(prev => ({ ...prev, index: prev.index + 1 }));
       }
     } else if (keyCode === 13) { // OK - selecionar resultado
       const selectedItem = currentResults[resultFocus.index];
-      // FIX: 'channels' -> 'channel', 'movies' -> 'movie', etc.
       const type = resultFocus.section.endsWith('s')
         ? resultFocus.section.slice(0, -1)
         : resultFocus.section;
