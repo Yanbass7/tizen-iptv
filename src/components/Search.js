@@ -436,10 +436,7 @@ const Search = ({ isActive }) => {
       const sectionResults = resultsRef.current[resultFocus.section];
       if (sectionResults && sectionResults[resultFocus.index]) {
         sectionResults[resultFocus.index].classList.add('focused');
-        safeScrollIntoView(sectionResults[resultScope.index], {
-          behavior: 'smooth',
-          block: 'nearest'
-        });
+        
       }
     }
   }, [resultFocus]);

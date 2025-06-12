@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import LoginScreen from './components/LoginScreen';
 import SignupScreen from './components/SignupScreen';
@@ -11,6 +11,7 @@ import Series from './components/Series';
 import SeriesDetailsPage from './components/SeriesDetailsPage';
 import Search from './components/Search';
 import VideoPlayer from './components/VideoPlayer';
+import criarUrlProxyStream from './utils/streamProxy';
 
 // Estado das seções (migrado do conceito original)
 const SECTIONS = {
@@ -238,10 +239,14 @@ function App() {
     const handlePlayContent = (event) => {
       const { streamUrl, streamInfo } = event.detail;
       
+      // Converter URL de stream para proxy seguro, se necessário
+      const safeStreamUrl = criarUrlProxyStream(streamUrl);
+      
       // Detectar ambiente Tizen TV
       const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
       
-      console.log('🎬 Evento playContent recebido:', { streamUrl, streamInfo });
+      console.log('🎬 Evento playContent recebido:', { originalStreamUrl: streamUrl, streamInfo });
+      console.log('🔒 URL após conversão de proxy (se aplicada):', safeStreamUrl);
       console.log('📺 Ambiente Tizen TV:', isTizenTV);
       
       // Se for Tizen TV e tiver flags específicas, aplicar configurações especiais
@@ -263,7 +268,7 @@ function App() {
         
         console.log('📺 StreamInfo configurado para Tizen:', tizenStreamInfo);
         
-        setPlayerData({ streamUrl, streamInfo: tizenStreamInfo });
+        setPlayerData({ streamUrl: safeStreamUrl, streamInfo: tizenStreamInfo });
         setCurrentSection(SECTIONS.PLAYER);
         
         // Adicionar pequeno delay para garantir que a transição ocorra
@@ -274,7 +279,7 @@ function App() {
       } else {
         // Comportamento padrão para outros ambientes
         console.log('💻 Usando configuração padrão');
-        setPlayerData({ streamUrl, streamInfo });
+        setPlayerData({ streamUrl: safeStreamUrl, streamInfo });
         setCurrentSection(SECTIONS.PLAYER);
       }
     };
