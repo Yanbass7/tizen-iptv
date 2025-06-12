@@ -222,10 +222,20 @@ const keyboardLayout = [
             setSearchQuery('');
             setSearchResults({ channels: [], movies: [], series: [] });
         } else if (key.type === 'char') {
-            setSearchQuery(prev => prev + key.value);
+            setSearchQuery(prev => {
+                if (prev.length < 30) { // Add limit check
+                    return prev + key.value;
+                }
+                return prev; // Do not add if limit reached
+            });
         }
     } else if (typeof key === 'string') {
-        setSearchQuery(prev => prev + key);
+        setSearchQuery(prev => {
+            if (prev.length < 30) { // Add limit check
+                return prev + key;
+            }
+            return prev; // Do not add if limit reached
+        });
     }
   }, [performSearch, searchQuery, setSearchQuery, setSearchResults]);
 
