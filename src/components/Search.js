@@ -236,6 +236,15 @@ const keyboardLayout = [
 
     if (keyCode === 38) { // Cima
       if (currentRow > 0) {
+        if (currentRow === 6) { // From special action row to number row
+          if (currentCol === 0) { // backspace
+            currentCol = 0; // '5'
+          } else if (currentCol === 1) { // space
+            currentCol = 2; // '7'
+          } else { // clear
+            currentCol = 4; // '9'
+          }
+        }
         currentRow--;
         const newMaxCols = keyboardLayout[currentRow].length;
         currentCol = Math.min(currentCol, newMaxCols - 1);
@@ -254,6 +263,15 @@ const keyboardLayout = [
       }
     } else if (keyCode === 40) { // Baixo
       if (currentRow < maxRows - 1) {
+        if (currentRow === 5) { // From number row to special action row
+          if (currentCol <= 1) { // '5', '6'
+            currentCol = 0; // backspace
+          } else if (currentCol <= 3) { // '7', '8'
+            currentCol = 1; // space
+          } else { // '9', '0'
+            currentCol = 2; // clear
+          }
+        }
         currentRow++;
         const newMaxCols = keyboardLayout[currentRow].length;
         currentCol = Math.min(currentCol, newMaxCols - 1);
