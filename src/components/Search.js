@@ -437,7 +437,7 @@ const keyboardLayout = [
 
                 return (
                     <button
-                        key={`<span class="math-inline">\{rowIndex\}\-</span>{colIndex}`}
+                        key={`${rowIndex}-${colIndex}`}
                         className={`keyboard-key ${typeof key === 'object' ? 'special-key' : ''}`}
                         onClick={() => handleKeyPress(valueToPress)}
                     >

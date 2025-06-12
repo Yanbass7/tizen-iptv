@@ -238,7 +238,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -ms-flex-direction: column;
   flex-direction: column;
   
-  gap: 10px; /* Espaço entre as linhas */
+  margin-top: 10px; /* Espaço entre as linhas */
   
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
@@ -258,7 +258,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   
-  gap: 10px; /* Espaço entre as teclas na linha */
+  margin: 1px; /* Espaço entre as teclas na linha */
 }
 
 /* Teclas do teclado - Estados de foco otimizados */
@@ -268,14 +268,14 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   font-weight: 500;
   padding: 12px;
   flex: 1; /* Distribuir espaço */
-  max-width: calc((100% / 6) - (10px * 5 / 6)); /* Para 6 colunas com gap */
-  height: 100%;
+  width: 100%;
+  height: 88%;
   min-width: 45px;
   min-height: 45px;
   cursor: pointer;
   border: 2px solid transparent;
   border-radius: 8px;
-  margin: 0;
+  margin: 4px;
   
   /* Fallback para gradiente */
   background: #2a2a2a;
