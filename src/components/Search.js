@@ -24,15 +24,20 @@ const Search = ({ isActive }) => {
   });
 
   // Layout do teclado virtual
-  const keyboardLayout = [
+  // FORMA RECOMENDADA de definir o keyboardLayout
+const keyboardLayout = [
     ['a', 'b', 'c', 'd', 'e', 'f'],
     ['g', 'h', 'i', 'j', 'k', 'l'],
     ['m', 'n', 'o', 'p', 'q', 'r'],
     ['s', 't', 'u', 'v', 'w', 'x'],
     ['y', 'z', '1', '2', '3', '4'],
     ['5', '6', '7', '8', '9', '0'],
-    [<i className="fas fa-backspace"></i>, <i className="fas fa-minus"></i>, <i className="fas fa-trash-alt"></i>]
-  ];
+    [
+        { type: 'action', action: 'backspace', display: <i className="fas fa-backspace"></i> },
+        { type: 'char', value: ' ', display: <i className="fas fa-minus"></i> }, // Tecla de espaço
+        { type: 'action', action: 'clear', display: <i className="fas fa-trash-alt"></i> }
+    ]
+];
 
   const handleResultClick = useCallback((item, type) => {
     console.log('Item selecionado:', { item, type });
@@ -209,45 +214,23 @@ const Search = ({ isActive }) => {
   }, [searchQuery, fetchAllChannels, fetchAllMovies, fetchAllSeries, setActiveSection, setResultFocus, setSearchResults]);
 
   const handleKeyPress = useCallback((key) => {
-    let processedKey = key;
-
-    // Se a chave for um elemento React (ícone), extrair a informação relevante
-    if (typeof key !== 'string' && key && key.props && key.props.className) {
-      if (key.props.className.includes('fa-backspace')) {
-        processedKey = 'BACKSPACE_ICON';
-      } else if (key.props.className.includes('fa-trash-alt')) {
-        processedKey = 'TRASH_ICON';
-      } else if (key.props.className.includes('fa-grip-lines')) { // Adicionado para o ícone de espaço
-        processedKey = 'SPACE_ICON';
-      }
-    }
-
-    if (processedKey === 'BACKSPACE_ICON') {
-      // Backspace
-      setSearchQuery(prev => prev.slice(0, -1));
-    } else if (processedKey === 'TRASH_ICON') {
-      // Limpar tudo (delete)
-      setSearchQuery('');
-      setSearchResults({ channels: [], movies: [], series: [] });
-    } else if (processedKey === 'SPACE_ICON') { // Alterado para usar o novo identificador
-      // Espaço
-      setSearchQuery(prev => prev + ' ');
-    } else {
-      // Caractere normal
-      setSearchQuery(prev => prev + processedKey);
-    }
-
-    // Buscar automaticamente quando digitar (debounce)
-    // A busca automática só deve ocorrer para caracteres normais, não para backspace, delete ou espaço
-    // A busca automática só deve ocorrer para caracteres normais, não para backspace, delete ou espaço
-    if (typeof processedKey === 'string' && processedKey.length === 1) { // Apenas caracteres normais
-      setTimeout(() => {
-        if (searchQuery.trim().length >= 2) { // Ajuste: buscar se tiver 2 ou mais caracteres
-          performSearch();
+    // Se a "key" for um objeto (nossa nova estrutura)
+    if (typeof key === 'object' && key !== null && key.type) {
+        if (key.type === 'action') {
+            if (key.action === 'backspace') {
+                setSearchQuery(prev => prev.slice(0, -1));
+            } else if (key.action === 'clear') {
+                setSearchQuery('');
+                setSearchResults({ channels: [], movies: [], series: [] });
+            }
+        } else if (key.type === 'char') {
+            setSearchQuery(prev => prev + key.value); // Adiciona o valor, ex: ' ' para o espaço
         }
-      }, 500);
+    } else if (typeof key === 'string') { // Se for uma string normal (letras/números)
+        setSearchQuery(prev => prev + key);
     }
-  }, [performSearch, searchQuery, setSearchQuery, setSearchResults]);
+    // ... resto da lógica de debounce ...
+}, [performSearch, searchQuery, setSearchQuery, setSearchResults]);   
 
   const handleKeyboardNavigation = useCallback((keyCode) => {
     const maxRows = keyboardLayout.length;
@@ -460,28 +443,18 @@ const Search = ({ isActive }) => {
             {keyboardLayout.map((row, rowIndex) => (
               <div key={rowIndex} className="keyboard-row">
                 {row.map((key, colIndex) => {
-                  let contentToRender;
-                  if (typeof key === 'string') {
-                    contentToRender = key;
-                  } else if (React.isValidElement(key)) { // Verifica se é um elemento React válido
-                    if (key.props && key.props.className && key.props.className.includes('fa-grip-lines')) {
-                      contentToRender = ' ';
-                    } else {
-                      contentToRender = key; // Renderiza o elemento React <i>
-                    }
-                  } else {
-                    // Fallback para caso não seja string nem elemento React válido (o que não deveria acontecer com <i>)
-                    contentToRender = String(key);
-                  }
-                  return (
+                const keyContent = (typeof key === 'object' && key.display) ? key.display : key;
+                const valueToPress = (typeof key === 'object') ? key : String(key);
+
+                return (
                     <button
-                      key={`${rowIndex}-${colIndex}`}
-                      className={`keyboard-key ${typeof key !== 'string' || key.length > 1 ? 'special-key' : ''}`}
-                      onClick={() => handleKeyPress(key)}
+                        key={`<span class="math-inline">\{rowIndex\}\-</span>{colIndex}`}
+                        className={`keyboard-key ${typeof key === 'object' ? 'special-key' : ''}`}
+                        onClick={() => handleKeyPress(valueToPress)}
                     >
-                      {contentToRender}
+                        {keyContent}
                     </button>
-                  );
+                );
                 })}
               </div>
             ))}
