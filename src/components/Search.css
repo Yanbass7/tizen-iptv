@@ -92,6 +92,8 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Área do teclado virtual - Otimizada */
 .search-input-area {
+  margin-top: 50px;
+  margin-left: 50px;
   width: 400px;
   min-width: 400px;
   
@@ -218,27 +220,17 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Teclado Virtual - Otimizado */
 .virtual-keyboard {
-  background: rgba(20, 20, 20, 0.9);
   border-radius: 12px;
-  padding: 20px;
-  border: 1px solid #333;
+  padding: 0px;
   
   /* Fallback para browsers antigos */
   display: block;
   /* Prefixos WebKit para Tizen */
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
+  display: -webkit-grid; /* Usar grid */
+  display: grid;
   
-  /* Direção com prefixos */
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  
-  gap: 10px;
+  grid-template-columns: repeat(6, 1fr); /* 6 colunas */
+  gap: 10px; /* Espaço entre as teclas */
   
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
@@ -249,24 +241,14 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   /* Fallback para browsers antigos */
   display: block;
   /* Prefixos WebKit para Tizen */
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  
-  gap: 8px;
-  
-  /* Alinhamento com prefixos */
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
+  display: -webkit-contents; /* Permite que os itens da grade sejam filhos diretos do contêiner da grade */
+  display: contents;
 }
 
 /* Teclas do teclado - Estados de foco otimizados */
 .keyboard-key {
   color: white;
-  font-size: 1rem;
+  font-size: 1.4rem;
   font-weight: 500;
   padding: 12px;
   min-width: 35px;
@@ -315,6 +297,8 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  aspect-ratio: 1 / 1; /* Adicionado para manter as teclas quadradas */
 }
 
 .keyboard-key:hover,
@@ -328,7 +312,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 .keyboard-key.special-key {
   min-width: 60px;
-  font-size: 0.9rem;
+  font-size: 1.4rem;
   
   /* Fallback para gradiente */
   background: #4a4a4a;
@@ -336,6 +320,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   background: -webkit-linear-gradient(145deg, #4a4a4a, #3a3a3a);
   background: -o-linear-gradient(145deg, #4a4a4a, #3a3a3a);
   background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
+
+  grid-column: span 2; /* Ocupa 2 colunas */
+  aspect-ratio: auto; /* Cancela o quadrado */
+  height: 55px; /* Altura fixa */
 }
 
 .keyboard-key.special-key:hover,
@@ -353,7 +341,6 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -ms-flex: 1;
   flex: 1;
   
-  background: rgba(20, 20, 20, 0.5);
   border-radius: 12px;
   padding: 20px;
   overflow-y: auto;
@@ -977,4 +964,4 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
   backface-visibility: hidden;
-} 
+}

@@ -25,16 +25,18 @@ const Search = ({ isActive }) => {
 
   // Layout do teclado virtual
   const keyboardLayout = [
-    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', '⌫'],
-    ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '🔍'],
-    ['ESPAÇO', 'LIMPAR']
+    ['a', 'b', 'c', 'd', 'e', 'f'],
+    ['g', 'h', 'i', 'j', 'k', 'l'],
+    ['m', 'n', 'o', 'p', 'q', 'r'],
+    ['s', 't', 'u', 'v', 'w', 'x'],
+    ['y', 'z', '1', '2', '3', '4'],
+    ['5', '6', '7', '8', '9', '0'],
+    [<i className="fas fa-backspace"></i>, <i className="fas fa-minus"></i>, <i className="fas fa-trash-alt"></i>]
   ];
 
   const handleResultClick = useCallback((item, type) => {
     console.log('Item selecionado:', { item, type });
-    
+
     let streamUrl = '';
     let streamInfo = {};
 
@@ -49,7 +51,7 @@ const Search = ({ isActive }) => {
           type: 'live'
         };
         break;
-        
+
       case 'movie':
         streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${item.stream_id}`;
         streamInfo = {
@@ -61,7 +63,7 @@ const Search = ({ isActive }) => {
           type: 'movie'
         };
         break;
-        
+
       case 'serie':
         // Para séries da busca, usar URL genérica (estrutura correta)
         streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${item.series_id}`;
@@ -74,7 +76,7 @@ const Search = ({ isActive }) => {
           type: 'series'
         };
         break;
-        
+
       default:
         console.error('Tipo de conteúdo não reconhecido:', type);
         return;
@@ -94,14 +96,14 @@ const Search = ({ isActive }) => {
         `${API_BASE_URL}?${API_CREDENTIALS}&action=get_live_categories`
       );
       const categories = await categoriesResponse.json();
-      
+
       // Buscar canais de todas as categorias
       const channelsPromises = categories.slice(0, 5).map(category => // Limitar a 5 categorias para performance
         fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_live_streams&category_id=${category.category_id}`)
           .then(res => res.json())
           .catch(() => [])
       );
-      
+
       const channelsArrays = await Promise.all(channelsPromises);
       return channelsArrays.reduce((acc, val) => acc.concat(val), []);
     } catch (error) {
@@ -117,13 +119,13 @@ const Search = ({ isActive }) => {
         `${API_BASE_URL}?${API_CREDENTIALS}&action=get_vod_categories`
       );
       const categories = await categoriesResponse.json();
-      
+
       const moviesPromises = categories.slice(0, 3).map(category => // Limitar a 3 categorias para performance
         fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_vod_streams&category_id=${category.category_id}`)
           .then(res => res.json())
           .catch(() => [])
       );
-      
+
       const moviesArrays = await Promise.all(moviesPromises);
       return moviesArrays.reduce((acc, val) => acc.concat(val), []);
     } catch (error) {
@@ -139,13 +141,13 @@ const Search = ({ isActive }) => {
         `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series_categories`
       );
       const categories = await categoriesResponse.json();
-      
+
       const seriesPromises = categories.slice(0, 3).map(category => // Limitar a 3 categorias para performance
         fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_series&category_id=${category.category_id}`)
           .then(res => res.json())
           .catch(() => [])
       );
-      
+
       const seriesArrays = await Promise.all(seriesPromises);
       return seriesArrays.reduce((acc, val) => acc.concat(val), []);
     } catch (error) {
@@ -168,16 +170,16 @@ const Search = ({ isActive }) => {
 
       // Filtrar resultados pelo termo de busca
       const query = searchQuery.toLowerCase();
-      
-      const filteredChannels = channelsData.filter(channel => 
+
+      const filteredChannels = channelsData.filter(channel =>
         channel.name && channel.name.toLowerCase().includes(query)
       ).slice(0, 20); // Limitar a 20 resultados
 
-      const filteredMovies = moviesData.filter(movie => 
+      const filteredMovies = moviesData.filter(movie =>
         movie.name && movie.name.toLowerCase().includes(query)
       ).slice(0, 20);
 
-      const filteredSeries = seriesData.filter(serie => 
+      const filteredSeries = seriesData.filter(serie =>
         serie.name && serie.name.toLowerCase().includes(query)
       ).slice(0, 20);
 
@@ -207,30 +209,40 @@ const Search = ({ isActive }) => {
   }, [searchQuery, fetchAllChannels, fetchAllMovies, fetchAllSeries, setActiveSection, setResultFocus, setSearchResults]);
 
   const handleKeyPress = useCallback((key) => {
-    if (key === '⌫') {
+    let processedKey = key;
+
+    // Se a chave for um elemento React (ícone), extrair a informação relevante
+    if (typeof key !== 'string' && key && key.props && key.props.className) {
+      if (key.props.className.includes('fa-backspace')) {
+        processedKey = 'BACKSPACE_ICON';
+      } else if (key.props.className.includes('fa-trash-alt')) {
+        processedKey = 'TRASH_ICON';
+      } else if (key.props.className.includes('fa-grip-lines')) { // Adicionado para o ícone de espaço
+        processedKey = 'SPACE_ICON';
+      }
+    }
+
+    if (processedKey === 'BACKSPACE_ICON') {
       // Backspace
       setSearchQuery(prev => prev.slice(0, -1));
-    } else if (key === '🔍') {
-      // Buscar
-      if (searchQuery.trim()) {
-        performSearch();
-      }
-    } else if (key === 'LIMPAR') {
-      // Limpar tudo
+    } else if (processedKey === 'TRASH_ICON') {
+      // Limpar tudo (delete)
       setSearchQuery('');
       setSearchResults({ channels: [], movies: [], series: [] });
-    } else if (key === 'ESPAÇO') {
+    } else if (processedKey === 'SPACE_ICON') { // Alterado para usar o novo identificador
       // Espaço
       setSearchQuery(prev => prev + ' ');
     } else {
       // Caractere normal
-      setSearchQuery(prev => prev + key);
+      setSearchQuery(prev => prev + processedKey);
     }
 
     // Buscar automaticamente quando digitar (debounce)
-    if (key !== '🔍' && key !== 'LIMPAR') {
+    // A busca automática só deve ocorrer para caracteres normais, não para backspace, delete ou espaço
+    // A busca automática só deve ocorrer para caracteres normais, não para backspace, delete ou espaço
+    if (typeof processedKey === 'string' && processedKey.length === 1) { // Apenas caracteres normais
       setTimeout(() => {
-        if (searchQuery.trim().length >= 2) {
+        if (searchQuery.trim().length >= 2) { // Ajuste: buscar se tiver 2 ou mais caracteres
           performSearch();
         }
       }, 500);
@@ -239,27 +251,35 @@ const Search = ({ isActive }) => {
 
   const handleKeyboardNavigation = useCallback((keyCode) => {
     const maxRows = keyboardLayout.length;
-    const currentRow = selectedKey.row;
-    const currentCol = selectedKey.col;
-    const maxCols = keyboardLayout[currentRow].length;
+    let currentRow = selectedKey.row;
+    let currentCol = selectedKey.col;
 
     if (keyCode === 38) { // Cima
       if (currentRow > 0) {
-        const newRow = currentRow - 1;
-        const newMaxCols = keyboardLayout[newRow].length;
-        setSelectedKey({
-          row: newRow,
-          col: Math.min(currentCol, newMaxCols - 1)
-        });
+        currentRow--;
+        const newMaxCols = keyboardLayout[currentRow].length;
+        currentCol = Math.min(currentCol, newMaxCols - 1);
+        setSelectedKey({ row: currentRow, col: currentCol });
+      } else {
+        // Se estiver na primeira linha, pode ir para a última linha de resultados se houver
+        if (searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0) {
+          setActiveSection('results');
+          // Tenta focar no último item da última seção com resultados
+          const sections = ['series', 'movies', 'channels']; // Ordem inversa para ir para o "último"
+          for (const section of sections) {
+            if (searchResults[section].length > 0) {
+              setResultFocus({ section: section, index: searchResults[section].length - 1 });
+              return;
+            }
+          }
+        }
       }
     } else if (keyCode === 40) { // Baixo
       if (currentRow < maxRows - 1) {
-        const newRow = currentRow + 1;
-        const newMaxCols = keyboardLayout[newRow].length;
-        setSelectedKey({
-          row: newRow,
-          col: Math.min(currentCol, newMaxCols - 1)
-        });
+        currentRow++;
+        const newMaxCols = keyboardLayout[currentRow].length;
+        currentCol = Math.min(currentCol, newMaxCols - 1);
+        setSelectedKey({ row: currentRow, col: currentCol });
       } else if (searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0) {
         // Ir para resultados se existirem
         setActiveSection('results');
@@ -267,11 +287,27 @@ const Search = ({ isActive }) => {
       }
     } else if (keyCode === 37) { // Esquerda
       if (currentCol > 0) {
-        setSelectedKey(prev => ({ ...prev, col: prev.col - 1 }));
+        currentCol--;
+        setSelectedKey(prev => ({ ...prev, col: currentCol }));
+      } else {
+        // Se estiver na primeira coluna, pode ir para o final da linha anterior (se houver)
+        if (currentRow > 0) {
+          currentRow--;
+          currentCol = keyboardLayout[currentRow].length - 1;
+          setSelectedKey({ row: currentRow, col: currentCol });
+        }
       }
     } else if (keyCode === 39) { // Direita
-      if (currentCol < maxCols - 1) {
-        setSelectedKey(prev => ({ ...prev, col: prev.col + 1 }));
+      if (currentCol < keyboardLayout[currentRow].length - 1) {
+        currentCol++;
+        setSelectedKey(prev => ({ ...prev, col: currentCol }));
+      } else {
+        // Se estiver na última coluna, pode ir para o início da próxima linha (se houver)
+        if (currentRow < maxRows - 1) {
+          currentRow++;
+          currentCol = 0;
+          setSelectedKey({ row: currentRow, col: currentCol });
+        }
       }
     } else if (keyCode === 13) { // OK - pressionar tecla
       const selectedKeyValue = keyboardLayout[currentRow][currentCol];
@@ -296,9 +332,9 @@ const Search = ({ isActive }) => {
           const prevSection = sections[currentSectionIndex - 1];
           const prevSectionLength = searchResults[prevSection].length;
           if (prevSectionLength > 0) {
-            setResultFocus({ 
-              section: prevSection, 
-              index: Math.max(0, prevSectionLength - 1) 
+            setResultFocus({
+              section: prevSection,
+              index: Math.max(0, prevSectionLength - 1)
             });
           }
         } else {
@@ -334,14 +370,14 @@ const Search = ({ isActive }) => {
       handleResultClick(selectedItem, type);
     }
   }, [resultFocus, searchResults, handleResultClick, setActiveSection]);
-  
+
   // Sistema de navegação por controle remoto
   useEffect(() => {
     if (!isActive) return;
 
     const handleSearchNavigation = (event) => {
       const { keyCode } = event.detail;
-      
+
       if (activeSection === 'keyboard') {
         handleKeyboardNavigation(keyCode);
       } else if (activeSection === 'results') {
@@ -361,18 +397,26 @@ const Search = ({ isActive }) => {
     });
 
     if (activeSection === 'keyboard') {
-      const keyboardKeys = document.querySelectorAll('.keyboard-key');
-      const keyIndex = selectedKey.row * 10 + selectedKey.col; // Aproximação
-      if (keyboardKeys[keyIndex]) {
-        keyboardKeys[keyIndex].classList.add('focused');
+      // Encontrar a tecla correta no DOM
+      const keyboardRows = keyboardRef.current ? keyboardRef.current.children : [];
+      if (keyboardRows[selectedKey.row]) {
+        const keysInRow = keyboardRows[selectedKey.row].children;
+        if (keysInRow[selectedKey.col]) {
+          keysInRow[selectedKey.col].classList.add('focused');
+          // Rolar para a tecla focada
+          safeScrollIntoView(keysInRow[selectedKey.col], {
+            behavior: 'smooth',
+            block: 'nearest'
+          });
+        }
       }
     } else if (activeSection === 'results') {
       const sectionResults = resultsRef.current[resultFocus.section];
       if (sectionResults && sectionResults[resultFocus.index]) {
         sectionResults[resultFocus.index].classList.add('focused');
-        sectionResults[resultFocus.index].scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'nearest' 
+        sectionResults[resultFocus.index].scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
         });
       }
     }
@@ -392,7 +436,7 @@ const Search = ({ isActive }) => {
       const sectionResults = resultsRef.current[resultFocus.section];
       if (sectionResults && sectionResults[resultFocus.index]) {
         sectionResults[resultFocus.index].classList.add('focused');
-        safeScrollIntoView(sectionResults[resultFocus.index], {
+        safeScrollIntoView(sectionResults[resultScope.index], {
           behavior: 'smooth',
           block: 'nearest'
         });
@@ -408,7 +452,6 @@ const Search = ({ isActive }) => {
         {/* Área de busca e teclado */}
         <div className="search-input-area">
           <div className="search-header">
-            <h2>🔍 Pesquisar</h2>
             <div className="search-input-display">
               <span className="search-query">{searchQuery}</span>
               <span className="cursor">|</span>
@@ -419,15 +462,30 @@ const Search = ({ isActive }) => {
           <div className="virtual-keyboard" ref={keyboardRef}>
             {keyboardLayout.map((row, rowIndex) => (
               <div key={rowIndex} className="keyboard-row">
-                {row.map((key, colIndex) => (
-                  <button
-                    key={`${rowIndex}-${colIndex}`}
-                    className={`keyboard-key ${key.length > 1 ? 'special-key' : ''}`}
-                    onClick={() => handleKeyPress(key)}
-                  >
-                    {key}
-                  </button>
-                ))}
+                {row.map((key, colIndex) => {
+                  let contentToRender;
+                  if (typeof key === 'string') {
+                    contentToRender = key;
+                  } else if (React.isValidElement(key)) { // Verifica se é um elemento React válido
+                    if (key.props && key.props.className && key.props.className.includes('fa-grip-lines')) {
+                      contentToRender = ' ';
+                    } else {
+                      contentToRender = key; // Renderiza o elemento React <i>
+                    }
+                  } else {
+                    // Fallback para caso não seja string nem elemento React válido (o que não deveria acontecer com <i>)
+                    contentToRender = String(key);
+                  }
+                  return (
+                    <button
+                      key={`${rowIndex}-${colIndex}`}
+                      className={`keyboard-key ${typeof key !== 'string' || key.length > 1 ? 'special-key' : ''}`}
+                      onClick={() => handleKeyPress(key)}
+                    >
+                      {contentToRender}
+                    </button>
+                  );
+                })}
               </div>
             ))}
           </div>
@@ -523,15 +581,15 @@ const Search = ({ isActive }) => {
               )}
 
               {/* Nenhum resultado */}
-              {searchResults.channels.length === 0 && 
-               searchResults.movies.length === 0 && 
-               searchResults.series.length === 0 && (
-                <div className="no-results">
-                  <i className="fa-solid fa-magnifying-glass"></i>
-                  <h3>Nenhum resultado encontrado</h3>
-                  <p>Tente buscar com outras palavras-chave</p>
-                </div>
-              )}
+              {searchResults.channels.length === 0 &&
+                searchResults.movies.length === 0 &&
+                searchResults.series.length === 0 && (
+                  <div className="no-results">
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                    <h3>Nenhum resultado encontrado</h3>
+                    <p>Tente buscar com outras palavras-chave</p>
+                  </div>
+                )}
             </>
           )}
 
@@ -548,4 +606,4 @@ const Search = ({ isActive }) => {
   );
 };
 
-export default Search; 
+export default Search;
