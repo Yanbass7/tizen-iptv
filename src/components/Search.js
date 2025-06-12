@@ -237,7 +237,7 @@ const keyboardLayout = [
     let currentRow = selectedKey.row;
     let currentCol = selectedKey.col;
 
-    if (keyCode === 38) { // Cima
+    if (keyCode === 40) { // Baixo (agora age como Cima)
       if (currentRow > 0) {
         currentRow--;
         const newMaxCols = keyboardLayout[currentRow].length;
@@ -257,7 +257,7 @@ const keyboardLayout = [
           }
         }
       }
-    } else if (keyCode === 40) { // Baixo
+    } else if (keyCode === 38) { // Cima (agora age como Baixo)
       if (currentRow < maxRows - 1) {
         currentRow++;
         const newMaxCols = keyboardLayout[currentRow].length;
@@ -268,7 +268,7 @@ const keyboardLayout = [
         setActiveSection('results');
         setResultFocus({ section: 'channels', index: 0 });
       }
-    } else if (keyCode === 37) { // Esquerda
+    } else if (keyCode === 39) { // Direita (agora age como Esquerda)
       if (currentCol > 0) {
         currentCol--;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
@@ -280,7 +280,7 @@ const keyboardLayout = [
           setSelectedKey({ row: currentRow, col: currentCol });
         }
       }
-    } else if (keyCode === 39) { // Direita
+    } else if (keyCode === 37) { // Esquerda (agora age como Direita)
       if (currentCol < keyboardLayout[currentRow].length - 1) {
         currentCol++;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
@@ -306,7 +306,7 @@ const keyboardLayout = [
 
     if (!currentResults) return;
 
-    if (keyCode === 38) { // Cima
+    if (keyCode === 40) { // Baixo (agora age como Cima)
       if (resultFocus.index >= itemsPerRow) {
         setResultFocus(prev => ({ ...prev, index: prev.index - itemsPerRow }));
       } else {
@@ -324,7 +324,7 @@ const keyboardLayout = [
           setActiveSection('keyboard');
         }
       }
-    } else if (keyCode === 40) { // Baixo
+    } else if (keyCode === 38) { // Cima (agora age como Baixo)
       if (resultFocus.index + itemsPerRow < currentResults.length) {
         setResultFocus(prev => ({ ...prev, index: prev.index + itemsPerRow }));
       } else {
@@ -336,11 +336,11 @@ const keyboardLayout = [
           }
         }
       }
-    } else if (keyCode === 37) { // Esquerda
+    } else if (keyCode === 39) { // Direita (agora age como Esquerda)
       if (resultFocus.index > 0) {
         setResultFocus(prev => ({ ...prev, index: prev.index - 1 }));
       }
-    } else if (keyCode === 39) { // Direita
+    } else if (keyCode === 37) { // Esquerda (agora age como Direita)
       if (resultFocus.index < currentResults.length - 1) {
         setResultFocus(prev => ({ ...prev, index: prev.index + 1 }));
       }
