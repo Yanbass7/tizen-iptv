@@ -1,0 +1,80 @@
+.console-log-modal {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  height: 400px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.9);
+  border-bottom: 1px solid #333;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.modal-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.modal-content {
+  flex-grow: 1;
+  padding: 10px;
+  overflow-y: auto;
+  word-break: break-word;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #333;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+.log-log {
+  color: #f0f0f0; /* Light gray for regular logs */
+}
+
+.log-warn {
+  color: #ffc107; /* Yellow for warnings */
+}
+
+.log-error {
+  color: #dc3545; /* Red for errors */
+}
+
+.log-timestamp {
+  color: #aaa;
+  margin-right: 5px;
+}

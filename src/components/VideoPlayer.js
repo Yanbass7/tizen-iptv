@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import mpegts from 'mpegts.js';
 import shaka from 'shaka-player';
 import criarUrlProxyStream from '../utils/streamProxy';
+import ConsoleLogModal from './ConsoleLogModal';
 
 import './VideoPlayer.css';
 
@@ -717,6 +718,8 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
             style={{ width: '100%', height: '100%' }}
           />
         
+        <ConsoleLogModal />
+
         {/* Renderização Condicional da UI */}
         {isControlsVisible && streamInfo?.type === 'live' ? (
           <div className="live-info-overlay">
@@ -825,4 +828,4 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   );
 };
 
-export default VideoPlayer; 
+export default VideoPlayer;
