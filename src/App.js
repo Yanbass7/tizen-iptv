@@ -459,7 +459,12 @@ function App() {
         );
 
       case SECTIONS.SEARCH:
-        return <Search isActive={currentSection === SECTIONS.SEARCH} />;
+        return (
+          <Search 
+            isActive={currentSection === SECTIONS.SEARCH} 
+            onExitSearch={() => setOnMenu(true)} 
+          />
+        );
 
       case SECTIONS.PLAYER:
         return (
@@ -518,4 +523,3 @@ function App() {
 }
 
 export default App;
-

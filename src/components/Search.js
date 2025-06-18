@@ -3,7 +3,7 @@ import { safeScrollIntoView } from '../utils/scrollUtils';
 import { API_BASE_URL, API_CREDENTIALS } from '../config/apiConfig';
 import './Search.css';
 
-const Search = ({ isActive }) => {
+const Search = ({ isActive, onExitSearch }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState({
     channels: [],
@@ -295,7 +295,12 @@ const keyboardLayout = [
         currentCol--;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
       } else {
-        if (currentRow > 0) {
+        // Se estiver na primeira coluna de uma das linhas especificadas, tentar sair para o sidebar
+        const rowsToExit = [0, 1, 2, 3, 4, 5, 6]; // Linhas das teclas 'a', 'g', 'm', 's', 'y', '5', 'backspace'
+        if (currentCol === 0 && rowsToExit.includes(currentRow) && onExitSearch) {
+          console.log('Navegando para o sidebar a partir do teclado.');
+          onExitSearch();
+        } else if (currentRow > 0) {
           currentRow--;
           currentCol = keyboardLayout[currentRow].length - 1;
           setSelectedKey({ row: currentRow, col: currentCol });
