@@ -2,9 +2,8 @@
 // Responsável por realizar login e validar token conforme a API interna
 // Endpoint base disponibilizado: http://131.0.245.253:3001
 
-import { getApiBaseUrl } from '../config/proxyConfig';
-
-const API_BASE_URL = getApiBaseUrl();
+// Usando endpoint direto temporariamente (sem proxy)
+const API_BASE_URL = 'http://131.0.245.253:3001';
 
 /**
  * Valida se a senha atende aos critérios de segurança

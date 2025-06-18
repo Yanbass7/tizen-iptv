@@ -239,14 +239,14 @@ function App() {
     const handlePlayContent = (event) => {
       const { streamUrl, streamInfo } = event.detail;
       
-      // Converter URL de stream para proxy seguro, se necessário
-      const safeStreamUrl = criarUrlProxyStream(streamUrl);
+      // Proxy temporariamente desabilitado - usando URL original
+      const safeStreamUrl = streamUrl; // criarUrlProxyStream(streamUrl);
       
       // Detectar ambiente Tizen TV
       const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
       
       console.log('🎬 Evento playContent recebido:', { originalStreamUrl: streamUrl, streamInfo });
-      console.log('🔒 URL após conversão de proxy (se aplicada):', safeStreamUrl);
+      console.log('🔒 URL sendo usada (proxy desabilitado):', safeStreamUrl);
       console.log('📺 Ambiente Tizen TV:', isTizenTV);
       
       // Se for Tizen TV e tiver flags específicas, aplicar configurações especiais

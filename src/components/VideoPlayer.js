@@ -102,6 +102,58 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     'Cache-Control': 'no-cache'
   });
 
+  // Função para testar conectividade da URL
+  const testStreamUrl = async (url) => {
+    console.log('🔍 Testando conectividade da URL...');
+    
+    try {
+      // Tentar fazer uma requisição HEAD para verificar se o servidor responde
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos timeout
+      
+      const response = await fetch(url, {
+        method: 'HEAD',
+        headers: getSafeHeaders(),
+        signal: controller.signal,
+        mode: 'cors',
+        cache: 'no-cache'
+      });
+      
+      clearTimeout(timeoutId);
+      console.log('✅ Teste de conectividade bem-sucedido, status:', response.status);
+      return true;
+      
+    } catch (error) {
+      console.warn('⚠️ Teste de conectividade falhou:', error.message);
+      
+      // Se o teste HEAD falhou, tentar GET com range limitado
+      try {
+        console.log('🔄 Tentando teste alternativo com GET...');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            ...getSafeHeaders(),
+            'Range': 'bytes=0-1023' // Apenas os primeiros 1KB
+          },
+          signal: controller.signal,
+          mode: 'cors',
+          cache: 'no-cache'
+        });
+        
+        clearTimeout(timeoutId);
+        console.log('✅ Teste alternativo bem-sucedido, status:', response.status);
+        return true;
+        
+      } catch (altError) {
+        console.error('❌ Todos os testes de conectividade falharam');
+        throw new Error(`Não foi possível acessar o stream: ${altError.message}`);
+      }
+    }
+  };
+
   // Função para detectar tipo de player necessário
   const detectPlayerType = (url, info) => {
     const type = info?.type;
@@ -346,26 +398,133 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     });
   };
 
+  // Função para inicializar player HTML5 nativo como fallback para live streams
+  const initNativeLivePlayer = async (url, videoElement) => {
+    return new Promise((resolve, reject) => {
+      try {
+        console.log('🎯 Usando player HTML5 nativo para live stream');
+        setLoadingMessage('Carregando com player nativo...');
+        
+        // Limpar qualquer player anterior
+        if (playerRef.current) {
+          playerRef.current = null;
+        }
+        
+        const handleCanPlay = () => {
+          console.log('✅ Player nativo: Pronto para reproduzir');
+          setLoadingProgress(90);
+        };
+        
+        const handlePlaying = () => {
+          console.log('✅ Player nativo: Reproduzindo');
+          clearTimeouts();
+          setLoadingProgress(100);
+          setTimeout(() => {
+            setIsLoading(false);
+            setLoadingProgress(0);
+          }, 500);
+          setError(null);
+          initializingRef.current = false;
+          resolve();
+        };
+        
+        const handleError = (event) => {
+          console.error('❌ Erro no player nativo:', event);
+          reject(new Error('Erro no player HTML5 nativo'));
+        };
+        
+        const handleLoadStart = () => {
+          console.log('📡 Player nativo: Iniciando carregamento');
+          setLoadingProgress(30);
+        };
+        
+        // Adicionar listeners
+        videoElement.addEventListener('canplay', handleCanPlay, { once: true });
+        videoElement.addEventListener('playing', handlePlaying, { once: true });
+        videoElement.addEventListener('error', handleError, { once: true });
+        videoElement.addEventListener('loadstart', handleLoadStart, { once: true });
+        
+        // Configurar atributos para live stream
+        videoElement.crossOrigin = 'anonymous';
+        videoElement.preload = 'none';
+        videoElement.autoplay = true;
+        videoElement.controls = false;
+        
+        // Definir URL
+        videoElement.src = url;
+        videoElement.load();
+        
+        // Timeout para player nativo
+        errorTimeoutRef.current = setTimeout(() => {
+          if (initializingRef.current) {
+            reject(new Error('Timeout player nativo - verifique a conexão'));
+          }
+        }, 15000); // Timeout maior para player nativo
+        
+      } catch (err) {
+        console.error('💥 Erro ao criar player nativo:', err);
+        reject(err);
+      }
+    });
+  };
+
   // Função para inicializar mpegts player para Live (canais ao vivo)
   const initMpegtsLivePlayer = async (url, videoElement) => {
     return new Promise(async (resolve, reject) => {
       try {
         setLoadingMessage('Carregando...');
+        console.log('🔗 URL original:', url);
         
-        // Converter imediatamente para proxy seguro, pois streams ao vivo costumam redirecionar para IP HTTP
-        let streamUrlForPlayer = criarUrlProxyStream(url);
+        // Tentar pré-verificar a URL antes de passar para o player
+        let useNativePlayer = false;
+        try {
+          await testStreamUrl(url);
+          console.log('✅ Conectividade OK - usando mpegts player');
+        } catch (testError) {
+          console.warn('⚠️ Teste de conectividade falhou, tentando player nativo:', testError.message);
+          useNativePlayer = true;
+        }
+        
+        // Se o teste falhou, tentar player HTML5 nativo
+        if (useNativePlayer) {
+          return await initNativeLivePlayer(url, videoElement);
+        }
+        
+        // Usando URL original (proxy desabilitado)
+        let streamUrlForPlayer = url;
+        console.log('🎯 URL para player:', streamUrlForPlayer);
 
-        const player = mpegts.createPlayer({
+        const mediaDataSource = {
           type: 'mpegts',
           isLive: true,
           url: streamUrlForPlayer
-        });
+        };
+
+        // Configuração essencial para Tizen - mesma do VOD
+        const playerConfig = {
+          enableWorker: false, // Essencial para Tizen TV
+          enableStashBuffer: false, // Reduzir buffer para live
+          autoCleanupSourceBuffer: true, // Limpeza automática do buffer
+          fixAudioTimestampGap: false, // Melhor para live streams
+          headers: getSafeHeaders() // Headers seguros para CORS
+        };
+
+        const player = mpegts.createPlayer(mediaDataSource, playerConfig);
+        console.log('🎮 Player mpegts criado com sucesso');
+        console.log('⚙️ Configuração aplicada:', playerConfig);
 
         playerRef.current = player;
 
         player.on(mpegts.Events.ERROR, (errorType, errorDetail, errorInfo) => {
           console.error('❌ Erro mpegts Live:', errorType, errorDetail, errorInfo);
-          reject(new Error(`mpegts Live error: ${errorType} - ${errorDetail}`));
+          
+          // Tratamento específico para "Failed to fetch"
+          if (errorDetail && errorDetail.msg && errorDetail.msg.includes('Failed to fetch')) {
+            console.error('🌐 Erro de rede detectado - possível problema CORS ou conectividade');
+            reject(new Error(`Erro de rede: Verifique a conexão com o servidor`));
+          } else {
+            reject(new Error(`mpegts Live error: ${errorType} - ${errorDetail}`));
+          }
         });
 
         player.on(mpegts.Events.LOADING_COMPLETE, () => {
