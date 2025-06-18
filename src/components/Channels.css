@@ -363,7 +363,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 /* Estilo individual do canal */
 .channel {
   width: calc(20% - 12px); /* 5 colunas com gap de 15px */
-  aspect-ratio: 16/9;
+  aspect-ratio: 1/1; /* Alterado para deixar o card quadrado */
   background: rgba(30, 30, 30, 0.8);
   border-radius: 8px;
   cursor: pointer;
@@ -473,7 +473,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 .channel-title {
-  font-size: 1rem;
+  font-size: 0.9rem; /* Diminuído de 1rem para 0.9rem */
   font-weight: bold;
   color: white;
   margin-bottom: 5px;
@@ -819,4 +819,4 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   
   /* Otimização de repaint/reflow */
   will-change: transform, opacity;
-} 
+}

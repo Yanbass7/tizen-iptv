@@ -338,9 +338,6 @@ const Channels = ({ isActive }) => {
                       )}
                       <div className="channel-overlay">
                         <h3 className="channel-title">{channel.name}</h3>
-                        <div className="channel-actions">
-                          <span className="action-hint">ENTER Assistir</span>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -354,4 +351,4 @@ const Channels = ({ isActive }) => {
   );
 };
 
-export default Channels; 
+export default Channels;
