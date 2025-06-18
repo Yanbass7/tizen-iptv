@@ -731,7 +731,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
                   <img src={streamInfo.logo} alt="Logo do Canal" className="channel-logo" />
                 )}
                 <div className="channel-details">
-                  <h2 className="channel-title">{streamInfo.number} {streamInfo.name}</h2>
+                  <h2 className="player-channel-title">{streamInfo.number} {streamInfo.name}</h2>
                   <div className="program-info">
                     <p className="program-title">
                       <span>Atual:</span> {streamInfo.currentProgram?.title || 'Programa não informado'}

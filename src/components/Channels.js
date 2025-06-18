@@ -337,7 +337,7 @@ const Channels = ({ isActive }) => {
                         />
                       )}
                       <div className="channel-overlay">
-                        <h3 className="channel-title">{channel.name}</h3>
+                        <h3 className="channel-card-title">{channel.name}</h3>
                       </div>
                     </div>
                   </div>
