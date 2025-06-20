@@ -889,15 +889,19 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
                 {streamInfo.logo && (
                   <img src={streamInfo.logo} alt="Logo do Canal" className="channel-logo" />
                 )}
-                <div className="channel-details">
-                  <h2 className="player-channel-title">{streamInfo.number} {streamInfo.name}</h2>
-                  <div className="program-info">
-                    <p className="program-title">
-                      <span>Atual:</span> {streamInfo.currentProgram?.title || 'Programa não informado'}
-                    </p>
-                    <p className="program-time">
-                      Início: {streamInfo.currentProgram?.startTime || '--:--'}
-                    </p>
+                <div className="channel-text-content">
+                  <div className="channel-header">
+                    <h2 className="player-channel-title">{streamInfo.number} {streamInfo.name}</h2>
+                  </div>
+                  <div className="channel-details">
+                    <div className="program-info">
+                      <p className="program-title">
+                        <span>Atual:</span> {streamInfo.currentProgram?.title || 'Programa não informado'}
+                      </p>
+                      <p className="program-time">
+                        Início: {streamInfo.currentProgram?.startTime || '--:--'}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -99,7 +99,8 @@ const Channels = ({ isActive }) => {
       name: channel.name,
       category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Canal',
       description: `Canal ao vivo - ${channel.name}`,
-      type: 'live'
+      type: 'live',
+      logo: channel.stream_icon // Adicionar o logo do canal
     };
 
     // Disparar evento para reproduzir no VideoPlayer
