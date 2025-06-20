@@ -25,7 +25,7 @@ const Search = ({ isActive, onExitSearch }) => {
 
   // Layout do teclado virtual
   // FORMA RECOMENDADA de definir o keyboardLayout
-const keyboardLayout = [
+  const keyboardLayout = [
     ['a', 'b', 'c', 'd', 'e', 'f'],
     ['g', 'h', 'i', 'j', 'k', 'l'],
     ['m', 'n', 'o', 'p', 'q', 'r'],
@@ -33,11 +33,11 @@ const keyboardLayout = [
     ['y', 'z', '1', '2', '3', '4'],
     ['5', '6', '7', '8', '9', '0'],
     [
-        { type: 'action', action: 'backspace', display: <i className="fas fa-backspace"></i> },
-        { type: 'char', value: ' ', display: <i className="fas fa-minus"></i> }, // Tecla de espaço
-        { type: 'action', action: 'clear', display: <i className="fas fa-trash-alt"></i> }
+      { type: 'action', action: 'backspace', display: <i className="fas fa-backspace"></i> },
+      { type: 'char', value: ' ', display: <i className="fas fa-minus"></i> }, // Tecla de espaço
+      { type: 'action', action: 'clear', display: <i className="fas fa-trash-alt"></i> }
     ]
-];
+  ];
 
   const handleResultClick = useCallback((item, type) => {
     console.log('Item selecionado:', { item, type });
@@ -176,17 +176,19 @@ const keyboardLayout = [
       // Filtrar resultados pelo termo de busca
       const query = searchQuery.toLowerCase();
 
-      const filteredChannels = channelsData.filter(channel =>
-        channel.name && channel.name.toLowerCase().includes(query)
-      ).slice(0, 20); // Limitar a 20 resultados
+      const filterAndSortResults = (data) => {
+        const startsWith = data.filter(item =>
+          item.name && item.name.toLowerCase().startsWith(query)
+        );
+        const includes = data.filter(item =>
+          item.name && item.name.toLowerCase().includes(query) && !item.name.toLowerCase().startsWith(query)
+        );
+        return [...startsWith, ...includes].slice(0, 20);
+      };
 
-      const filteredMovies = moviesData.filter(movie =>
-        movie.name && movie.name.toLowerCase().includes(query)
-      ).slice(0, 20);
-
-      const filteredSeries = seriesData.filter(serie =>
-        serie.name && serie.name.toLowerCase().includes(query)
-      ).slice(0, 20);
+      const filteredChannels = filterAndSortResults(channelsData);
+      const filteredMovies = filterAndSortResults(moviesData);
+      const filteredSeries = filterAndSortResults(seriesData);
 
       setSearchResults({
         channels: filteredChannels,
@@ -194,18 +196,8 @@ const keyboardLayout = [
         series: filteredSeries
       });
 
-      // Se há resultados, mover foco para a primeira seção com resultados
-      if (filteredChannels.length > 0) {
-        setActiveSection('results');
-        setResultFocus({ section: 'channels', index: 0 });
-      } else if (filteredMovies.length > 0) {
-        setActiveSection('results');
-        setResultFocus({ section: 'movies', index: 0 });
-      } else if (filteredSeries.length > 0) {
-        setActiveSection('results');
-        setResultFocus({ section: 'series', index: 0 });
-      }
-
+      // O foco permanece no teclado, a menos que o usuário navegue explicitamente para os resultados.
+      // Removido: setActiveSection('results') e setResultFocus
     } catch (error) {
       console.error('Erro na busca:', error);
     } finally {
@@ -216,28 +208,43 @@ const keyboardLayout = [
   const handleKeyPress = useCallback((key) => {
     // Se a "key" for um objeto (nossa nova estrutura)
     if (typeof key === 'object' && key !== null && key.type) {
-        if (key.action === 'backspace') {
-            setSearchQuery(prev => prev.slice(0, -1));
-        } else if (key.action === 'clear') {
-            setSearchQuery('');
-            setSearchResults({ channels: [], movies: [], series: [] });
-        } else if (key.type === 'char') {
-            setSearchQuery(prev => {
-                if (prev.length < 30) { // Add limit check
-                    return prev + key.value;
-                }
-                return prev; // Do not add if limit reached
-            });
-        }
-    } else if (typeof key === 'string') {
+      if (key.action === 'backspace') {
+        setSearchQuery(prev => prev.slice(0, -1));
+      } else if (key.action === 'clear') {
+        setSearchQuery('');
+        setSearchResults({ channels: [], movies: [], series: [] });
+      } else if (key.type === 'char') {
         setSearchQuery(prev => {
-            if (prev.length < 30) { // Add limit check
-                return prev + key;
-            }
-            return prev; // Do not add if limit reached
+          if (prev.length < 30) { // Add limit check
+            return prev + key.value;
+          }
+          return prev; // Do not add if limit reached
         });
+      }
+    } else if (typeof key === 'string') {
+      setSearchQuery(prev => {
+        if (prev.length < 30) { // Add limit check
+          return prev + key;
+        }
+        return prev; // Do not add if limit reached
+      });
     }
-  }, [performSearch, searchQuery, setSearchQuery, setSearchResults]);
+  }, [setSearchQuery, setSearchResults]); // Removido performSearch e searchQuery pois serão tratados pelo useEffect
+
+  // Efeito para disparar a busca quando searchQuery muda
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchQuery.trim().length >= 2) { // Dispara a busca apenas se houver 2 ou mais caracteres
+        performSearch();
+      } else {
+        setSearchResults({ channels: [], movies: [], series: [] }); // Limpa resultados se a busca for menor que 2 caracteres
+      }
+    }, 500); // Pequeno delay para evitar buscas excessivas
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery, performSearch]);
 
   const handleKeyboardNavigation = useCallback((keyCode) => {
     const maxRows = keyboardLayout.length;
@@ -259,13 +266,13 @@ const keyboardLayout = [
         const newMaxCols = keyboardLayout[currentRow].length;
         currentCol = Math.min(currentCol, newMaxCols - 1);
         setSelectedKey({ row: currentRow, col: currentCol });
-      } else {
+      } else { // Se estiver na primeira linha do teclado e pressionar Cima
         if (searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0) {
           setActiveSection('results');
-          const sections = ['series', 'movies', 'channels'];
+          const sections = ['channels', 'movies', 'series']; // Ordem de prioridade para o foco inicial
           for (const section of sections) {
             if (searchResults[section].length > 0) {
-              setResultFocus({ section: section, index: searchResults[section].length - 1 });
+              setResultFocus({ section: section, index: 0 }); // Foca no primeiro item da primeira seção com resultados
               return;
             }
           }
@@ -311,11 +318,31 @@ const keyboardLayout = [
         currentCol++;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
       } else {
-        if (currentRow < maxRows - 1) {
+        // Se estiver na última coluna da linha atual
+        const isLastKeyInRow = currentCol === keyboardLayout[currentRow].length - 1;
+        const hasResults = searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0;
+
+        // Condição para ir para os cards: estar na última tecla de certas linhas E ter resultados
+        const shouldGoToResults = isLastKeyInRow && hasResults && (
+          (currentRow >= 0 && currentRow <= 5) || // Linhas 'a' a '0'
+          (currentRow === 6 && currentCol === 2) // Tecla 'clear'
+        );
+
+        if (shouldGoToResults) {
+          setActiveSection('results');
+          const sections = ['channels', 'movies', 'series']; // Ordem de prioridade para o foco inicial
+          for (const section of sections) {
+            if (searchResults[section].length > 0) {
+              setResultFocus({ section: section, index: 0 }); // Foca no primeiro item da primeira seção com resultados
+              return;
+            }
+          }
+        } else if (currentRow < maxRows - 1) { // Se não for para os resultados, ir para a próxima linha do teclado
           currentRow++;
           currentCol = 0;
           setSelectedKey({ row: currentRow, col: currentCol });
         }
+        // Se for a última linha e a última coluna, e não for para os resultados, não faz nada.
       }
     } else if (keyCode === 13) { // OK - pressionar tecla
       const selectedKeyValue = keyboardLayout[currentRow][currentCol];
@@ -346,6 +373,8 @@ const keyboardLayout = [
           }
         } else {
           setActiveSection('keyboard');
+          // Ao voltar para o teclado, restaurar o foco para a última tecla selecionada
+          // Não é necessário definir selectedKey aqui, pois o updateFocusVisual já usa o estado existente.
         }
       }
     } else if (keyCode === 40) { // Baixo
@@ -362,6 +391,9 @@ const keyboardLayout = [
     } else if (keyCode === 37) { // Esquerda
       if (resultFocus.index > 0) {
         setResultFocus(prev => ({ ...prev, index: prev.index - 1 }));
+      } else {
+        // Se estiver no primeiro item da seção atual e pressionar Esquerda, voltar para o teclado
+        setActiveSection('keyboard');
       }
     } else if (keyCode === 39) { // Direita
       if (resultFocus.index < currentResults.length - 1) {
@@ -441,7 +473,7 @@ const keyboardLayout = [
       const sectionResults = resultsRef.current[resultFocus.section];
       if (sectionResults && sectionResults[resultFocus.index]) {
         sectionResults[resultFocus.index].classList.add('focused');
-        
+
       }
     }
   }, [resultFocus]);
@@ -465,18 +497,18 @@ const keyboardLayout = [
             {keyboardLayout.map((row, rowIndex) => (
               <div key={rowIndex} className="keyboard-row">
                 {row.map((key, colIndex) => {
-                const keyContent = (typeof key === 'object' && key.display) ? key.display : key;
-                const valueToPress = (typeof key === 'object') ? key : String(key);
+                  const keyContent = (typeof key === 'object' && key.display) ? key.display : key;
+                  const valueToPress = (typeof key === 'object') ? key : String(key);
 
-                return (
+                  return (
                     <button
-                        key={`${rowIndex}-${colIndex}`}
-                        className={`keyboard-key ${typeof key === 'object' ? 'special-key' : ''}`}
-                        onClick={() => handleKeyPress(valueToPress)}
+                      key={`${rowIndex}-${colIndex}`}
+                      className={`keyboard-key ${typeof key === 'object' ? 'special-key' : ''}`}
+                      onClick={() => handleKeyPress(valueToPress)}
                     >
-                        {keyContent}
+                      {keyContent}
                     </button>
-                );
+                  );
                 })}
               </div>
             ))}
