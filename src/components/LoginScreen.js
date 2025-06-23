@@ -146,11 +146,11 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
         className="background-image" 
         alt="Background" 
       />
-      <div className="login-form">
-        <img 
-          src="/images/BIGTV-transparente.png" 
-          className="logo-login" 
-          alt="BIGTV Logo" 
+<div className="login-form">
+<img
+          src="/images/logo-bigtv-est.png"
+          className="logo-login"
+          alt="BIGTV Logo"
         />
         <input
           ref={el => (focusableElements.current[0] = el)}
@@ -217,4 +217,4 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
   );
 };
 
-export default LoginScreen; 
+export default LoginScreen;
