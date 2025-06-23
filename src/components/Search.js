@@ -382,7 +382,7 @@ const Search = ({ isActive, onExitSearch }) => {
         }
       }
     } else if (keyCode === 37) { // Esquerda
-      if (resultFocus.index > 0) {
+      if (resultFocus.index > 0 && resultFocus.index % 5 !== 0) {
         setResultFocus(prev => ({ ...prev, index: prev.index - 1 }));
       } else {
         setActiveSection('keyboard');
