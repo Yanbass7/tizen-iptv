@@ -148,7 +148,7 @@ img {
 }
 
 .movie-header-info {
-  margin-top: 150px;
+  margin-top: 200px;
   margin-bottom: 25px;
   position: relative;
 }
@@ -190,18 +190,7 @@ img {
 }
 
 .movie-meta-info {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-
-  gap: 20px;
-  margin-bottom: 30px;
+  display: none;
 }
 
 .meta-item {

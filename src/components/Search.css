@@ -617,6 +617,7 @@ img {
   color: #FF8C00;
   border-bottom: 2px solid #FF8C00;
   padding-bottom: 8px;
+  border-radius: 3px;
 
   /* Fallback para browsers antigos */
   display: block;
@@ -632,7 +633,6 @@ img {
   -ms-flex-align: center;
   align-items: center;
 
-  gap: 10px;
 
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
