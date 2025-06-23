@@ -439,8 +439,7 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
           <div className="episodes-tab-content">
             {loading && (
               <div className="loading">
-                <i className="fas fa-spinner"></i>
-                <span>Carregando informações da série...</span>
+                <span>Carregando episódios </span>
               </div>
             )}
             
