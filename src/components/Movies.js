@@ -361,7 +361,7 @@ const Movies = ({ isActive }) => {
     <div className="movies-page" ref={containerRef}>
       <div className="category-sidebar">
         {loading ? (
-          <div className="loading">Carregando categorias...</div>
+          <div className="loading"></div>
         ) : (
           <div className="category-list">
             {categories.map((category, index) => (
@@ -383,7 +383,7 @@ const Movies = ({ isActive }) => {
       <div className="main-content-area">
         <div className="movies-content">
           {moviesLoading ? (
-            <div className="loading">Carregando filmes...</div>
+            <div className="loading">Carregando filmes </div>
           ) : (
             <>
               {totalPages > 1 && (

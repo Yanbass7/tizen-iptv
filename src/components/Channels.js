@@ -285,7 +285,7 @@ const Channels = ({ isActive }) => {
     <div className="channels-page" ref={containerRef}>
       <div className="category-sidebar">
         {loading ? (
-          <div className="loading">Carregando categorias...</div>
+          <div className="loading"></div>
         ) : (
           <div className="category-list">
             {categories.map((category, index) => (
@@ -307,7 +307,7 @@ const Channels = ({ isActive }) => {
       <div className="main-content-area">
         <div className="channels-content">
           {channelsLoading ? (
-            <div className="loading">Carregando canais...</div>
+            <div className="loading">Carregando canais </div>
           ) : (
             <>
               {totalPages > 1 && (

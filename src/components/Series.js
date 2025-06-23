@@ -411,8 +411,8 @@ const Series = ({ isActive }) => {
     <div className="series-page" ref={containerRef}>
       <div className="category-sidebar">
         
-        {loading ? (
-          <div className="loading">Carregando categorias...</div>
+{loading ? (
+          <div className="loading"></div>
         ) : (
           <div className="category-list">
             {categories.map((category, index) => (
@@ -437,8 +437,8 @@ const Series = ({ isActive }) => {
       
       <div className="main-content-area">
         <div className="series-content">
-          {seriesLoading ? (
-            <div className="loading">Carregando séries...</div>
+{seriesLoading ? (
+            <div className="loading">Carregando séries </div>
           ) : (
             <>
               {totalPages > 1 && (
@@ -483,4 +483,4 @@ const Series = ({ isActive }) => {
   );
 };
 
-export default Series; 
+export default Series;
