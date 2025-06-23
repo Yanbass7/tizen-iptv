@@ -204,50 +204,8 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
           <div className="promotional-overlay"></div>
         </div>
       </div>
-
-      <div className="movie-info-area">
-        <div className="movie-additional-info">
-          <div className="info-section">
-            <h3>Informações do Filme</h3>
-            <div className="info-grid">
-              <div className="info-item">
-                <span className="info-label">Ano:</span>
-                <span className="info-value">{movie.releasedate || 'N/A'}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Categoria:</span>
-                <span className="info-value">{movie.category_name || 'Filme'}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Avaliação:</span>
-                <span className="info-value">⭐ {movie.rating || 'N/A'}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Qualidade:</span>
-                <span className="info-value">HD 1080p</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="movie-controls-hint">
-            <div className="control-item">
-              <i className="fas fa-arrow-left"></i>
-              <i className="fas fa-arrow-right"></i>
-              <span>Navegar</span>
-            </div>
-            <div className="control-item">
-              <span>ENTER</span>
-              <span>Selecionar</span>
-            </div>
-            <div className="control-item">
-              <span>VOLTAR</span>
-              <span>Retornar</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
 
-export default MoviePreview; 
+export default MoviePreview;
