@@ -314,21 +314,14 @@ const Search = ({ isActive, onExitSearch }) => {
         }
       }
     } else if (keyCode === 39) { // Direita
+      const isLastKeyInRow = currentCol === keyboardLayout[currentRow].length - 1;
+      const hasResults = searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0;
       if (currentCol < keyboardLayout[currentRow].length - 1) {
         currentCol++;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
       } else {
-        // Se estiver na última coluna da linha atual
-        const isLastKeyInRow = currentCol === keyboardLayout[currentRow].length - 1;
-        const hasResults = searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0;
-
-        // Condição para ir para os cards: estar na última tecla de certas linhas E ter resultados
-        const shouldGoToResults = isLastKeyInRow && hasResults && (
-          (currentRow >= 0 && currentRow <= 5) || // Linhas 'a' a '0'
-          (currentRow === 6 && currentCol === 2) // Tecla 'clear'
-        );
-
-        if (shouldGoToResults) {
+        // Se estiver na última coluna da linha atual E houver resultados, ir para os resultados
+        if (isLastKeyInRow && hasResults) {
           setActiveSection('results');
           const sections = ['channels', 'movies', 'series']; // Ordem de prioridade para o foco inicial
           for (const section of sections) {
@@ -392,12 +385,13 @@ const Search = ({ isActive, onExitSearch }) => {
       if (resultFocus.index > 0) {
         setResultFocus(prev => ({ ...prev, index: prev.index - 1 }));
       } else {
-        // Se estiver no primeiro item da seção atual e pressionar Esquerda, voltar para o teclado
         setActiveSection('keyboard');
       }
     } else if (keyCode === 39) { // Direita
       if (resultFocus.index < currentResults.length - 1) {
         setResultFocus(prev => ({ ...prev, index: prev.index + 1 }));
+      } else {
+        setActiveSection('keyboard');
       }
     } else if (keyCode === 13) { // OK - selecionar resultado
       const selectedItem = currentResults[resultFocus.index];
@@ -526,8 +520,8 @@ const Search = ({ isActive, onExitSearch }) => {
               {/* Canais */}
               {searchResults.channels.length > 0 && (
                 <div className="results-section">
-                  <h3>📺 Canais ({searchResults.channels.length})</h3>
-                  <div className="results-grid">
+                  <h3>Canais ({searchResults.channels.length})</h3>
+                  <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
                     {searchResults.channels.map((channel, index) => (
                       <div
                         key={`channel-${channel.stream_id || index}`}
@@ -542,7 +536,6 @@ const Search = ({ isActive, onExitSearch }) => {
                         />
                         <div className="result-info">
                           <h4>{channel.name}</h4>
-                          <span className="result-type">Canal</span>
                         </div>
                       </div>
                     ))}
@@ -553,8 +546,8 @@ const Search = ({ isActive, onExitSearch }) => {
               {/* Filmes */}
               {searchResults.movies.length > 0 && (
                 <div className="results-section">
-                  <h3>🎬 Filmes ({searchResults.movies.length})</h3>
-                  <div className="results-grid">
+                  <h3>Filmes ({searchResults.movies.length})</h3>
+                  <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
                     {searchResults.movies.map((movie, index) => (
                       <div
                         key={`movie-${movie.stream_id || index}`}
@@ -569,7 +562,6 @@ const Search = ({ isActive, onExitSearch }) => {
                         />
                         <div className="result-info">
                           <h4>{movie.name}</h4>
-                          <span className="result-type">Filme</span>
                         </div>
                       </div>
                     ))}
@@ -580,8 +572,8 @@ const Search = ({ isActive, onExitSearch }) => {
               {/* Séries */}
               {searchResults.series.length > 0 && (
                 <div className="results-section">
-                  <h3>📺 Séries ({searchResults.series.length})</h3>
-                  <div className="results-grid">
+                  <h3>Séries ({searchResults.series.length})</h3>
+                  <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
                     {searchResults.series.map((serie, index) => (
                       <div
                         key={`serie-${serie.series_id || index}`}
@@ -596,7 +588,6 @@ const Search = ({ isActive, onExitSearch }) => {
                         />
                         <div className="result-info">
                           <h4>{serie.name}</h4>
-                          <span className="result-type">Série</span>
                         </div>
                       </div>
                     ))}
