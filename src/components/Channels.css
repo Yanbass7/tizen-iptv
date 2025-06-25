@@ -89,7 +89,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Aplicar margens nos elementos filhos do layout principal */
 .channels-page > * {
-  margin: 20px 20px 20px 0; /* Margem nos elementos filhos */
+  margin: 20px 20px 20px 20px; /* Margem nos elementos filhos */
 }
 
 .channels-page > :first-child {
@@ -472,21 +472,83 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   box-sizing: border-box;
 }
 
-.channel-title {
-  font-size: 45px; /* Diminuído de 1rem para 0.9rem */
-  font-weight: bold;
-  color: white;
-  margin-bottom: 5px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  
-  /* Truncar texto longo */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  
-  /* Otimização de texto */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.channel-card-title {
+  margin: 0;
+  font-size: 1em;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.password-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.password-modal {
+    background-color: #2c2c2c;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    color: #fff;
+    width: 400px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.password-modal h2 {
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.password-modal p {
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.password-modal input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #3c3c3c;
+    color: #fff;
+    font-size: 16px;
+}
+
+.password-modal-buttons button {
+    padding: 12px 25px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.password-modal-buttons button:first-child {
+    background-color: #FF8C00;
+    color: #fff;
+}
+
+.password-modal-buttons button:first-child:hover {
+    background-color: #f08605;
+}
+
+.password-modal-buttons button:last-child {
+    background-color: #555;
+    color: #fff;
+}
+
+.password-modal-buttons button:last-child:hover {
+    background-color: #666;
 }
 
 .channel-actions {

@@ -1,0 +1,41 @@
+.alert-popup-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000; /* Garante que fique acima de outros elementos */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.alert-popup {
+  background-color: rgba(229, 9, 20, 0.9); /* Vermelho Netflix com transparência */
+  color: #fff;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  animation: fadeInOut 3s ease-in-out;
+  text-align: center;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}

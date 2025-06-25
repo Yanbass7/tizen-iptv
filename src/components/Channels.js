@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import PasswordModal from './PasswordModal';
+import AlertPopup from './AlertPopup';
 import { iptvApi } from '../services/iptvApi';
 import { safeScrollIntoView } from '../utils/scrollUtils';
 import './Channels.css';
@@ -14,6 +16,11 @@ const Channels = ({ isActive }) => {
   const [focusArea, setFocusArea] = useState('categories'); // 'categories' ou 'channels'
   const [categoryFocus, setCategoryFocus] = useState(0);
   const [channelFocus, setChannelFocus] = useState(0);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [selectedChannelForPassword, setSelectedChannelForPassword] = useState(null);
+  const [modalFocus, setModalFocus] = useState('input'); // 'input', 'submit', or 'cancel'
+  const [password, setPassword] = useState('');
+  const [alertMessage, setAlertMessage] = useState(null);
 
   // Estados de paginação (corrigidos para ficar igual ao Series.js)
   const [currentPage, setCurrentPage] = useState(0);
@@ -242,7 +249,16 @@ const Channels = ({ isActive }) => {
     } else if (keyCode === 13) { // OK - selecionar canal
       if (currentPageChannels[channelFocus]) {
         const actualChannelIndex = currentPage * ITEMS_PER_PAGE + channelFocus;
-        handleChannelSelect(channels[actualChannelIndex]);
+        const channel = channels[actualChannelIndex];
+        const category = categories.find(cat => cat.category_id === channel.category_id);
+
+        if (channel.category_id === '2' || category?.category_name === 'Canais | Adultos') {
+          setSelectedChannelForPassword(channel);
+          setIsPasswordModalOpen(true);
+          setFocusArea('modal');
+        } else {
+          handleChannelSelect(channel);
+        }
       }
     }
   }, [
@@ -256,13 +272,37 @@ const Channels = ({ isActive }) => {
     handleChannelSelect
   ]);
 
-  // Sistema de navegação por controle remoto
+  const handleModalNavigation = useCallback((keyCode) => {
+    if (keyCode === 39) { // Direita
+      if (modalFocus === 'submit') setModalFocus('cancel');
+    } else if (keyCode === 37) { // Esquerda
+      if (modalFocus === 'cancel') setModalFocus('submit');
+    } else if (keyCode === 40) { // Baixo
+      if (modalFocus === 'input') setModalFocus('submit');
+    } else if (keyCode === 38) { // Cima
+      if (modalFocus !== 'input') setModalFocus('input');
+    if (modalFocus === 'submit') {
+        handlePasswordSubmit(password);
+      } else if (modalFocus === 'cancel') {
+        setIsPasswordModalOpen(false);
+        setFocusArea('channels');
+      }
+    } else if (keyCode === 10009) { // Voltar
+      setIsPasswordModalOpen(false);
+      setFocusArea('channels');
+    }
+  }, [modalFocus]);
   useEffect(() => {
     if (!isActive) return;
 
     const handleChannelsNavigation = (event) => {
       const { keyCode } = event.detail;
       
+      if (focusArea === 'modal') {
+        handleModalNavigation(keyCode);
+        return;
+      }
+
       if (focusArea === 'categories') {
         handleCategoriesNavigation(keyCode);
       } else if (focusArea === 'channels') {
@@ -279,10 +319,46 @@ const Channels = ({ isActive }) => {
     e.target.style.display = 'none';
   };
 
+  const handlePasswordSubmit = (password) => {
+    if (password === '0000') { // Senha hardcoded
+      setIsPasswordModalOpen(false);
+      if (selectedChannelForPassword) {
+        playChannel(selectedChannelForPassword);
+      }
+    } else {
+      setAlertMessage('Senha incorreta!');
+    }
+  };
+
+  const playChannel = (channel) => {
+    const streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${channel.stream_id}`;
+    const streamInfo = {
+      name: channel.name,
+      category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Canal',
+      description: `Canal ao vivo - ${channel.name}`,
+      type: 'live',
+      logo: channel.stream_icon
+    };
+    const playEvent = new CustomEvent('playContent', {
+      detail: { streamUrl, streamInfo }
+    });
+    window.dispatchEvent(playEvent);
+  };
+
   if (!isActive) return null;
 
   return (
     <div className="channels-page" ref={containerRef}>
+      {alertMessage && <AlertPopup message={alertMessage} onClose={() => setAlertMessage(null)} />}
+      {isPasswordModalOpen && (
+        <PasswordModal 
+          password={password}
+          onPasswordChange={setPassword}
+          onPasswordSubmit={handlePasswordSubmit} 
+          onCancel={() => setIsPasswordModalOpen(false)} 
+          focus={modalFocus}
+        />
+      )}
       <div className="category-sidebar">
         {loading ? (
           <div className="loading"></div>
@@ -324,10 +400,6 @@ const Channels = ({ isActive }) => {
                     key={channel.stream_id}
                     ref={el => channelsRef.current[index] = el}
                     className="channel"
-                    onClick={() => {
-                      const actualChannelIndex = currentPage * ITEMS_PER_PAGE + index;
-                      handleChannelSelect(channels[actualChannelIndex]);
-                    }}
                   >
                     <div className="channel-poster">
                       {channel.stream_icon && (
