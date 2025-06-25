@@ -258,9 +258,7 @@ img {
   /* Cor da Sidebar.css */
   color: white;
   /* Cor da Sidebar.css */
-  outline: 2px solid rgba(255, 140, 0, 0.3);
-  /* Cor da Sidebar.css */
-  outline-offset: 1px;
+
 }
 
 /* Estado combinado de ativo e focado */

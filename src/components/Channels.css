@@ -230,8 +230,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .category-button:hover {
   background-color: rgba(255, 140, 0, 0.1); /* Cor da Sidebar.css */
   color: white; /* Cor da Sidebar.css */
-  outline: 2px solid rgba(255, 140, 0, 0.3); /* Cor da Sidebar.css */
-  outline-offset: 1px;
+  
 }
 
 /* Estado combinado de ativo e focado */
