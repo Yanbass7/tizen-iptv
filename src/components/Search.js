@@ -5,23 +5,20 @@ import './Search.css';
 
 const Search = ({ isActive, onExitSearch }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState({
-    channels: [],
-    movies: [],
-    series: []
-  });
+  const [allResults, setAllResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeSection, setActiveSection] = useState('keyboard'); // 'keyboard', 'results'
   const [selectedKey, setSelectedKey] = useState({ row: 0, col: 0 });
-  const [resultFocus, setResultFocus] = useState({ section: 'channels', index: 0 });
+  const [resultFocus, setResultFocus] = useState(0); // Agora é apenas um índice
+
+  // Paginação
+  const [currentPage, setCurrentPage] = useState(0);
+  const ITEMS_PER_PAGE = 15;
+  const GRID_COLUMNS = 5;
 
   // Referencias para navegação
   const keyboardRef = useRef(null);
-  const resultsRef = useRef({
-    channels: [],
-    movies: [],
-    series: []
-  });
+  const resultsRef = useRef([]);
 
   // Layout do teclado virtual
   // FORMA RECOMENDADA de definir o keyboardLayout
@@ -39,7 +36,8 @@ const Search = ({ isActive, onExitSearch }) => {
     ]
   ];
 
-  const handleResultClick = useCallback((item, type) => {
+  const handleResultClick = useCallback((result) => {
+    const { type, rawItem: item } = result;
     console.log('Item selecionado:', { item, type });
 
     let streamUrl = '';
@@ -96,114 +94,171 @@ const Search = ({ isActive, onExitSearch }) => {
 
   const fetchAllChannels = useCallback(async () => {
     try {
-      // Buscar todas as categorias de canais
       const categoriesResponse = await fetch(
         `${API_BASE_URL}?${API_CREDENTIALS}&action=get_live_categories`
       );
       const categories = await categoriesResponse.json();
+      if (!Array.isArray(categories)) return [];
 
-      // Buscar canais de todas as categorias
-      const channelsPromises = categories.slice(0, 5).map(category => // Limitar a 5 categorias para performance
-        fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_live_streams&category_id=${category.category_id}`)
-          .then(res => res.json())
-          .catch(() => [])
-      );
-
-      const channelsArrays = await Promise.all(channelsPromises);
-      return channelsArrays.reduce((acc, val) => acc.concat(val), []);
+      let allChannels = [];
+      for (const category of categories) {
+        try {
+          const response = await fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_live_streams&category_id=${category.category_id}`);
+          if (response.status === 429) {
+            console.warn('Rate limit atingido. Aguardando para tentar novamente...');
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Espera 2 segundos
+            continue; // Pula para a próxima iteração
+          }
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            allChannels = allChannels.concat(data);
+          }
+          await new Promise(resolve => setTimeout(resolve, 150)); // Delay de 150ms entre requisições
+        } catch (e) {
+          console.error(`Erro ao buscar canais da categoria ${category.category_id}:`, e);
+        }
+      }
+      return allChannels;
     } catch (error) {
-      console.error('Erro ao buscar canais:', error);
+      console.error('Erro ao buscar categorias de canais:', error);
       return [];
     }
   }, []);
 
   const fetchAllMovies = useCallback(async () => {
     try {
-      // Buscar algumas categorias principais de filmes
       const categoriesResponse = await fetch(
         `${API_BASE_URL}?${API_CREDENTIALS}&action=get_vod_categories`
       );
       const categories = await categoriesResponse.json();
+      if (!Array.isArray(categories)) return [];
 
-      const moviesPromises = categories.slice(0, 3).map(category => // Limitar a 3 categorias para performance
-        fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_vod_streams&category_id=${category.category_id}`)
-          .then(res => res.json())
-          .catch(() => [])
-      );
-
-      const moviesArrays = await Promise.all(moviesPromises);
-      return moviesArrays.reduce((acc, val) => acc.concat(val), []);
+      let allMovies = [];
+      for (const category of categories) {
+        try {
+          const response = await fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_vod_streams&category_id=${category.category_id}`);
+           if (response.status === 429) {
+            console.warn('Rate limit atingido. Aguardando para tentar novamente...');
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            continue;
+          }
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            allMovies = allMovies.concat(data);
+          }
+          await new Promise(resolve => setTimeout(resolve, 150));
+        } catch (e) {
+          console.error(`Erro ao buscar filmes da categoria ${category.category_id}:`, e);
+        }
+      }
+      return allMovies;
     } catch (error) {
-      console.error('Erro ao buscar filmes:', error);
+      console.error('Erro ao buscar categorias de filmes:', error);
       return [];
     }
   }, []);
 
   const fetchAllSeries = useCallback(async () => {
     try {
-      // Buscar algumas categorias principais de séries
       const categoriesResponse = await fetch(
         `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series_categories`
       );
       const categories = await categoriesResponse.json();
-
-      const seriesPromises = categories.slice(0, 3).map(category => // Limitar a 3 categorias para performance
-        fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_series&category_id=${category.category_id}`)
-          .then(res => res.json())
-          .catch(() => [])
-      );
-
-      const seriesArrays = await Promise.all(seriesPromises);
-      return seriesArrays.reduce((acc, val) => acc.concat(val), []);
+      if (!Array.isArray(categories)) return [];
+      
+      let allSeries = [];
+      for (const category of categories) {
+        try {
+          const response = await fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_series&category_id=${category.category_id}`);
+           if (response.status === 429) {
+            console.warn('Rate limit atingido. Aguardando para tentar novamente...');
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            continue;
+          }
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            allSeries = allSeries.concat(data);
+          }
+          await new Promise(resolve => setTimeout(resolve, 150));
+        } catch (e) {
+          console.error(`Erro ao buscar séries da categoria ${category.category_id}:`, e);
+        }
+      }
+      return allSeries;
     } catch (error) {
-      console.error('Erro ao buscar séries:', error);
+      console.error('Erro ao buscar categorias de séries:', error);
       return [];
     }
   }, []);
 
   const performSearch = useCallback(async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      setAllResults([]);
+      return;
+    }
 
     setLoading(true);
+    setCurrentPage(0); // Reset page on new search
+    setResultFocus(0);
+
     try {
-      // Buscar em paralelo em todas as categorias
       const [channelsData, moviesData, seriesData] = await Promise.all([
         fetchAllChannels(),
         fetchAllMovies(),
         fetchAllSeries()
       ]);
 
-      // Filtrar resultados pelo termo de busca
-      const query = searchQuery.toLowerCase();
-
-      const filterAndSortResults = (data) => {
-        const startsWith = data.filter(item =>
-          item.name && item.name.toLowerCase().startsWith(query)
-        );
-        const includes = data.filter(item =>
-          item.name && item.name.toLowerCase().includes(query) && !item.name.toLowerCase().startsWith(query)
-        );
-        return [...startsWith, ...includes].slice(0, 20);
+      const normalizeText = (text) => {
+        if (!text) return '';
+        return text
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9\s]/g, '');
       };
 
-      const filteredChannels = filterAndSortResults(channelsData);
-      const filteredMovies = filterAndSortResults(moviesData);
-      const filteredSeries = filterAndSortResults(seriesData);
+      const normalizedQuery = normalizeText(searchQuery);
 
-      setSearchResults({
-        channels: filteredChannels,
-        movies: filteredMovies,
-        series: filteredSeries
-      });
+      const combinedData = [
+        ...channelsData.map(item => ({ ...item, type: 'channel', icon: item.stream_icon })),
+        ...moviesData.map(item => ({ ...item, type: 'movie', icon: item.stream_icon })),
+        ...seriesData.map(item => ({ ...item, type: 'serie', icon: item.cover }))
+      ];
 
-      // O foco permanece no teclado, a menos que o usuário navegue explicitamente para os resultados.
-      // Removido: setActiveSection('results') e setResultFocus
+      const filteredResults = combinedData
+        .filter(item => {
+          if (!item || !item.name) return false;
+          const normalizedName = normalizeText(item.name);
+          return normalizedName.includes(normalizedQuery);
+        })
+        .sort((a, b) => {
+          const normalizedNameA = normalizeText(a.name);
+          const normalizedNameB = normalizeText(b.name);
+          const startsWithA = normalizedNameA.startsWith(normalizedQuery);
+          const startsWithB = normalizedNameB.startsWith(normalizedQuery);
+          if (startsWithA && !startsWithB) return -1;
+          if (!startsWithA && startsWithB) return 1;
+          return 0;
+        });
+
+      // Mapear para uma estrutura unificada
+      const finalResults = filteredResults.map(item => ({
+        id: item.stream_id || item.series_id,
+        name: item.name,
+        icon: item.icon,
+        type: item.type,
+        rawItem: item, // Manter o item original para o handleResultClick
+      }));
+
+      setAllResults(finalResults);
+
     } catch (error) {
       console.error('Erro na busca:', error);
+      setAllResults([]);
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, fetchAllChannels, fetchAllMovies, fetchAllSeries, setActiveSection, setResultFocus, setSearchResults]);
+  }, [searchQuery, fetchAllChannels, fetchAllMovies, fetchAllSeries]);
 
   const handleKeyPress = useCallback((key) => {
     // Se a "key" for um objeto (nossa nova estrutura)
@@ -212,7 +267,7 @@ const Search = ({ isActive, onExitSearch }) => {
         setSearchQuery(prev => prev.slice(0, -1));
       } else if (key.action === 'clear') {
         setSearchQuery('');
-        setSearchResults({ channels: [], movies: [], series: [] });
+        setAllResults([]);
       } else if (key.type === 'char') {
         setSearchQuery(prev => {
           if (prev.length < 30) { // Add limit check
@@ -229,7 +284,7 @@ const Search = ({ isActive, onExitSearch }) => {
         return prev; // Do not add if limit reached
       });
     }
-  }, [setSearchQuery, setSearchResults]); // Removido performSearch e searchQuery pois serão tratados pelo useEffect
+  }, [setSearchQuery]); // Removido performSearch e searchQuery pois serão tratados pelo useEffect
 
   // Efeito para disparar a busca quando searchQuery muda
   useEffect(() => {
@@ -237,7 +292,7 @@ const Search = ({ isActive, onExitSearch }) => {
       if (searchQuery.trim().length >= 2) { // Dispara a busca apenas se houver 2 ou mais caracteres
         performSearch();
       } else {
-        setSearchResults({ channels: [], movies: [], series: [] }); // Limpa resultados se a busca for menor que 2 caracteres
+        setAllResults([]); // Limpa resultados se a busca for menor que 2 caracteres
       }
     }, 500); // Pequeno delay para evitar buscas excessivas
 
@@ -267,15 +322,9 @@ const Search = ({ isActive, onExitSearch }) => {
         currentCol = Math.min(currentCol, newMaxCols - 1);
         setSelectedKey({ row: currentRow, col: currentCol });
       } else { // Se estiver na primeira linha do teclado e pressionar Cima
-        if (searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0) {
+        if (allResults.length > 0) {
           setActiveSection('results');
-          const sections = ['channels', 'movies', 'series']; // Ordem de prioridade para o foco inicial
-          for (const section of sections) {
-            if (searchResults[section].length > 0) {
-              setResultFocus({ section: section, index: 0 }); // Foca no primeiro item da primeira seção com resultados
-              return;
-            }
-          }
+          setResultFocus(0);
         }
       }
     } else if (keyCode === 40) { // Baixo
@@ -293,9 +342,9 @@ const Search = ({ isActive, onExitSearch }) => {
         const newMaxCols = keyboardLayout[currentRow].length;
         currentCol = Math.min(currentCol, newMaxCols - 1);
         setSelectedKey({ row: currentRow, col: currentCol });
-      } else if (searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0) {
+      } else if (allResults.length > 0) {
         setActiveSection('results');
-        setResultFocus({ section: 'channels', index: 0 });
+        setResultFocus(0);
       }
     } else if (keyCode === 37) { // Esquerda
       if (currentCol > 0) {
@@ -315,7 +364,7 @@ const Search = ({ isActive, onExitSearch }) => {
       }
     } else if (keyCode === 39) { // Direita
       const isLastKeyInRow = currentCol === keyboardLayout[currentRow].length - 1;
-      const hasResults = searchResults.channels.length > 0 || searchResults.movies.length > 0 || searchResults.series.length > 0;
+      const hasResults = allResults.length > 0;
       if (currentCol < keyboardLayout[currentRow].length - 1) {
         currentCol++;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
@@ -323,14 +372,8 @@ const Search = ({ isActive, onExitSearch }) => {
         // Se estiver na última coluna da linha atual E houver resultados, ir para os resultados
         if (isLastKeyInRow && hasResults) {
           setActiveSection('results');
-          const sections = ['channels', 'movies', 'series']; // Ordem de prioridade para o foco inicial
-          for (const section of sections) {
-            if (searchResults[section].length > 0) {
-              setResultFocus({ section: section, index: 0 }); // Foca no primeiro item da primeira seção com resultados
-              return;
-            }
-          }
-        } else if (currentRow < maxRows - 1) { // Se não for para os resultados, ir para a próxima linha do teclado
+          setResultFocus(0);
+        } else if (currentRow < keyboardLayout.length - 1) { // Se não for para os resultados, ir para a próxima linha do teclado
           currentRow++;
           currentCol = 0;
           setSelectedKey({ row: currentRow, col: currentCol });
@@ -341,66 +384,52 @@ const Search = ({ isActive, onExitSearch }) => {
       const selectedKeyValue = keyboardLayout[currentRow][currentCol];
       handleKeyPress(selectedKeyValue);
     }
-  }, [keyboardLayout, searchResults, selectedKey, handleKeyPress, setActiveSection]);
+  }, [keyboardLayout, allResults.length, selectedKey, handleKeyPress, setActiveSection]);
 
+  // Lógica de navegação para a grade de resultados unificada
   const handleResultsNavigation = useCallback((keyCode) => {
-    const sections = ['channels', 'movies', 'series'];
-    const currentSectionIndex = sections.indexOf(resultFocus.section);
-    const currentResults = searchResults[resultFocus.section];
-    const itemsPerRow = 5; // Aproximação para o grid
-
-    if (!currentResults) return;
+    const totalResults = allResults.length;
+    const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
+    const currentPageResultsCount = getCurrentPageResults().length;
 
     if (keyCode === 38) { // Cima
-      if (resultFocus.index >= itemsPerRow) {
-        setResultFocus(prev => ({ ...prev, index: prev.index - itemsPerRow }));
+      const newFocus = resultFocus - GRID_COLUMNS;
+      if (newFocus >= 0) {
+        setResultFocus(newFocus);
+      } else if (currentPage > 0) {
+        setCurrentPage(prev => prev - 1);
+        // Tenta manter a coluna, indo para a última linha da página anterior
+        const newFocusOnNewPage = (ITEMS_PER_PAGE - (ITEMS_PER_PAGE % GRID_COLUMNS)) + (resultFocus % GRID_COLUMNS) - GRID_COLUMNS;
+        setResultFocus(Math.min(newFocusOnNewPage, ITEMS_PER_PAGE - 1));
       } else {
-        if (currentSectionIndex > 0) {
-          const prevSection = sections[currentSectionIndex - 1];
-          const prevSectionLength = searchResults[prevSection].length;
-          if (prevSectionLength > 0) {
-            setResultFocus({
-              section: prevSection,
-              index: Math.max(0, prevSectionLength - 1)
-            });
-          }
-        } else {
-          setActiveSection('keyboard');
-          // Ao voltar para o teclado, restaurar o foco para a última tecla selecionada
-          // Não é necessário definir selectedKey aqui, pois o updateFocusVisual já usa o estado existente.
-        }
+        setActiveSection('keyboard'); // Voltar para o teclado
       }
     } else if (keyCode === 40) { // Baixo
-      if (resultFocus.index + itemsPerRow < currentResults.length) {
-        setResultFocus(prev => ({ ...prev, index: prev.index + itemsPerRow }));
-      } else {
-        if (currentSectionIndex < sections.length - 1) {
-          const nextSection = sections[currentSectionIndex + 1];
-          if (searchResults[nextSection].length > 0) {
-            setResultFocus({ section: nextSection, index: 0 });
-          }
-        }
+      const newFocus = resultFocus + GRID_COLUMNS;
+      if (newFocus < currentPageResultsCount) {
+        setResultFocus(newFocus);
+      } else if (currentPage < totalPages - 1) {
+        setCurrentPage(prev => prev + 1);
+        // Tenta manter a coluna, indo para a primeira linha da próxima página
+        setResultFocus(resultFocus % GRID_COLUMNS);
       }
     } else if (keyCode === 37) { // Esquerda
-      if (resultFocus.index > 0 && resultFocus.index % 5 !== 0) {
-        setResultFocus(prev => ({ ...prev, index: prev.index - 1 }));
+      if (resultFocus % GRID_COLUMNS > 0) {
+        setResultFocus(prev => prev - 1);
       } else {
-        setActiveSection('keyboard');
+        setActiveSection('keyboard'); // Voltar para o teclado
       }
     } else if (keyCode === 39) { // Direita
-      if (resultFocus.index < currentResults.length - 1) {
-        setResultFocus(prev => ({ ...prev, index: prev.index + 1 }));
-      } else {
-        setActiveSection('keyboard');
+      if ((resultFocus + 1) % GRID_COLUMNS !== 0 && resultFocus + 1 < currentPageResultsCount) {
+        setResultFocus(prev => prev + 1);
       }
     } else if (keyCode === 13) { // OK - selecionar resultado
-      const selectedItem = currentResults[resultFocus.index];
-      const type = resultFocus.section.endsWith('s')
-        ? resultFocus.section.slice(0, -1)
-        : resultFocus.section;
-      handleResultClick(selectedItem, type);
+      const selectedItem = getCurrentPageResults()[resultFocus];
+      if (selectedItem) {
+        handleResultClick(selectedItem);
+      }
     }
-  }, [resultFocus, searchResults, handleResultClick, setActiveSection]);
+  }, [resultFocus, allResults, currentPage, ITEMS_PER_PAGE, handleResultClick, setActiveSection]);
 
   // Sistema de navegação por controle remoto
   useEffect(() => {
@@ -442,10 +471,10 @@ const Search = ({ isActive, onExitSearch }) => {
         }
       }
     } else if (activeSection === 'results') {
-      const sectionResults = resultsRef.current[resultFocus.section];
-      if (sectionResults && sectionResults[resultFocus.index]) {
-        sectionResults[resultFocus.index].classList.add('focused');
-        sectionResults[resultFocus.index].scrollIntoView({
+      // Foco na grade de resultados unificada
+      if (resultsRef.current[resultFocus]) {
+        resultsRef.current[resultFocus].classList.add('focused');
+        safeScrollIntoView(resultsRef.current[resultFocus], {
           behavior: 'smooth',
           block: 'nearest'
         });
@@ -463,14 +492,21 @@ const Search = ({ isActive, onExitSearch }) => {
 
   // Efeito para auto-scroll baseado no foco
   useEffect(() => {
-    if (resultFocus.section !== null && resultFocus.index !== null) {
-      const sectionResults = resultsRef.current[resultFocus.section];
-      if (sectionResults && sectionResults[resultFocus.index]) {
-        sectionResults[resultFocus.index].classList.add('focused');
-
-      }
+    if (activeSection === 'results' && resultsRef.current[resultFocus]) {
+      resultsRef.current.forEach(el => el?.classList.remove('focused'));
+      resultsRef.current[resultFocus].classList.add('focused');
     }
-  }, [resultFocus]);
+  }, [resultFocus, activeSection, currentPage]); // Adicionado currentPage para reavaliar o foco ao mudar de página
+
+  // Calcular resultados da página atual
+  const getCurrentPageResults = useCallback(() => {
+    const startIndex = currentPage * ITEMS_PER_PAGE;
+    return allResults.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [allResults, currentPage, ITEMS_PER_PAGE]);
+
+  const currentPageResults = getCurrentPageResults();
+  const totalPages = Math.ceil(allResults.length / ITEMS_PER_PAGE);
+
 
   if (!isActive) return null;
 
@@ -511,100 +547,46 @@ const Search = ({ isActive, onExitSearch }) => {
 
         {/* Resultados da busca */}
         <div className="search-results">
-          {loading && (
-            <div className="loading">Buscando...</div>
-          )}
+          {loading && <div className="loading">Buscando...</div>}
 
           {!loading && searchQuery && (
             <>
-              {/* Canais */}
-              {searchResults.channels.length > 0 && (
-                <div className="results-section">
-                  <h3>Canais ({searchResults.channels.length})</h3>
+              {allResults.length > 0 ? (
+                <>
+                  <div className="pagination-info">
+                    <span>Página {currentPage + 1} de {totalPages}</span>
+                    <span className="results-count">
+                      {allResults.length} resultados encontrados
+                    </span>
+                  </div>
                   <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
-                    {searchResults.channels.map((channel, index) => (
+                    {currentPageResults.map((result, index) => (
                       <div
-                        key={`channel-${channel.stream_id || index}`}
-                        ref={el => resultsRef.current.channels[index] = el}
-                        className="search-result-item channel-result"
-                        onClick={() => handleResultClick(channel, 'channel')}
+                        key={`${result.type}-${result.id}-${index}`}
+                        ref={el => resultsRef.current[index] = el}
+                        className={`search-result-item ${result.type}-result`}
+                        onClick={() => handleResultClick(result)}
                       >
                         <img
-                          src={channel.stream_icon}
-                          alt={channel.name}
+                          src={result.icon}
+                          alt={result.name}
                           onError={handleImageError}
                         />
                         <div className="result-info">
-                          <h4>{channel.name}</h4>
+                          <h4>{result.name}</h4>
+                          <span className="result-type-badge">{result.type}</span>
                         </div>
                       </div>
                     ))}
                   </div>
+                </>
+              ) : (
+                <div className="no-results">
+                  <i className="fa-solid fa-magnifying-glass"></i>
+                  <h3>Nenhum resultado encontrado</h3>
+                  <p>Tente buscar com outras palavras-chave</p>
                 </div>
               )}
-
-              {/* Filmes */}
-              {searchResults.movies.length > 0 && (
-                <div className="results-section">
-                  <h3>Filmes ({searchResults.movies.length})</h3>
-                  <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
-                    {searchResults.movies.map((movie, index) => (
-                      <div
-                        key={`movie-${movie.stream_id || index}`}
-                        ref={el => resultsRef.current.movies[index] = el}
-                        className="search-result-item movie-result"
-                        onClick={() => handleResultClick(movie, 'movie')}
-                      >
-                        <img
-                          src={movie.stream_icon}
-                          alt={movie.name}
-                          onError={handleImageError}
-                        />
-                        <div className="result-info">
-                          <h4>{movie.name}</h4>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Séries */}
-              {searchResults.series.length > 0 && (
-                <div className="results-section">
-                  <h3>Séries ({searchResults.series.length})</h3>
-                  <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
-                    {searchResults.series.map((serie, index) => (
-                      <div
-                        key={`serie-${serie.series_id || index}`}
-                        ref={el => resultsRef.current.series[index] = el}
-                        className="search-result-item serie-result"
-                        onClick={() => handleResultClick(serie, 'serie')}
-                      >
-                        <img
-                          src={serie.cover}
-                          alt={serie.name}
-                          onError={handleImageError}
-                        />
-                        <div className="result-info">
-                          <h4>{serie.name}</h4>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Nenhum resultado */}
-              {searchResults.channels.length === 0 &&
-                searchResults.movies.length === 0 &&
-                searchResults.series.length === 0 && (
-                  <div className="no-results">
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                    <h3>Nenhum resultado encontrado</h3>
-                    <p>Tente buscar com outras palavras-chave</p>
-                  </div>
-                )}
             </>
           )}
 
