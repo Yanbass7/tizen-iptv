@@ -18,8 +18,33 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
         }
     }, [focus]);
 
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // On Tizen, the back button is keycode 10009.
+            // We need to prevent the default action (which is to go back)
+            // unless the password input is focused.
+            if ((e.key === 'Backspace' || e.keyCode === 10009) && e.target !== inputRef.current) {
+                e.preventDefault();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
     const handleSubmit = () => {
         onPasswordSubmit(password);
+    };
+
+    const handlePasswordInputChange = (e) => {
+        const value = e.target.value;
+        // Permite apenas números e limita o comprimento a 4 dígitos
+        if (/^[0-9]*$/.test(value) && value.length <= 4) {
+            onPasswordChange(value);
+        }
     };
 
     return (
@@ -31,7 +56,9 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
                     ref={inputRef}
                     type="password"
                     value={password}
-                    onChange={(e) => onPasswordChange(e.target.value)}
+                    onChange={handlePasswordInputChange}
+                    placeholder="••••"
+                    maxLength="4"
                 />
                 <div className="password-modal-buttons">
                     <button ref={submitRef} onClick={handleSubmit}>Acessar</button>
