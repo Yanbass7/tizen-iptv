@@ -12,7 +12,7 @@ Remover temporariamente o uso do proxy do sistema para que a aplicação utilize
 ## Alterações Realizadas
 
 ### 1. AuthService - Usar API direta
-- ✅ Alteração do `getApiBaseUrl()` para endpoint direto `http://131.0.245.253:3001`
+- ✅ Alteração do `getApiBaseUrl()` para endpoint direto `https://bigtv-proxy-teste.duckdns.org`
 - ✅ Remoção da dependência do `proxyConfig`
 
 ### 2. StreamProxy - Desabilitar conversão
@@ -39,7 +39,7 @@ const API_BASE_URL = getApiBaseUrl();
 
 // DEPOIS:
 // Usando endpoint direto temporariamente (sem proxy)
-const API_BASE_URL = 'http://131.0.245.253:3001';
+const API_BASE_URL = 'https://bigtv-proxy-teste.duckdns.org';
 ```
 
 ### src/utils/streamProxy.js

@@ -13,7 +13,7 @@ server {
     ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
 
     location /api/ {
-        proxy_pass  http://131.0.245.253:3001;
+        proxy_pass  https://bigtv-proxy-teste.duckdns.org;
         proxy_set_header Host              $host;
         proxy_set_header X-Real-IP         $remote_addr;
         proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;

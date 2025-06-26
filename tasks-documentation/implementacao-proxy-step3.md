@@ -7,7 +7,7 @@
 Garantir que todo o tráfego do aplicativo React passe pelo novo proxy seguro (`HTTPS`) hospedado em `Duck DNS`, eliminando erros de _Mixed Content_ e preparando a aplicação para receber a URL do proxy vinda do backend.
 
 ## Resumo Técnico
-1. Substituir as chamadas ao backend interno (`http://131.0.245.253:3001`) para utilizar o proxy: `https://<dominio-duckdns>/api/…`.
+1. Substituir as chamadas ao backend interno (`https://bigtv-proxy-teste.duckdns.org`) para utilizar o proxy: `https://<dominio-duckdns>/api/…`.
 2. Criar utilitário que converta URLs de stream geradas em `HTTP` para o formato seguro via proxy:  `https://<dominio-duckdns>/stream/<IP>/<path>`.
 3. Centralizar a configuração do domínio do proxy em um único arquivo de configuração (ou variável de ambiente) para permitir ajustes futuros sem alterar múltiplos pontos de código.
 4. Refatorar pontos de geração de URL e garantir retro-compatibilidade.
