@@ -272,7 +272,41 @@ const Channels = ({ isActive }) => {
     handleChannelSelect
   ]);
 
+  const handlePasswordCancel = () => {
+    setIsPasswordModalOpen(false);
+    setFocusArea('channels');
+    setPassword('');
+  };
+
+  const playChannel = useCallback((channel) => {
+    const streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${channel.stream_id}`;
+    const streamInfo = {
+      name: channel.name,
+      category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Canal',
+      description: `Canal ao vivo - ${channel.name}`,
+      type: 'live',
+      logo: channel.stream_icon
+    };
+    const playEvent = new CustomEvent('playContent', {
+      detail: { streamUrl, streamInfo }
+    });
+    window.dispatchEvent(playEvent);
+  }, [categories, selectedCategory]);
+
+  const handlePasswordSubmit = useCallback((password) => {
+    if (password === '0000') { // Senha hardcoded
+      setIsPasswordModalOpen(false);
+      if (selectedChannelForPassword) {
+        playChannel(selectedChannelForPassword);
+      }
+    } else {
+      setAlertMessage('Senha incorreta!');
+    }
+  }, [selectedChannelForPassword, playChannel]);
+
   const handleModalNavigation = useCallback((keyCode) => {
+    if (!isPasswordModalOpen) return;
+
     if (keyCode === 39) { // Direita
       if (modalFocus === 'submit') setModalFocus('cancel');
     } else if (keyCode === 37) { // Esquerda
@@ -281,17 +315,17 @@ const Channels = ({ isActive }) => {
       if (modalFocus === 'input') setModalFocus('submit');
     } else if (keyCode === 38) { // Cima
       if (modalFocus !== 'input') setModalFocus('input');
-    if (modalFocus === 'submit') {
+    } else if (keyCode === 13) { // OK
+      if (modalFocus === 'submit') {
         handlePasswordSubmit(password);
       } else if (modalFocus === 'cancel') {
-        setIsPasswordModalOpen(false);
-        setFocusArea('channels');
+        handlePasswordCancel();
       }
     } else if (keyCode === 10009) { // Voltar
-      setIsPasswordModalOpen(false);
-      setFocusArea('channels');
+      handlePasswordCancel();
     }
-  }, [modalFocus]);
+  }, [isPasswordModalOpen, modalFocus, password, handlePasswordSubmit, handlePasswordCancel]);
+
   useEffect(() => {
     if (!isActive) return;
 
@@ -312,37 +346,11 @@ const Channels = ({ isActive }) => {
 
     window.addEventListener('channelsNavigation', handleChannelsNavigation);
     return () => window.removeEventListener('channelsNavigation', handleChannelsNavigation);
-  }, [isActive, focusArea, handleCategoriesNavigation, handleChannelsNavigationInternal]);
+  }, [isActive, focusArea, handleCategoriesNavigation, handleChannelsNavigationInternal, handleModalNavigation]);
 
   // Função para tratar erros de imagem
   const handleImageError = (e) => {
     e.target.style.display = 'none';
-  };
-
-  const handlePasswordSubmit = (password) => {
-    if (password === '0000') { // Senha hardcoded
-      setIsPasswordModalOpen(false);
-      if (selectedChannelForPassword) {
-        playChannel(selectedChannelForPassword);
-      }
-    } else {
-      setAlertMessage('Senha incorreta!');
-    }
-  };
-
-  const playChannel = (channel) => {
-    const streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${channel.stream_id}`;
-    const streamInfo = {
-      name: channel.name,
-      category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Canal',
-      description: `Canal ao vivo - ${channel.name}`,
-      type: 'live',
-      logo: channel.stream_icon
-    };
-    const playEvent = new CustomEvent('playContent', {
-      detail: { streamUrl, streamInfo }
-    });
-    window.dispatchEvent(playEvent);
   };
 
   if (!isActive) return null;
@@ -355,7 +363,7 @@ const Channels = ({ isActive }) => {
           password={password}
           onPasswordChange={setPassword}
           onPasswordSubmit={handlePasswordSubmit} 
-          onCancel={() => setIsPasswordModalOpen(false)} 
+          onCancel={handlePasswordCancel}
           focus={modalFocus}
         />
       )}
