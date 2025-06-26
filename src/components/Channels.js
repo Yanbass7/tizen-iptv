@@ -19,6 +19,7 @@ const Channels = ({ isActive }) => {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [selectedChannelForPassword, setSelectedChannelForPassword] = useState(null);
   const [modalFocus, setModalFocus] = useState('input'); // 'input', 'submit', or 'cancel'
+  const [currentPlayingChannel, setCurrentPlayingChannel] = useState(null);
   const [password, setPassword] = useState('');
   const [alertMessage, setAlertMessage] = useState(null);
 
@@ -97,6 +98,7 @@ const Channels = ({ isActive }) => {
   // Função para selecionar canal
   const handleChannelSelect = useCallback((channel) => {
     console.log('Canal selecionado:', channel);
+    setCurrentPlayingChannel(channel);
     
     // Construir URL do stream com a estrutura correta
     const streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${channel.stream_id}`;
@@ -337,6 +339,27 @@ const Channels = ({ isActive }) => {
         return;
       }
 
+      // If a channel is currently playing, handle left/right for channel switching
+      if (currentPlayingChannel) {
+        const currentIndex = channels.findIndex(c => c.stream_id === currentPlayingChannel.stream_id);
+        if (keyCode === 37) { // Left arrow
+          if (currentIndex > 0) {
+            handleChannelSelect(channels[currentIndex - 1]);
+          } else if (channels.length > 0) {
+            // Loop to the last channel if at the beginning
+            handleChannelSelect(channels[channels.length - 1]);
+          }
+        } else if (keyCode === 39) { // Right arrow
+          if (currentIndex < channels.length - 1) {
+            handleChannelSelect(channels[currentIndex + 1]);
+          } else if (channels.length > 0) {
+            // Loop to the first channel if at the end
+            handleChannelSelect(channels[0]);
+          }
+        }
+        return; // Consume the event if a channel is playing
+      }
+
       if (focusArea === 'categories') {
         handleCategoriesNavigation(keyCode);
       } else if (focusArea === 'channels') {
@@ -346,7 +369,7 @@ const Channels = ({ isActive }) => {
 
     window.addEventListener('channelsNavigation', handleChannelsNavigation);
     return () => window.removeEventListener('channelsNavigation', handleChannelsNavigation);
-  }, [isActive, focusArea, handleCategoriesNavigation, handleChannelsNavigationInternal, handleModalNavigation]);
+  }, [isActive, focusArea, handleCategoriesNavigation, handleChannelsNavigationInternal, handleModalNavigation, currentPlayingChannel, channels, handleChannelSelect]);
 
   // Função para tratar erros de imagem
   const handleImageError = (e) => {
