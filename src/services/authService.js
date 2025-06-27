@@ -147,4 +147,29 @@ export const validarToken = async (token) => {
   }
 
   return response.json();
+};
+
+/**
+ * Busca o status mais recente do cliente, incluindo o de sua conta IPTV.
+ * Requer um token de cliente válido.
+ * @param {string} token - Token JWT de autenticação
+ * @returns {Promise<Object>} Retorna o objeto completo do cliente com os dados atualizados
+ */
+export const getClienteStatus = async (token) => {
+  const response = await fetch(`${API_BASE_URL}/auth/status`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
+    throw new Error('Erro ao verificar status da conta.');
+  }
+
+  return response.json();
 }; 

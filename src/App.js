@@ -12,6 +12,7 @@ import SeriesDetailsPage from './components/SeriesDetailsPage';
 import Search from './components/Search';
 import VideoPlayer from './components/VideoPlayer';
 import criarUrlProxyStream from './utils/streamProxy';
+import IptvPendingScreen from './components/IptvPendingScreen';
 
 // Estado das seções (migrado do conceito original)
 const SECTIONS = {
@@ -24,7 +25,8 @@ const SECTIONS = {
   SERIES: 'series',
   SERIES_DETAILS: 'series_details',
   SEARCH: 'search',
-  PLAYER: 'player'
+  PLAYER: 'player',
+  IPTV_PENDING: 'iptv_pending'
 };
 
 // Menu items (do app antigo)
@@ -337,6 +339,9 @@ function App() {
     if (loginData && !loginData.conta_iptv_id) {
       console.log('Cliente não tem conta IPTV, navegando para a configuração.');
       navigateToSection(SECTIONS.IPTV_SETUP, false);
+    } else if (loginData && loginData.conta_iptv_status === 'pendente') {
+      console.log('Cliente tem conta IPTV pendente, navegando para a tela de espera.');
+      navigateToSection(SECTIONS.IPTV_PENDING, false);
     } else if (loginData && loginData.conta_iptv_status !== 'ATIVO') {
       console.log('Cliente tem conta IPTV mas não está ativa, navegando para a configuração.');
       navigateToSection(SECTIONS.IPTV_SETUP, false);
@@ -351,31 +356,50 @@ function App() {
   };
 
   const handleBackToLogin = () => {
-    setCurrentSection(SECTIONS.LOGIN);
+    navigateToSection(SECTIONS.LOGIN, false);
   };
 
   const handleSignup = (signupData) => {
-    // Cadastro realizado com sucesso
-    console.log('Cliente cadastrado:', signupData);
-    // Pode adicionar lógica adicional aqui se necessário
+    // Após cadastro, vai para o login
+    navigateToSection(SECTIONS.LOGIN, false);
   };
 
   const handleSkipLogin = () => {
-    console.warn('Login pulado para fins de desenvolvimento.');
-    setCurrentSection(SECTIONS.HOME);
-    setOnMenu(false); // Garante que o foco vá para o conteúdo principal
+    // Lógica para pular login (desenvolvimento)
+    navigateToSection(SECTIONS.HOME, false);
+    setOnMenu(false);
   };
 
   const handleIptvSetupComplete = (iptvData) => {
-    console.log('Configuração IPTV concluída:', iptvData);
-    setCurrentSection(SECTIONS.HOME);
-    setOnMenu(false);
+    console.log('Configuração IPTV submetida:', iptvData);
+    // Após a configuração, verificar o status
+    if (iptvData && iptvData.ContaIptv && iptvData.ContaIptv.status === 'pendente') {
+      navigateToSection(SECTIONS.IPTV_PENDING, false);
+    } else {
+      // Se por algum motivo já vier aprovado, vai pra home
+      navigateToSection(SECTIONS.HOME, false);
+    }
   };
 
   const handleSkipIptvSetup = () => {
-    console.log('Configuração IPTV pulada');
-    setCurrentSection(SECTIONS.HOME);
-    setOnMenu(false);
+    // Opcional: permitir pular a configuração e ir para a home
+    // Se não há histórico, volta para Home (ou login se não autenticado)
+    if (!navigateBack()) {
+      setCurrentSection(clienteData ? SECTIONS.HOME : SECTIONS.LOGIN);
+    }
+  };
+  
+  const handleApprovalSuccess = () => {
+    console.log('Conta aprovada! Navegando para a Home.');
+    navigateToSection(SECTIONS.HOME, false);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setClienteData(null);
+    setMacAddress('');
+    setSectionHistory([]);
+    navigateToSection(SECTIONS.LOGIN, false);
   };
 
   const handleSectionChange = (sectionId) => {
@@ -428,6 +452,15 @@ function App() {
           />
         );
       
+      case SECTIONS.IPTV_PENDING:
+        return (
+          <IptvPendingScreen
+            onApprovalSuccess={handleApprovalSuccess}
+            onLogout={handleLogout}
+            isActive={currentSection === SECTIONS.IPTV_PENDING}
+          />
+        );
+
       case SECTIONS.HOME:
         return (
           <Home 
