@@ -8,7 +8,6 @@ export const SERVER_CONFIG = {
   // URLs alternativas (para fallback)
   alternativeUrls: [
     'https://rota66.bar',
-    'http://74.63.227.218',
     // Adicione outras rotas aqui
   ],
   
