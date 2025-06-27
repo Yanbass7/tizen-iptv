@@ -13,6 +13,7 @@ import Search from './components/Search';
 import VideoPlayer from './components/VideoPlayer';
 import criarUrlProxyStream from './utils/streamProxy';
 import IptvPendingScreen from './components/IptvPendingScreen';
+import { criarContaIptv, getClienteStatus, probeIptvStatus } from './services/authService';
 
 // Estado das seções (migrado do conceito original)
 const SECTIONS = {
@@ -239,7 +240,7 @@ function App() {
 
   // Listener para eventos de reprodução de conteúdo
   useEffect(() => {
-    const handlePlayContent = (event) => {
+    const handlePlayContent = async (event) => {
       const { streamUrl, streamInfo } = event.detail;
       
       // Proxy temporariamente desabilitado - usando URL original
@@ -323,31 +324,26 @@ function App() {
     return () => window.removeEventListener('moviePreviewActive', handleMoviePreviewActive);
   }, []);
 
-  const handleLogin = (loginData, mac) => {
+  const handleLogin = async (loginData, mac) => {
     console.log('Login bem-sucedido, dados recebidos no App.js:', loginData);
-    console.log(`MAC Address recebido no App.js: ${mac}`);
-    
-    // CORREÇÃO: Usar loginData diretamente, pois ele é o objeto do cliente.
-    setClienteData(loginData); 
+    setClienteData(loginData);
     setMacAddress(mac || '');
 
-    // Salvar token e email para persistência da sessão
-    localStorage.setItem('authToken', loginData.token);
+    const token = loginData.token;
+    localStorage.setItem('authToken', token);
     localStorage.setItem('authEmail', loginData.email);
-    
-    // Verificar se já tem conta IPTV configurada (usando o objeto loginData diretamente)
-    if (loginData && !loginData.conta_iptv_id) {
-      console.log('Cliente não tem conta IPTV, navegando para a configuração.');
-      navigateToSection(SECTIONS.IPTV_SETUP, false);
-    } else if (loginData && loginData.conta_iptv_status === 'pendente') {
-      console.log('Cliente tem conta IPTV pendente, navegando para a tela de espera.');
-      navigateToSection(SECTIONS.IPTV_PENDING, false);
-    } else if (loginData && loginData.conta_iptv_status !== 'ATIVO') {
-      console.log('Cliente tem conta IPTV mas não está ativa, navegando para a configuração.');
-      navigateToSection(SECTIONS.IPTV_SETUP, false);
-    } else {
-      console.log('Cliente tem conta IPTV ativa, navegando para a home.');
+
+    // Etapa 2: Sondar o status da conta IPTV
+    console.log('Sondando status da conta IPTV...');
+    const isApproved = await probeIptvStatus(token);
+
+    if (isApproved) {
+      console.log('Sondagem OK: Conta está ativa. Navegando para a Home.');
       navigateToSection(SECTIONS.HOME, false);
+    } else {
+      console.log('Sondagem FAILED: Conta não está ativa (pendente ou inexistente). Navegando para a configuração.');
+      // A lógica para diferenciar pendente/inexistente será no IptvSetupScreen
+      navigateToSection(SECTIONS.IPTV_SETUP, false);
     }
   };
 

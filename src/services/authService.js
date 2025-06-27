@@ -85,13 +85,15 @@ export const criarContaIptv = async ({ clienteId, codigo, mac_disp }, token) => 
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Acesso não autorizado');
+    const error = new Error('Falha ao criar conta IPTV.');
+    error.status = response.status; // Anexa o status ao objeto de erro
+    try {
+      const errorData = await response.json();
+      error.message = errorData.message || `Erro ${response.status}`;
+    } catch (e) {
+      // Ignora erro no parsing do corpo do erro
     }
-    if (response.status === 404) {
-      throw new Error('Cliente não encontrado');
-    }
-    throw new Error('Erro ao criar conta IPTV');
+    throw error;
   }
 
   return response.json();
@@ -147,6 +149,30 @@ export const validarToken = async (token) => {
   }
 
   return response.json();
+};
+
+/**
+ * (Sondagem) Tenta acessar um recurso que exige conta IPTV ativa.
+ * Usado para determinar o status do cliente sem alterar o backend.
+ * @param {string} token - Token JWT de autenticação
+ * @returns {Promise<boolean>} Retorna true se a conta estiver ativa, false caso contrário.
+ */
+export const probeIptvStatus = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/cliente-conta-iptv/filmes/categorias`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
+    });
+    // Se a resposta for OK (2xx), a conta está ativa.
+    return response.ok;
+  } catch (error) {
+    // Qualquer erro de rede ou de API significa que não está ativo.
+    console.error('Falha na sondagem de status IPTV:', error);
+    return false;
+  }
 };
 
 /**

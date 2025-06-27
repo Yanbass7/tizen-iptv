@@ -182,7 +182,14 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive, macAd
       }, 3000);
 
     } catch (err) {
-      setError(err.message || 'Erro ao configurar conta IPTV');
+      // Se o erro for 409, significa que a conta já existe mas não está ativa (pendente).
+      if (err.status === 409) {
+        console.warn('Erro 409: A conta IPTV já existe e provavelmente está pendente. Redirecionando para a tela de espera.');
+        // Força a navegação para a tela de "pendente"
+        onSetupComplete({ ContaIptv: { status: 'pendente' } });
+      } else {
+        setError(err.message || 'Erro ao configurar conta IPTV');
+      }
     } finally {
       setLoading(false);
     }
