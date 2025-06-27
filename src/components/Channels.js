@@ -349,6 +349,7 @@ const Channels = ({ isActive }) => {
             // Loop to the last channel if at the beginning
             handleChannelSelect(channels[channels.length - 1]);
           }
+          return; // Consume the event
         } else if (keyCode === 39) { // Right arrow
           if (currentIndex < channels.length - 1) {
             handleChannelSelect(channels[currentIndex + 1]);
@@ -356,8 +357,8 @@ const Channels = ({ isActive }) => {
             // Loop to the first channel if at the end
             handleChannelSelect(channels[0]);
           }
+          return; // Consume the event
         }
-        return; // Consume the event if a channel is playing
       }
 
       if (focusArea === 'categories') {
