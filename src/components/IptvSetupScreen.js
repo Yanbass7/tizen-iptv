@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './LoginScreen.css'; // Reutilizar os mesmos estilos da tela de login
 import { criarContaIptv } from '../services/authService';
 
-const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive }) => {
+const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive, macAddress }) => {
   const [codigo, setCodigo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -142,7 +142,10 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive }) => 
     setLoading(true);
 
     try {
-      const mac_disp = getMacAddress();
+      // Prioriza o MAC recebido via props (da URL), senão tenta obter de novo
+      const mac_disp = macAddress || getMacAddress();
+      console.log(`MAC a ser usado na configuração: ${mac_disp}`);
+
       if (!mac_disp) {
         throw new Error('Não foi possível obter o MAC do dispositivo. Configuração não pode ser concluída.');
       }

@@ -47,6 +47,7 @@ function App() {
   const [sectionHistory, setSectionHistory] = useState([]);
   const [moviePreviewActive, setMoviePreviewActive] = useState(false);
   const [clienteData, setClienteData] = useState(null);
+  const [macAddress, setMacAddress] = useState('');
 
   // Função para navegar para uma seção e rastrear histórico
   const navigateToSection = useCallback((newSection, addToHistory = true) => {
@@ -320,37 +321,33 @@ function App() {
     return () => window.removeEventListener('moviePreviewActive', handleMoviePreviewActive);
   }, []);
 
-  const handleLogin = (loginData) => {
-    console.log('Login realizado:', loginData);
+  const handleLogin = (loginData, mac) => {
+    console.log('Login bem-sucedido, dados recebidos no App.js:', loginData);
+    console.log(`MAC Address recebido no App.js: ${mac}`);
     
-    // Garantir que temos os dados do cliente antes de prosseguir
-    if (!loginData || !loginData.id || !loginData.email) {
-      console.error('Dados de login inválidos:', loginData);
-      return;
-    }
+    // CORREÇÃO: Usar loginData diretamente, pois ele é o objeto do cliente.
+    setClienteData(loginData); 
+    setMacAddress(mac || '');
+
+    // Salvar token e email para persistência da sessão
+    localStorage.setItem('authToken', loginData.token);
+    localStorage.setItem('authEmail', loginData.email);
     
-    setClienteData(loginData);
-    
-    // Verificar se já tem conta IPTV configurada
-    const contaIptvId = localStorage.getItem('contaIptvId');
-    const contaIptvStatus = localStorage.getItem('contaIptvStatus');
-    
-    // Se não tem conta IPTV ou está pendente, ir para configuração
-    if (!contaIptvId || contaIptvStatus === 'pendente') {
-      // Pequeno delay para garantir que clienteData foi atualizado
-      setTimeout(() => {
-        setCurrentSection(SECTIONS.IPTV_SETUP);
-      }, 100);
+    // Verificar se já tem conta IPTV configurada (usando o objeto loginData diretamente)
+    if (loginData && !loginData.conta_iptv_id) {
+      console.log('Cliente não tem conta IPTV, navegando para a configuração.');
+      navigateToSection(SECTIONS.IPTV_SETUP, false);
+    } else if (loginData && loginData.conta_iptv_status !== 'ATIVO') {
+      console.log('Cliente tem conta IPTV mas não está ativa, navegando para a configuração.');
+      navigateToSection(SECTIONS.IPTV_SETUP, false);
     } else {
-      // Se já tem conta IPTV vinculada, ir direto para Home
-      setCurrentSection(SECTIONS.HOME);
+      console.log('Cliente tem conta IPTV ativa, navegando para a home.');
+      navigateToSection(SECTIONS.HOME, false);
     }
-    
-    setOnMenu(false);
   };
 
   const handleGoToSignup = () => {
-    setCurrentSection(SECTIONS.SIGNUP);
+    navigateToSection(SECTIONS.SIGNUP, false);
   };
 
   const handleBackToLogin = () => {
@@ -427,6 +424,7 @@ function App() {
             onSetupComplete={handleIptvSetupComplete}
             onSkip={handleSkipIptvSetup}
             isActive={currentSection === SECTIONS.IPTV_SETUP}
+            macAddress={macAddress}
           />
         );
       
