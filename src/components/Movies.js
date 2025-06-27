@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import MoviePreview from './MoviePreview';
-import { buildStreamUrl, buildApiUrl } from '../config/serverConfig';
-import { iptvApi } from '../services/iptvApi';
+import { API_BASE_URL, API_CREDENTIALS, buildStreamUrl } from '../config/apiConfig';
 import { safeScrollIntoView } from '../utils/scrollUtils';
 import './Movies.css';
 
@@ -31,9 +30,6 @@ const Movies = ({ isActive }) => {
   const categoriesRef = useRef([]);
   const moviesRef = useRef([]);
   const containerRef = useRef(null);
-
-  const API_BASE_URL = 'https://rota66.bar/player_api.php';
-  const API_CREDENTIALS = 'username=zBB82J&password=AMeDHq';
 
   // Detectar ambiente Tizen TV
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
@@ -103,7 +99,7 @@ const Movies = ({ isActive }) => {
     console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
     
     // Construir URL do stream com a estrutura correta (mesma dos canais que funcionam)
-    const streamUrl = `https://rota66.bar/movie/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${movie.stream_id}.mp4`;
+    const streamUrl = buildStreamUrl('movie', movie.stream_id, 'mp4');
     
     // Informações do filme para o player
     const streamInfo = {

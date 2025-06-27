@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { buildStreamUrl } from '../config/apiConfig';
 import './MoviePreview.css';
 
 const MoviePreview = ({ movie, isActive, onBack }) => {
   const [focusedElement, setFocusedElement] = useState('play');
   const [isFavorite, setIsFavorite] = useState(false);
   const [focusArea, setFocusArea] = useState('actions');
-
-  // Credenciais da API (exemplo, idealmente viria de config)
-  const API_USERNAME = 'zBB82J';
-  const API_PASSWORD = 'AMeDHq';
 
   // Detectar ambiente Tizen TV
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
@@ -21,7 +18,7 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
         console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
         
         // Construir a URL de stream correta para filmes
-        const streamUrl = `https://rota66.bar/movie/${API_USERNAME}/${API_PASSWORD}/${movie.stream_id}.mp4`;
+        const streamUrl = buildStreamUrl('movie', movie.stream_id, 'mp4');
 
         // Simplificado para despachar o evento de forma síncrona e direta.
         // O setTimeout e a lógica de branch do Tizen foram removidos para evitar congelamento.

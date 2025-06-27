@@ -3,6 +3,7 @@ import PasswordModal from './PasswordModal';
 import AlertPopup from './AlertPopup';
 import { iptvApi } from '../services/iptvApi';
 import { safeScrollIntoView } from '../utils/scrollUtils';
+import { API_BASE_URL, API_CREDENTIALS, buildStreamUrl } from '../config/apiConfig';
 import './Channels.css';
 
 const Channels = ({ isActive }) => {
@@ -33,9 +34,6 @@ const Channels = ({ isActive }) => {
   const categoriesRef = useRef([]);
   const channelsRef = useRef([]);
   const containerRef = useRef(null);
-
-  const API_BASE_URL = 'https://rota66.bar/player_api.php';
-  const API_CREDENTIALS = 'username=zBB82J&password=AMeDHq';
 
   // Função para carregar categorias de canais ao vivo
   const loadLiveCategories = useCallback(async () => {
@@ -101,7 +99,7 @@ const Channels = ({ isActive }) => {
     setCurrentPlayingChannel(channel);
     
     // Construir URL do stream com a estrutura correta
-    const streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${channel.stream_id}`;
+    const streamUrl = buildStreamUrl('live', channel.stream_id, 'ts');
     
     // Informações do canal para o player
     const streamInfo = {
@@ -281,7 +279,7 @@ const Channels = ({ isActive }) => {
   };
 
   const playChannel = useCallback((channel) => {
-    const streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${channel.stream_id}`;
+    const streamUrl = buildStreamUrl('live', channel.stream_id, 'ts');
     const streamInfo = {
       name: channel.name,
       category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Canal',

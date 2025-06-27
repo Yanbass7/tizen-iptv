@@ -13,7 +13,8 @@ import Search from './components/Search';
 import VideoPlayer from './components/VideoPlayer';
 import criarUrlProxyStream from './utils/streamProxy';
 import IptvPendingScreen from './components/IptvPendingScreen';
-import { criarContaIptv, getClienteStatus, probeIptvStatus } from './services/authService';
+import { criarContaIptv, getClienteStatus, probeIptvStatus, getPlayerConfig } from './services/authService';
+import { setPlayerConfig } from './config/apiConfig';
 
 // Estado das seções (migrado do conceito original)
 const SECTIONS = {
@@ -333,7 +334,17 @@ function App() {
     localStorage.setItem('authToken', token);
     localStorage.setItem('authEmail', loginData.email);
 
-    // Etapa 2: Sondar o status da conta IPTV
+    // Etapa 2: Obter configuração dinâmica do player e aplicá-la
+    try {
+      const playerCfg = await getPlayerConfig(token);
+      console.log('Configuração do player recebida:', playerCfg);
+      setPlayerConfig(playerCfg);
+    } catch (e) {
+      console.error('Não foi possível obter configuração do player:', e);
+      // Caso falhe, continua mas exibirá erro ao acessar conteúdo depois
+    }
+
+    // Etapa 3: Sondar o status da conta IPTV
     console.log('Sondando status da conta IPTV...');
     const isApproved = await probeIptvStatus(token);
 

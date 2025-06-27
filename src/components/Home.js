@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { iptvApi } from '../services/iptvApi';
 import { safeScrollTo, safeScrollIntoView } from '../utils/scrollUtils';
+import { buildStreamUrl } from '../config/apiConfig';
 import './Home.css';
 
 const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
@@ -178,8 +179,8 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
     const playEvent = new CustomEvent('playContent', {
       detail: {
         streamUrl: type === 'series' 
-          ? `https://rota66.bar/series/${item.series_id}/${item.season || 1}/${item.episode || 1}.m3u8`
-          : `https://rota66.bar/movie/${item.stream_id}.m3u8`,
+          ? buildStreamUrl('series', item.series_id, 'mp4')
+          : buildStreamUrl('movie', item.stream_id, 'mp4'),
         streamInfo: {
           name: item.name,
           type: type,
