@@ -190,6 +190,51 @@ img {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Estilos para o seletor de categoria */
+.category-selector {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.category-button {
+  flex: 1;
+  padding: 10px 15px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ccc;
+  background-color: #333;
+  border: 2px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.category-button:hover {
+  background-color: #444;
+  border-color: #666;
+}
+
+.category-button.active {
+  color: white;
+  background-color: #FF8C00;
+  border-color: #E07B00;
+  font-weight: bold;
+}
+
+.category-button.focused {
+  outline: 3px solid #FFD700;
+  outline-offset: 2px;
+  border-color: #FFD700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+
 .search-query {
   color: white;
   word-break: break-all;

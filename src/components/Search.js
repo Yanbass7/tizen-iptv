@@ -7,9 +7,11 @@ const Search = ({ isActive, onExitSearch }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [allResults, setAllResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState('keyboard'); // 'keyboard', 'results'
+  const [activeSection, setActiveSection] = useState('keyboard'); // 'keyboard', 'results', 'categories'
   const [selectedKey, setSelectedKey] = useState({ row: 0, col: 0 });
-  const [resultFocus, setResultFocus] = useState(0); // Agora é apenas um índice
+  const [resultFocus, setResultFocus] = useState(0);
+  const [searchCategory, setSearchCategory] = useState('movie'); // 'movie', 'serie', 'channel'
+  const [categoryFocus, setCategoryFocus] = useState(0); // 0: Filmes, 1: Séries, 2: Canais
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(0);
@@ -34,6 +36,12 @@ const Search = ({ isActive, onExitSearch }) => {
       { type: 'char', value: ' ', display: <i className="fas fa-minus"></i> }, // Tecla de espaço
       { type: 'action', action: 'clear', display: <i className="fas fa-trash-alt"></i> }
     ]
+  ];
+
+  const searchCategories = [
+    { id: 'movie', name: 'Filmes' },
+    { id: 'serie', name: 'Séries' },
+    { id: 'channel', name: 'Canais ao Vivo' },
   ];
 
   const handleResultClick = useCallback((result) => {
@@ -198,15 +206,29 @@ const Search = ({ isActive, onExitSearch }) => {
     }
 
     setLoading(true);
-    setCurrentPage(0); // Reset page on new search
+    setCurrentPage(0);
     setResultFocus(0);
 
     try {
-      const [channelsData, moviesData, seriesData] = await Promise.all([
-        fetchAllChannels(),
-        fetchAllMovies(),
-        fetchAllSeries()
-      ]);
+      let fetchedData = [];
+      let dataType = '';
+
+      switch (searchCategory) {
+        case 'movie':
+          fetchedData = await fetchAllMovies();
+          dataType = 'movie';
+          break;
+        case 'serie':
+          fetchedData = await fetchAllSeries();
+          dataType = 'serie';
+          break;
+        case 'channel':
+          fetchedData = await fetchAllChannels();
+          dataType = 'channel';
+          break;
+        default:
+          break;
+      }
 
       const normalizeText = (text) => {
         if (!text) return '';
@@ -218,14 +240,14 @@ const Search = ({ isActive, onExitSearch }) => {
       };
 
       const normalizedQuery = normalizeText(searchQuery);
+      
+      const mappedData = fetchedData.map(item => ({
+        ...item,
+        type: dataType,
+        icon: dataType === 'serie' ? item.cover : item.stream_icon
+      }));
 
-      const combinedData = [
-        ...channelsData.map(item => ({ ...item, type: 'channel', icon: item.stream_icon })),
-        ...moviesData.map(item => ({ ...item, type: 'movie', icon: item.stream_icon })),
-        ...seriesData.map(item => ({ ...item, type: 'serie', icon: item.cover }))
-      ];
-
-      const filteredResults = combinedData
+      const filteredResults = mappedData
         .filter(item => {
           if (!item || !item.name) return false;
           const normalizedName = normalizeText(item.name);
@@ -241,13 +263,12 @@ const Search = ({ isActive, onExitSearch }) => {
           return 0;
         });
 
-      // Mapear para uma estrutura unificada
       const finalResults = filteredResults.map(item => ({
         id: item.stream_id || item.series_id,
         name: item.name,
         icon: item.icon,
         type: item.type,
-        rawItem: item, // Manter o item original para o handleResultClick
+        rawItem: item,
       }));
 
       setAllResults(finalResults);
@@ -258,7 +279,7 @@ const Search = ({ isActive, onExitSearch }) => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, fetchAllChannels, fetchAllMovies, fetchAllSeries]);
+  }, [searchQuery, searchCategory, fetchAllChannels, fetchAllMovies, fetchAllSeries]);
 
   const handleKeyPress = useCallback((key) => {
     // Se a "key" for um objeto (nossa nova estrutura)
@@ -289,17 +310,24 @@ const Search = ({ isActive, onExitSearch }) => {
   // Efeito para disparar a busca quando searchQuery muda
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (searchQuery.trim().length >= 2) { // Dispara a busca apenas se houver 2 ou mais caracteres
+      if (searchQuery.trim().length >= 2) {
         performSearch();
       } else {
-        setAllResults([]); // Limpa resultados se a busca for menor que 2 caracteres
+        setAllResults([]);
       }
-    }, 500); // Pequeno delay para evitar buscas excessivas
+    }, 500);
 
     return () => {
       clearTimeout(handler);
     };
   }, [searchQuery, performSearch]);
+
+  // Efeito para re-buscar ao mudar de categoria
+  useEffect(() => {
+    if (searchQuery.trim().length >= 2) {
+      performSearch();
+    }
+  }, [searchCategory, performSearch]);
 
   const handleKeyboardNavigation = useCallback((keyCode) => {
     const maxRows = keyboardLayout.length;
@@ -321,11 +349,9 @@ const Search = ({ isActive, onExitSearch }) => {
         const newMaxCols = keyboardLayout[currentRow].length;
         currentCol = Math.min(currentCol, newMaxCols - 1);
         setSelectedKey({ row: currentRow, col: currentCol });
-      } else { // Se estiver na primeira linha do teclado e pressionar Cima
-        if (allResults.length > 0) {
-          setActiveSection('results');
-          setResultFocus(0);
-        }
+      } else {
+        setActiveSection('categories');
+        setCategoryFocus(0);
       }
     } else if (keyCode === 40) { // Baixo
       if (currentRow < maxRows - 1) {
@@ -364,21 +390,17 @@ const Search = ({ isActive, onExitSearch }) => {
       }
     } else if (keyCode === 39) { // Direita
       const isLastKeyInRow = currentCol === keyboardLayout[currentRow].length - 1;
-      const hasResults = allResults.length > 0;
+          const hasResults = allResults.length > 0;
       if (currentCol < keyboardLayout[currentRow].length - 1) {
         currentCol++;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
-      } else {
-        // Se estiver na última coluna da linha atual E houver resultados, ir para os resultados
-        if (isLastKeyInRow && hasResults) {
-          setActiveSection('results');
-          setResultFocus(0);
-        } else if (currentRow < keyboardLayout.length - 1) { // Se não for para os resultados, ir para a próxima linha do teclado
-          currentRow++;
-          currentCol = 0;
-          setSelectedKey({ row: currentRow, col: currentCol });
-        }
-        // Se for a última linha e a última coluna, e não for para os resultados, não faz nada.
+      } else if (isLastKeyInRow && hasResults) {
+        setActiveSection('results');
+        setResultFocus(0);
+      } else if (currentRow < keyboardLayout.length - 1) {
+        currentRow++;
+        currentCol = 0;
+        setSelectedKey({ row: currentRow, col: currentCol });
       }
     } else if (keyCode === 13) { // OK - pressionar tecla
       const selectedKeyValue = keyboardLayout[currentRow][currentCol];
@@ -398,11 +420,10 @@ const Search = ({ isActive, onExitSearch }) => {
         setResultFocus(newFocus);
       } else if (currentPage > 0) {
         setCurrentPage(prev => prev - 1);
-        // Tenta manter a coluna, indo para a última linha da página anterior
         const newFocusOnNewPage = (ITEMS_PER_PAGE - (ITEMS_PER_PAGE % GRID_COLUMNS)) + (resultFocus % GRID_COLUMNS) - GRID_COLUMNS;
         setResultFocus(Math.min(newFocusOnNewPage, ITEMS_PER_PAGE - 1));
       } else {
-        setActiveSection('keyboard'); // Voltar para o teclado
+        setActiveSection('categories');
       }
     } else if (keyCode === 40) { // Baixo
       const newFocus = resultFocus + GRID_COLUMNS;
@@ -417,7 +438,7 @@ const Search = ({ isActive, onExitSearch }) => {
       if (resultFocus % GRID_COLUMNS > 0) {
         setResultFocus(prev => prev - 1);
       } else {
-        setActiveSection('keyboard'); // Voltar para o teclado
+        setActiveSection('categories');
       }
     } else if (keyCode === 39) { // Direita
       if ((resultFocus + 1) % GRID_COLUMNS !== 0 && resultFocus + 1 < currentPageResultsCount) {
@@ -431,6 +452,32 @@ const Search = ({ isActive, onExitSearch }) => {
     }
   }, [resultFocus, allResults, currentPage, ITEMS_PER_PAGE, handleResultClick, setActiveSection]);
 
+  const handleCategoryNavigation = useCallback((keyCode) => {
+    if (keyCode === 37) { // Esquerda
+      if (categoryFocus > 0) {
+        setCategoryFocus(prev => prev - 1);
+      } else {
+        onExitSearch(); // Sair para o sidebar
+      }
+    } else if (keyCode === 39) { // Direita
+      if (categoryFocus < searchCategories.length - 1) {
+        setCategoryFocus(prev => prev + 1);
+      } else if (allResults.length > 0) {
+        setActiveSection('results');
+        setResultFocus(0);
+      }
+    } else if (keyCode === 40) { // Baixo
+      setActiveSection('keyboard');
+    } else if (keyCode === 38) { // Cima
+      if (allResults.length > 0) {
+        setActiveSection('results');
+        setResultFocus(0);
+      }
+    } else if (keyCode === 13) { // OK
+      setSearchCategory(searchCategories[categoryFocus].id);
+    }
+  }, [categoryFocus, allResults.length, onExitSearch, searchCategories]);
+
   // Sistema de navegação por controle remoto
   useEffect(() => {
     if (!isActive) return;
@@ -442,21 +489,29 @@ const Search = ({ isActive, onExitSearch }) => {
         handleKeyboardNavigation(keyCode);
       } else if (activeSection === 'results') {
         handleResultsNavigation(keyCode);
+      } else if (activeSection === 'categories') {
+        handleCategoryNavigation(keyCode);
       }
     };
 
     window.addEventListener('searchNavigation', handleSearchNavigation);
     return () => window.removeEventListener('searchNavigation', handleSearchNavigation);
-  }, [isActive, activeSection, handleKeyboardNavigation, handleResultsNavigation]);
+  }, [isActive, activeSection, handleKeyboardNavigation, handleResultsNavigation, handleCategoryNavigation]);
 
   // Atualizar foco visual
   const updateFocusVisual = useCallback(() => {
     // Remover foco de todos os elementos
-    document.querySelectorAll('.keyboard-key, .search-result-item').forEach(el => {
+    document.querySelectorAll('.keyboard-key, .search-result-item, .category-button').forEach(el => {
       el.classList.remove('focused');
     });
 
-    if (activeSection === 'keyboard') {
+    if (activeSection === 'categories') {
+      const categoryButtons = document.querySelectorAll('.category-button');
+      if (categoryButtons[categoryFocus]) {
+        categoryButtons[categoryFocus].classList.add('focused');
+        safeScrollIntoView(categoryButtons[categoryFocus], { behavior: 'smooth', block: 'nearest' });
+      }
+    } else if (activeSection === 'keyboard') {
       // Encontrar a tecla correta no DOM
       const keyboardRows = keyboardRef.current ? keyboardRef.current.children : [];
       if (keyboardRows[selectedKey.row]) {
@@ -480,7 +535,7 @@ const Search = ({ isActive, onExitSearch }) => {
         });
       }
     }
-  }, [activeSection, selectedKey, resultFocus]);
+  }, [activeSection, selectedKey, resultFocus, categoryFocus]);
 
   useEffect(() => {
     updateFocusVisual();
@@ -519,6 +574,17 @@ const Search = ({ isActive, onExitSearch }) => {
             <div className="search-input-display">
               <span className="search-query">{searchQuery}</span>
               <span className="cursor">|</span>
+            </div>
+             <div className="category-selector">
+              {searchCategories.map((category, index) => (
+                <button
+                  key={category.id}
+                  className={`category-button ${searchCategory === category.id ? 'active' : ''}`}
+                  onClick={() => setSearchCategory(category.id)}
+                >
+                  {category.name}
+                </button>
+              ))}
             </div>
           </div>
 
