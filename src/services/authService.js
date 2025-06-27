@@ -1,9 +1,9 @@
 // Serviço de Autenticação para a aplicação BIGTV IPTV
 // Responsável por realizar login e validar token conforme a API interna
-// Endpoint base disponibilizado: http://131.0.245.253:3001
+// Endpoint base disponibilizado: https://bigtv-proxy-teste.duckdns.org
 
 // Usando endpoint direto temporariamente (sem proxy)
-const API_BASE_URL = 'http://131.0.245.253:3001';
+const API_BASE_URL = 'https://bigtv-proxy-teste.duckdns.org';
 
 /**
  * Valida se a senha atende aos critérios de segurança
