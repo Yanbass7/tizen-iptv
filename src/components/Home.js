@@ -171,29 +171,94 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
     setPreviewContent(null);
   };
 
-  const handleItemClick = (item, type) => {
+  const handleItemClick = async (item, type) => {
     console.log('Item selecionado:', item, 'Tipo:', type);
     
-    // Disparar evento customizado para o App.js processar
-    const playEvent = new CustomEvent('playContent', {
-      detail: {
-        streamUrl: type === 'series' 
-          ? `https://rota66.bar/series/${item.series_id}/${item.season || 1}/${item.episode || 1}.m3u8`
-          : `https://rota66.bar/movie/${item.stream_id}.m3u8`,
-        streamInfo: {
-          name: item.name,
-          type: type,
-          poster: item.stream_icon || item.cover,
-          ...item
+    const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
+    const username = 'zBB82J';
+    const password = 'AMeDHq';
+
+    let streamUrl;
+    let streamInfo;
+
+    if (type === 'series') {
+        try {
+            const response = await fetch(`https://rota66.bar/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${item.series_id}`);
+            const data = await response.json();
+            
+            if (data.episodes && Object.keys(data.episodes).length > 0) {
+                const firstSeasonKey = Object.keys(data.episodes)[0];
+                const firstEpisode = data.episodes[firstSeasonKey][0];
+                
+                if (firstEpisode) {
+                    streamUrl = `https://rota66.bar/series/${username}/${password}/${firstEpisode.id || firstEpisode.stream_id}.mp4`;
+                    streamInfo = {
+                        name: `${item.name} - ${firstEpisode.title || 'S1 E1'}`,
+                        type: 'series',
+                        poster: item.cover || item.stream_icon,
+                        ...item
+                    };
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao buscar informações da série, usando fallback.', error);
         }
-      }
-    });
-    window.dispatchEvent(playEvent);
+
+        if (!streamUrl) {
+            streamUrl = `https://rota66.bar/series/${username}/${password}/${item.series_id}.mp4`;
+            streamInfo = {
+                name: item.name,
+                type: 'series',
+                poster: item.cover || item.stream_icon,
+                ...item
+            };
+        }
+    } else { // type === 'movie'
+        streamUrl = `https://rota66.bar/movie/${username}/${password}/${item.stream_id}.mp4`;
+        streamInfo = {
+            name: item.name,
+            type: 'movie',
+            poster: item.stream_icon || item.cover,
+            ...item
+        };
+    }
+  
+    // Now dispatch the event with Tizen check
+    if (isTizenTV) {
+      console.log(`📺 Configuração Tizen TV ativada para ${type}`);
+      
+      const playEvent = new CustomEvent('playContent', {
+        detail: {
+          streamUrl,
+          streamInfo: {
+            ...streamInfo,
+            forceTizenPlayer: true,
+            preventBrowserRedirect: true,
+            useInternalPlayer: true
+          }
+        },
+        bubbles: false,
+        cancelable: false
+      });
+      
+      setTimeout(() => {
+        console.log(`📺 Disparando evento playContent para Tizen TV (${type})`);
+        window.dispatchEvent(playEvent);
+      }, 100);
+      
+    } else {
+      console.log(`💻 Configuração padrão ativada para ${type}`);
+      
+      const playEvent = new CustomEvent('playContent', {
+        detail: { streamUrl, streamInfo }
+      });
+      window.dispatchEvent(playEvent);
+    }
   };
 
-  const handleFeaturedPlay = () => {
+  const handleFeaturedPlay = async () => {
     if (featuredContent) {
-      handleItemClick(featuredContent, featuredContent.type);
+      await handleItemClick(featuredContent, featuredContent.type);
     }
   };
 
@@ -231,9 +296,23 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
       }
     };
 
+    const handleShelfItemClick = (event) => {
+      const { shelfIndex, itemIndex } = event.detail;
+      if (shelves[shelfIndex] && shelves[shelfIndex].items[itemIndex]) {
+        const item = shelves[shelfIndex].items[itemIndex];
+        const type = shelves[shelfIndex].type;
+        handleItemClick(item, type);
+      }
+    };
+
     window.addEventListener('heroButtonClick', handleHeroButtonClick);
-    return () => window.removeEventListener('heroButtonClick', handleHeroButtonClick);
-  }, [featuredContent]);
+    window.addEventListener('shelfItemClick', handleShelfItemClick);
+
+    return () => {
+      window.removeEventListener('heroButtonClick', handleHeroButtonClick);
+      window.removeEventListener('shelfItemClick', handleShelfItemClick);
+    };
+  }, [featuredContent, shelves]);
 
   // Estado de loading otimizado para TV
   if (loading) {
