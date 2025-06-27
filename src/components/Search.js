@@ -560,24 +560,32 @@ const Search = ({ isActive, onExitSearch }) => {
                     </span>
                   </div>
                   <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
-                    {currentPageResults.map((result, index) => (
-                      <div
-                        key={`${result.type}-${result.id}-${index}`}
-                        ref={el => resultsRef.current[index] = el}
-                        className={`search-result-item ${result.type}-result`}
-                        onClick={() => handleResultClick(result)}
-                      >
-                        <img
-                          src={result.icon}
-                          alt={result.name}
-                          onError={handleImageError}
-                        />
-                        <div className="result-info">
-                          <h4>{result.name}</h4>
-                          <span className="result-type-badge">{result.type}</span>
+                    {currentPageResults.map((result, index) => {
+                      const translatedType = {
+                        'channel': 'Canal',
+                        'movie': 'Filme',
+                        'serie': 'Série'
+                      }[result.type] || result.type; // Fallback to original if no translation
+
+                      return (
+                        <div
+                          key={`${result.type}-${result.id}-${index}`}
+                          ref={el => resultsRef.current[index] = el}
+                          className={`search-result-item ${result.type}-result`}
+                          onClick={() => handleResultClick(result)}
+                        >
+                          <img
+                            src={result.icon}
+                            alt={result.name}
+                            onError={handleImageError}
+                          />
+                          <span className="result-type-badge">{translatedType}</span>
+                          <div className="result-info">
+                            <h4>{result.name}</h4>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </>
               ) : (

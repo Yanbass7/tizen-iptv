@@ -790,33 +790,31 @@ img {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.result-info .type-indicator {
-  font-size: 0.75rem;
-  color: #FF8C00;
-  font-weight: 600;
+.result-type-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: rgba(255, 140, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: bold;
   text-transform: uppercase;
-  margin-top: 4px;
-  text-align: center;
-
-  /* Otimização de texto */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  z-index: 10;
 }
 
 /* Tipos específicos de resultado */
-.channel-result .result-type {
-  background: rgba(0, 123, 255, 0.2);
-  color: #007bff;
+.channel-result .result-type-badge {
+  background: rgba(0, 123, 255, 0.9);
 }
 
-.movie-result .result-type {
-  background: rgba(220, 53, 69, 0.2);
-  color: #dc3545;
+.movie-result .result-type-badge {
+  background: rgba(220, 53, 69, 0.9);
 }
 
-.serie-result .result-type {
-  background: rgba(40, 167, 69, 0.2);
-  color: #28a745;
+.serie-result .result-type-badge {
+  background: rgba(40, 167, 69, 0.9);
 }
 
 /* ==========================================================================
