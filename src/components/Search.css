@@ -742,10 +742,11 @@ img {
 }
 
 .result-info h4 {
-  font-size: 0.9rem; /* Ajustado font-size */
+  font-size: 1rem; /* Increased font size */
   margin: 0;
   color: white;
   font-weight: bold;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9); /* Added stronger text shadow */
   text-overflow: ellipsis;
   overflow: hidden;
   line-height: 1.2;
@@ -764,7 +765,7 @@ img {
   color: white;
   padding: 4px 8px;
   border-radius: 5px;
-  font-size: 0.7rem;
+  font-size: 0.85rem; /* Increased font size */
   font-weight: bold;
   text-transform: uppercase;
   z-index: 10;
