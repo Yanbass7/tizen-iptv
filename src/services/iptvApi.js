@@ -1,28 +1,38 @@
 // IPTV API Service
 // Baseado no sistema original do APP-bigtv-main
 
-const API_BASE_URL = 'https://rota66.bar/player_api.php';
-const API_CREDENTIALS = {
-  username: 'zBB82J',
-  password: 'AMeDHq'
+import { API_BASE_URL, API_CREDENTIALS } from '../config/apiConfig';
+
+const getCreds = () => {
+  const match = API_CREDENTIALS.match(/username=([^&]+)&password=(.+)/);
+  return match ? { username: match[1], password: match[2] } : { username: '', password: '' };
+};
+
+const buildBaseQuery = () => {
+  const { username, password } = getCreds();
+  return `username=${username}&password=${password}`;
+};
+
+const endpoint = (action, extra = '') => {
+  const creds = buildBaseQuery();
+  return `${API_BASE_URL}?${creds}&action=${action}${extra}`;
 };
 
 // URLs da API (migradas do app antigo)
 export const API_ENDPOINTS = {
-  // Categorias
-  vodCategories: `${API_BASE_URL}?username=${API_CREDENTIALS.username}&password=${API_CREDENTIALS.password}&action=get_vod_categories`,
-  seriesCategories: `${API_BASE_URL}?username=${API_CREDENTIALS.username}&password=${API_CREDENTIALS.password}&action=get_series_categories`,
-  liveCategories: `${API_BASE_URL}?username=${API_CREDENTIALS.username}&password=${API_CREDENTIALS.password}&action=get_live_categories`,
+  vodCategories: () => endpoint('get_vod_categories'),
+  seriesCategories: () => endpoint('get_series_categories'),
+  liveCategories: () => endpoint('get_live_categories'),
   
-  // Conteúdo específico (IDs do app antigo)
-  lancamentos: `${API_BASE_URL}?username=${API_CREDENTIALS.username}&password=${API_CREDENTIALS.password}&action=get_vod_streams&category_id=82`,
-  telenovelas: `${API_BASE_URL}?username=${API_CREDENTIALS.username}&password=${API_CREDENTIALS.password}&action=get_series&category_id=81`,
-  classicos: `${API_BASE_URL}?username=${API_CREDENTIALS.username}&password=${API_CREDENTIALS.password}&action=get_vod_streams&category_id=50`,
+  // Conteúdo específico (IDs fixos do app)
+  lancamentos: () => endpoint('get_vod_streams', '&category_id=82'),
+  telenovelas: () => endpoint('get_series', '&category_id=81'),
+  classicos: () => endpoint('get_vod_streams', '&category_id=50'),
 };
 
 // Função para construir URLs dinâmicas
 export const buildApiUrl = (action, categoryId = null) => {
-  let url = `${API_BASE_URL}?username=${API_CREDENTIALS.username}&password=${API_CREDENTIALS.password}&action=${action}`;
+  let url = endpoint(action);
   if (categoryId) {
     url += `&category_id=${categoryId}`;
   }
@@ -50,9 +60,9 @@ const fetchApiData = async (url) => {
 // Serviços específicos
 export const iptvApi = {
   // Categorias
-  getVodCategories: () => fetchApiData(API_ENDPOINTS.vodCategories),
-  getSeriesCategories: () => fetchApiData(API_ENDPOINTS.seriesCategories),
-  getLiveCategories: () => fetchApiData(API_ENDPOINTS.liveCategories),
+  getVodCategories: () => fetchApiData(API_ENDPOINTS.vodCategories()),
+  getSeriesCategories: () => fetchApiData(API_ENDPOINTS.seriesCategories()),
+  getLiveCategories: () => fetchApiData(API_ENDPOINTS.liveCategories()),
   
   // Conteúdo por categoria
   getVodStreams: (categoryId) => fetchApiData(buildApiUrl('get_vod_streams', categoryId)),
@@ -60,9 +70,9 @@ export const iptvApi = {
   getLiveStreams: (categoryId) => fetchApiData(buildApiUrl('get_live_streams', categoryId)),
   
   // Conteúdo específico (home)
-  getLancamentos: () => fetchApiData(API_ENDPOINTS.lancamentos),
-  getTelenovelas: () => fetchApiData(API_ENDPOINTS.telenovelas),
-  getClassicos: () => fetchApiData(API_ENDPOINTS.classicos),
+  getLancamentos: () => fetchApiData(API_ENDPOINTS.lancamentos()),
+  getTelenovelas: () => fetchApiData(API_ENDPOINTS.telenovelas()),
+  getClassicos: () => fetchApiData(API_ENDPOINTS.classicos()),
   
   // Busca (para implementar no futuro)
   search: (query) => {

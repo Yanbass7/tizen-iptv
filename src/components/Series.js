@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { iptvApi } from '../services/iptvApi';
+import { API_BASE_URL, API_CREDENTIALS, buildStreamUrl } from '../config/apiConfig';
 import { safeScrollIntoView } from '../utils/scrollUtils';
 import { formatEpisode } from '../utils/formatters';
 import SeriesDetailsPage from './SeriesDetailsPage';
@@ -31,9 +31,6 @@ const Series = ({ isActive }) => {
   // Detectar ambiente Tizen TV
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-  const API_BASE_URL = 'https://rota66.bar/player_api.php';
-  const API_CREDENTIALS = 'username=zBB82J&password=AMeDHq';
 
   // Carregar categorias de séries
   useEffect(() => {
@@ -170,7 +167,7 @@ const Series = ({ isActive }) => {
         
         if (firstEpisode) {
           // URL com .mp4 para usar com HTML5 player
-          const streamUrl = `https://rota66.bar/series/zBB82J/AMeDHq/${firstEpisode.id || firstEpisode.stream_id}.mp4`;
+          const streamUrl = buildStreamUrl('series', firstEpisode.id || firstEpisode.stream_id, 'mp4');
           
           const streamInfo = {
             name: `${series.name} - ${formatEpisode(firstSeason, firstEpisode.episode_num || 1)} - ${firstEpisode.title || firstEpisode.name || 'Episódio'}`,
@@ -220,7 +217,7 @@ const Series = ({ isActive }) => {
       console.error('Erro ao carregar informações da série:', error);
       
       // Fallback: tentar reproduzir primeiro episódio com URL genérica
-      const streamUrl = `https://rota66.bar/series/zBB82J/AMeDHq/${series.series_id}.mp4`;
+      const streamUrl = buildStreamUrl('series', series.series_id, 'mp4');
       
       const streamInfo = {
         name: series.name,

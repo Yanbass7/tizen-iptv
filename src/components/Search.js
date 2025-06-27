@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { safeScrollIntoView } from '../utils/scrollUtils';
-import { API_BASE_URL, API_CREDENTIALS } from '../config/apiConfig';
+import { API_BASE_URL, API_CREDENTIALS, buildStreamUrl } from '../config/apiConfig';
 import './Search.css';
 
 const Search = ({ isActive, onExitSearch }) => {
@@ -54,7 +54,7 @@ const Search = ({ isActive, onExitSearch }) => {
     // Construir URL e informações baseado no tipo (estrutura correta da API)
     switch (type) {
       case 'channel':
-        streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${item.stream_id}`;
+        streamUrl = buildStreamUrl('live', item.stream_id, 'ts');
         streamInfo = {
           name: item.name,
           category: 'Canal',
@@ -64,7 +64,7 @@ const Search = ({ isActive, onExitSearch }) => {
         break;
 
       case 'movie':
-        streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${item.stream_id}`;
+        streamUrl = buildStreamUrl('movie', item.stream_id, 'mp4');
         streamInfo = {
           name: item.name,
           category: 'Filme',
@@ -76,8 +76,7 @@ const Search = ({ isActive, onExitSearch }) => {
         break;
 
       case 'serie':
-        // Para séries da busca, usar URL genérica (estrutura correta)
-        streamUrl = `https://rota66.bar/${API_CREDENTIALS.split('&')[0].split('=')[1]}/${API_CREDENTIALS.split('&')[1].split('=')[1]}/${item.series_id}`;
+        streamUrl = buildStreamUrl('series', item.series_id, 'mp4');
         streamInfo = {
           name: item.name,
           category: 'Série',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { safeScrollTo, scrollToElementInCarousel } from '../utils/scrollUtils';
 import { formatEpisode, padNumber } from '../utils/formatters';
+import { API_BASE_URL, API_CREDENTIALS, buildStreamUrl } from '../config/apiConfig';
 import './SeriesDetailsPage.css';
 
 import VideoPlayer from './VideoPlayer';
@@ -27,9 +28,6 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   
-  const API_BASE_URL = 'https://rota66.bar/player_api.php';
-  const API_CREDENTIALS = 'username=zBB82J&password=AMeDHq';
-
   // Função para scroll do carrossel de episódios
   const scrollEpisodeIntoView = useCallback((index) => {
     if (episodeElementsRef.current[index]) {
@@ -85,7 +83,7 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
     console.log('🎬 Reproduzindo episódio:', episode);
     console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
     
-    const streamUrl = `https://rota66.bar/series/zBB82J/AMeDHq/${episode.id || episode.stream_id}.mp4`;
+    const streamUrl = buildStreamUrl('series', episode.id || episode.stream_id, 'mp4');
     
     // Lógica unificada e síncrona para disparar o evento de reprodução.
     // O setTimeout foi removido por ser a causa provável do congelamento no Tizen.

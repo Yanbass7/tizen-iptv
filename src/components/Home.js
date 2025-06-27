@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { iptvApi } from '../services/iptvApi';
 import { safeScrollTo, safeScrollIntoView } from '../utils/scrollUtils';
+import { buildStreamUrl } from '../config/apiConfig';
 import './Home.css';
 
 const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
@@ -174,6 +175,7 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
   const handleItemClick = async (item, type) => {
     console.log('Item selecionado:', item, 'Tipo:', type);
     
+<<<<<<< HEAD
     const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
     const username = 'zBB82J';
     const password = 'AMeDHq';
@@ -202,6 +204,19 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
             }
         } catch (error) {
             console.error('Erro ao buscar informações da série, usando fallback.', error);
+=======
+    // Disparar evento customizado para o App.js processar
+    const playEvent = new CustomEvent('playContent', {
+      detail: {
+        streamUrl: type === 'series' 
+          ? buildStreamUrl('series', item.series_id, 'mp4')
+          : buildStreamUrl('movie', item.stream_id, 'mp4'),
+        streamInfo: {
+          name: item.name,
+          type: type,
+          poster: item.stream_icon || item.cover,
+          ...item
+>>>>>>> 1efca20ade44d7b34d70dfcbc2844f32f197888b
         }
 
         if (!streamUrl) {

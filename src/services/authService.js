@@ -198,4 +198,24 @@ export const getClienteStatus = async (token) => {
   }
 
   return response.json();
+};
+
+// Função para obter a configuração do player (baseUrl, user e senha)
+export const getPlayerConfig = async (token) => {
+  const response = await fetch(`${API_BASE_URL}/cliente-conta-iptv/player-config`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error('Conta IPTV não vinculada');
+    }
+    throw new Error('Erro ao obter configuração do player');
+  }
+
+  return response.json();
 }; 
