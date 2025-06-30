@@ -403,14 +403,31 @@ function App() {
     setOnMenu(false);
   };
 
-  const handleIptvSetupComplete = (iptvData) => {
-    console.log('Configuração IPTV submetida:', iptvData);
-    // Após a configuração, verificar o status
-    if (iptvData && iptvData.ContaIptv && iptvData.ContaIptv.status === 'pendente') {
-      navigateToSection(SECTIONS.IPTV_PENDING, false);
-    } else {
-      // Se por algum motivo já vier aprovado, vai pra home
+  const handleIptvSetupComplete = async (iptvData) => {
+    console.log('Configuração IPTV submetida, verificando status final...', iptvData);
+    
+    // Após a submissão, a fonte da verdade é sempre getPlayerConfig
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error('Token não encontrado para verificação de status.');
+
+      const playerCfg = await getPlayerConfig(token);
+      
+      // Se a chamada acima for bem-sucedida, a conta está APROVADA.
+      console.log('Conta APROVADA. Configuração recebida:', playerCfg);
+      setPlayerConfig(playerCfg);
       navigateToSection(SECTIONS.HOME, false);
+
+    } catch (error) {
+      if (error.isPending) {
+        // Se getPlayerConfig falha com 'isPending', a conta está PENDENTE.
+        console.log('Conta PENDENTE. Navegando para a tela de espera.');
+        navigateToSection(SECTIONS.IPTV_PENDING, false);
+      } else {
+        // Algum outro erro. Voltar para o login para segurança.
+        console.error('Erro inesperado ao verificar status da conta. Deslogando.', error);
+        handleLogout();
+      }
     }
   };
 
