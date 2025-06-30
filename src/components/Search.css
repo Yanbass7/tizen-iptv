@@ -228,9 +228,8 @@ img {
 }
 
 .category-button.focused {
-  outline: 3px solid #FFD700;
-  outline-offset: 2px;
-  border-color: #FFD700;
+  border: 3px solid #FF8C00;
+  border-color: #FF8C00;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }
 
@@ -752,8 +751,7 @@ img {
 .search-result-item:hover,
 .search-result-item.focused {
   background: rgba(255, 140, 0, 0.1);
-  outline: 2px solid rgba(255, 140, 0, 0.6);
-  outline-offset: 1px;
+  border: 2px solid rgba(255, 140, 0, 0.6);
   border-color: #FF8C00;
 }
 
