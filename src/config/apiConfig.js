@@ -71,4 +71,28 @@ export function buildStreamUrl(type, streamId, format = 'mp4') {
     default:
       return `https://${host}/${username}/${password}/${streamId}`;
   }
+}
+
+export function clearPlayerConfig() {
+  console.log("Limpando configuração global da API IPTV.");
+  API_BASE_URL = '';
+  API_CREDENTIALS = '';
+  try {
+    localStorage.removeItem('iptvApiBaseUrl');
+    localStorage.removeItem('iptvApiCredentials');
+  } catch (_) {}
+}
+
+export function getPlayerConfig() {
+  const credsMatch = API_CREDENTIALS.match(/username=([^&]+)&password=(.+)/);
+  if (!credsMatch) {
+    // Se não houver credenciais, retorna uma config vazia e segura
+    return { baseUrl: '', user: '', password: '' };
+  }
+  
+  return {
+    baseUrl: API_BASE_URL.replace('/player_api.php', ''), // Retorna a base URL real
+    user: credsMatch[1],
+    password: credsMatch[2],
+  };
 } 

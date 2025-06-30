@@ -151,56 +151,10 @@ export const validarToken = async (token) => {
   return response.json();
 };
 
-/**
- * (Sondagem) Tenta acessar um recurso que exige conta IPTV ativa.
- * Usado para determinar o status do cliente sem alterar o backend.
- * @param {string} token - Token JWT de autenticação
- * @returns {Promise<boolean>} Retorna true se a conta estiver ativa, false caso contrário.
- */
-export const probeIptvStatus = async (token) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/cliente-conta-iptv/filmes/categorias`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      }
-    });
-    // Se a resposta for OK (2xx), a conta está ativa.
-    return response.ok;
-  } catch (error) {
-    // Qualquer erro de rede ou de API significa que não está ativo.
-    console.error('Falha na sondagem de status IPTV:', error);
-    return false;
-  }
-};
-
-/**
- * Busca o status mais recente do cliente, incluindo o de sua conta IPTV.
- * Requer um token de cliente válido.
- * @param {string} token - Token JWT de autenticação
- * @returns {Promise<Object>} Retorna o objeto completo do cliente com os dados atualizados
- */
-export const getClienteStatus = async (token) => {
-  const response = await fetch(`${API_BASE_URL}/auth/status`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Sessão expirada. Faça login novamente.');
-    }
-    throw new Error('Erro ao verificar status da conta.');
-  }
-
-  return response.json();
-};
-
-// Função para obter a configuração do player (baseUrl, user e senha)
+// Função para obter a configuração do player (baseUrl, user e senha).
+// Esta função também determina o status da conta IPTV.
+// - Se a resposta for 200 OK, a conta está APROVADA e a configuração é retornada.
+// - Se a resposta for 404 Not Found, a conta está PENDENTE.
 export const getPlayerConfig = async (token) => {
   const response = await fetch(`${API_BASE_URL}/cliente-conta-iptv/player-config`, {
     method: 'GET',
@@ -210,12 +164,19 @@ export const getPlayerConfig = async (token) => {
     }
   });
 
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('Conta IPTV não vinculada');
-    }
-    throw new Error('Erro ao obter configuração do player');
+  if (response.ok) {
+    return response.json(); // Retorna a configuração (baseUrl, user, senha)
   }
 
-  return response.json();
+  if (response.status === 404) {
+    // Lança um erro específico para conta pendente, que será tratado pela UI.
+    const error = new Error('Conta IPTV pendente de aprovação.');
+    error.isPending = true; // Adiciona uma flag para facilitar a verificação
+    throw error;
+  }
+
+  // Trata outros erros de servidor
+  const errorData = await response.text();
+  console.error('Erro ao obter configuração do player:', response.status, errorData);
+  throw new Error('Falha ao obter configuração da conta IPTV.');
 }; 

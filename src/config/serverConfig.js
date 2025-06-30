@@ -3,11 +3,11 @@
 
 export const SERVER_CONFIG = {
   // Configuração principal do servidor
-  baseUrl: 'https://rota66.bar',
+  baseUrl: 'https://rota66.barr',
   
   // URLs alternativas (para fallback)
   alternativeUrls: [
-    'https://rota66.bar',
+    'https://rota66.barr',
     // Adicione outras rotas aqui
   ],
   
@@ -19,7 +19,7 @@ export const SERVER_CONFIG = {
   
   // API endpoints
   api: {
-    baseUrl: 'https://rota66.bar/player_api.php',
+    baseUrl: 'https://rota66.barr/player_api.php',
     credentials: 'username=zBB82J&password=AMeDHq'
   }
 };
