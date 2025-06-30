@@ -218,8 +218,11 @@ function App() {
               });
               window.dispatchEvent(heroButtonEvent);
             } else {
-              console.log('Item selecionado:', { shelfFocus, itemFocus });
-              // TODO: Implementar seleção de item das prateleiras
+              // Evento para notificar o Home.js sobre o clique no item da prateleira
+              const shelfItemClickEvent = new CustomEvent('shelfItemClick', {
+                detail: { shelfIndex: shelfFocus, itemIndex: itemFocus }
+              });
+              window.dispatchEvent(shelfItemClickEvent);
             }
           }
         } else if (currentSection === SECTIONS.CHANNELS) {

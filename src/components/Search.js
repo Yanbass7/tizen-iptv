@@ -10,8 +10,8 @@ const Search = ({ isActive, onExitSearch }) => {
   const [activeSection, setActiveSection] = useState('keyboard'); // 'keyboard', 'results', 'categories'
   const [selectedKey, setSelectedKey] = useState({ row: 0, col: 0 });
   const [resultFocus, setResultFocus] = useState(0);
-  const [searchCategory, setSearchCategory] = useState('movie'); // 'movie', 'serie', 'channel'
-  const [categoryFocus, setCategoryFocus] = useState(0); // 0: Filmes, 1: Séries, 2: Canais
+  const [searchCategory, setSearchCategory] = useState('all'); // 'all', 'movie', 'serie', 'channel'
+  const [categoryFocus, setCategoryFocus] = useState(0); // 0: Todos, 1: Filmes, 2: Séries, 3: Canais
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(0);
@@ -23,7 +23,6 @@ const Search = ({ isActive, onExitSearch }) => {
   const resultsRef = useRef([]);
 
   // Layout do teclado virtual
-  // FORMA RECOMENDADA de definir o keyboardLayout
   const keyboardLayout = [
     ['a', 'b', 'c', 'd', 'e', 'f'],
     ['g', 'h', 'i', 'j', 'k', 'l'],
@@ -39,6 +38,7 @@ const Search = ({ isActive, onExitSearch }) => {
   ];
 
   const searchCategories = [
+    { id: 'all', name: 'Todos' },
     { id: 'movie', name: 'Filmes' },
     { id: 'serie', name: 'Séries' },
     { id: 'channel', name: 'Canais ao Vivo' },
@@ -210,23 +210,18 @@ const Search = ({ isActive, onExitSearch }) => {
 
     try {
       let fetchedData = [];
-      let dataType = '';
 
-      switch (searchCategory) {
-        case 'movie':
-          fetchedData = await fetchAllMovies();
-          dataType = 'movie';
-          break;
-        case 'serie':
-          fetchedData = await fetchAllSeries();
-          dataType = 'serie';
-          break;
-        case 'channel':
-          fetchedData = await fetchAllChannels();
-          dataType = 'channel';
-          break;
-        default:
-          break;
+      if (searchCategory === 'all' || searchCategory === 'movie') {
+        const movies = await fetchAllMovies();
+        fetchedData = fetchedData.concat(movies.map(item => ({ ...item, type: 'movie' })));
+      }
+      if (searchCategory === 'all' || searchCategory === 'serie') {
+        const series = await fetchAllSeries();
+        fetchedData = fetchedData.concat(series.map(item => ({ ...item, type: 'serie' })));
+      }
+      if (searchCategory === 'all' || searchCategory === 'channel') {
+        const channels = await fetchAllChannels();
+        fetchedData = fetchedData.concat(channels.map(item => ({ ...item, type: 'channel' })));
       }
 
       const normalizeText = (text) => {
@@ -242,8 +237,7 @@ const Search = ({ isActive, onExitSearch }) => {
       
       const mappedData = fetchedData.map(item => ({
         ...item,
-        type: dataType,
-        icon: dataType === 'serie' ? item.cover : item.stream_icon
+        icon: item.type === 'serie' ? item.cover : item.stream_icon
       }));
 
       const filteredResults = mappedData
