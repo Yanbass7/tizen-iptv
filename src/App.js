@@ -439,9 +439,24 @@ function App() {
     }
   };
   
-  const handleApprovalSuccess = () => {
-    console.log('Conta aprovada! Navegando para a Home.');
-    navigateToSection(SECTIONS.HOME, false);
+  const handleApprovalSuccess = async () => {
+    console.log('Conta aprovada! Buscando configuração do player antes de ir para a Home.');
+    
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error('Token não encontrado para buscar configuração do player.');
+
+      const playerCfg = await getPlayerConfig(token);
+      
+      console.log('Configuração do player recebida com sucesso:', playerCfg);
+      setPlayerConfig(playerCfg);
+      
+      navigateToSection(SECTIONS.HOME, false);
+
+    } catch (error) {
+      console.error('Falha ao buscar configuração do player após aprovação. Deslogando.', error);
+      handleLogout();
+    }
   };
 
   const handleLogout = useCallback(() => {
