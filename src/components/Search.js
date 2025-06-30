@@ -99,101 +99,24 @@ const Search = ({ isActive, onExitSearch }) => {
     window.dispatchEvent(playEvent);
   }, []);
 
-  const fetchAllChannels = useCallback(async () => {
+  const fetchAllContent = useCallback(async (type) => {
+    const actionMap = {
+      movie: 'get_vod_streams',
+      serie: 'get_series',
+      channel: 'get_live_streams',
+    };
+    const action = actionMap[type];
+    if (!action) return [];
+
     try {
-      const categoriesResponse = await fetch(
-        `${API_BASE_URL}?${API_CREDENTIALS}&action=get_live_categories`
-      );
-      const categories = await categoriesResponse.json();
-      if (!Array.isArray(categories)) return [];
-
-      let allChannels = [];
-      for (const category of categories) {
-        try {
-          const response = await fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_live_streams&category_id=${category.category_id}`);
-          if (response.status === 429) {
-            console.warn('Rate limit atingido. Aguardando para tentar novamente...');
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Espera 2 segundos
-            continue; // Pula para a próxima iteração
-          }
-          const data = await response.json();
-          if (Array.isArray(data)) {
-            allChannels = allChannels.concat(data);
-          }
-          await new Promise(resolve => setTimeout(resolve, 150)); // Delay de 150ms entre requisições
-        } catch (e) {
-          console.error(`Erro ao buscar canais da categoria ${category.category_id}:`, e);
-        }
+      const response = await fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=${action}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return allChannels;
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error('Erro ao buscar categorias de canais:', error);
-      return [];
-    }
-  }, []);
-
-  const fetchAllMovies = useCallback(async () => {
-    try {
-      const categoriesResponse = await fetch(
-        `${API_BASE_URL}?${API_CREDENTIALS}&action=get_vod_categories`
-      );
-      const categories = await categoriesResponse.json();
-      if (!Array.isArray(categories)) return [];
-
-      let allMovies = [];
-      for (const category of categories) {
-        try {
-          const response = await fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_vod_streams&category_id=${category.category_id}`);
-           if (response.status === 429) {
-            console.warn('Rate limit atingido. Aguardando para tentar novamente...');
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            continue;
-          }
-          const data = await response.json();
-          if (Array.isArray(data)) {
-            allMovies = allMovies.concat(data);
-          }
-          await new Promise(resolve => setTimeout(resolve, 150));
-        } catch (e) {
-          console.error(`Erro ao buscar filmes da categoria ${category.category_id}:`, e);
-        }
-      }
-      return allMovies;
-    } catch (error) {
-      console.error('Erro ao buscar categorias de filmes:', error);
-      return [];
-    }
-  }, []);
-
-  const fetchAllSeries = useCallback(async () => {
-    try {
-      const categoriesResponse = await fetch(
-        `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series_categories`
-      );
-      const categories = await categoriesResponse.json();
-      if (!Array.isArray(categories)) return [];
-      
-      let allSeries = [];
-      for (const category of categories) {
-        try {
-          const response = await fetch(`${API_BASE_URL}?${API_CREDENTIALS}&action=get_series&category_id=${category.category_id}`);
-           if (response.status === 429) {
-            console.warn('Rate limit atingido. Aguardando para tentar novamente...');
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            continue;
-          }
-          const data = await response.json();
-          if (Array.isArray(data)) {
-            allSeries = allSeries.concat(data);
-          }
-          await new Promise(resolve => setTimeout(resolve, 150));
-        } catch (e) {
-          console.error(`Erro ao buscar séries da categoria ${category.category_id}:`, e);
-        }
-      }
-      return allSeries;
-    } catch (error) {
-      console.error('Erro ao buscar categorias de séries:', error);
+      console.error(`Erro ao buscar todos os conteúdos do tipo ${type}:`, error);
       return [];
     }
   }, []);
@@ -210,26 +133,25 @@ const Search = ({ isActive, onExitSearch }) => {
 
     try {
       let fetchedData = [];
+      const categoriesToFetch =
+        searchCategory === 'all'
+          ? ['movie', 'serie', 'channel']
+          : [searchCategory];
 
-      if (searchCategory === 'all' || searchCategory === 'movie') {
-        const movies = await fetchAllMovies();
-        fetchedData = fetchedData.concat(movies.map(item => ({ ...item, type: 'movie' })));
-      }
-      if (searchCategory === 'all' || searchCategory === 'serie') {
-        const series = await fetchAllSeries();
-        fetchedData = fetchedData.concat(series.map(item => ({ ...item, type: 'serie' })));
-      }
-      if (searchCategory === 'all' || searchCategory === 'channel') {
-        const channels = await fetchAllChannels();
-        fetchedData = fetchedData.concat(channels.map(item => ({ ...item, type: 'channel' })));
-      }
+      const promises = categoriesToFetch.map(async (category) => {
+        const data = await fetchAllContent(category);
+        return data.map(item => ({ ...item, type: category }));
+      });
+
+      const results = await Promise.all(promises);
+      fetchedData = results.flat();
 
       const normalizeText = (text) => {
         if (!text) return '';
         return text
           .toLowerCase()
           .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[̀-ͯ]/g, "")
           .replace(/[^a-z0-9\s]/g, '');
       };
 
@@ -272,7 +194,7 @@ const Search = ({ isActive, onExitSearch }) => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, searchCategory, fetchAllChannels, fetchAllMovies, fetchAllSeries]);
+  }, [searchQuery, searchCategory, fetchAllContent]);
 
   const handleKeyPress = useCallback((key) => {
     // Se a "key" for um objeto (nossa nova estrutura)
