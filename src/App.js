@@ -11,10 +11,9 @@ import Series from './components/Series';
 import SeriesDetailsPage from './components/SeriesDetailsPage';
 import Search from './components/Search';
 import VideoPlayer from './components/VideoPlayer';
-import criarUrlProxyStream from './utils/streamProxy';
 import IptvPendingScreen from './components/IptvPendingScreen';
-import { criarContaIptv, getClienteStatus, probeIptvStatus, getPlayerConfig } from './services/authService';
-import { setPlayerConfig } from './config/apiConfig';
+import { criarContaIptv, getPlayerConfig, validarToken } from './services/authService';
+import { setPlayerConfig, clearPlayerConfig } from './config/apiConfig';
 
 // Estado das seções (migrado do conceito original)
 const SECTIONS = {
@@ -52,6 +51,8 @@ function App() {
   const [moviePreviewActive, setMoviePreviewActive] = useState(false);
   const [clienteData, setClienteData] = useState(null);
   const [macAddress, setMacAddress] = useState('');
+  const [isLoading, setIsLoading] = useState(true); // Para tela de loading inicial
+  const [authError, setAuthError] = useState(''); // Para erros no login
 
   // Função para navegar para uma seção e rastrear histórico
   const navigateToSection = useCallback((newSection, addToHistory = true) => {
@@ -71,6 +72,44 @@ function App() {
     }
     return false; // Indica que não há histórico
   }, [sectionHistory]);
+
+  // Efeito para verificar autenticação na inicialização do App
+  useEffect(() => {
+    const checkAuth = async () => {
+      setIsLoading(true);
+      const token = localStorage.getItem('authToken');
+
+      if (token) {
+        try {
+          // 1. Valida o token para obter dados básicos do cliente
+          const userData = await validarToken(token);
+          setClienteData({ token, ...userData });
+
+          // 2. Verifica o status da conta IPTV e obtém a configuração
+          const playerCfg = await getPlayerConfig(token);
+          console.log('Sessão restaurada. Conta aprovada. Configuração:', playerCfg);
+          setPlayerConfig(playerCfg);
+          navigateToSection(SECTIONS.HOME, false);
+
+        } catch (error) {
+          if (error.isPending) {
+            console.log('Sessão restaurada, mas a conta IPTV está pendente.');
+            navigateToSection(SECTIONS.IPTV_PENDING, false);
+          } else {
+            console.error('Falha ao restaurar sessão (token inválido ou outro erro):', error.message);
+            handleLogout(); // Limpa tudo e volta para o login
+          }
+        }
+      } else {
+        // Sem token, não faz nada, permanece na tela de login
+        navigateToSection(SECTIONS.LOGIN, false);
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Executar apenas uma vez na montagem
 
   // Registrar teclas do controle remoto Tizen (mantido do template original)
   useEffect(() => {
@@ -329,7 +368,8 @@ function App() {
   }, []);
 
   const handleLogin = async (loginData, mac) => {
-    console.log('Login bem-sucedido, dados recebidos no App.js:', loginData);
+    console.log('Login bem-sucedido, iniciando verificação de conta IPTV:', loginData);
+    setAuthError('');
     setClienteData(loginData);
     setMacAddress(mac || '');
 
@@ -337,27 +377,22 @@ function App() {
     localStorage.setItem('authToken', token);
     localStorage.setItem('authEmail', loginData.email);
 
-    // Etapa 2: Obter configuração dinâmica do player e aplicá-la
     try {
+      // Após o login, a única fonte de verdade é getPlayerConfig
       const playerCfg = await getPlayerConfig(token);
-      console.log('Configuração do player recebida:', playerCfg);
+      console.log('Conta IPTV APROVADA. Configuração recebida:', playerCfg);
       setPlayerConfig(playerCfg);
-    } catch (e) {
-      console.error('Não foi possível obter configuração do player:', e);
-      // Caso falhe, continua mas exibirá erro ao acessar conteúdo depois
-    }
-
-    // Etapa 3: Sondar o status da conta IPTV
-    console.log('Sondando status da conta IPTV...');
-    const isApproved = await probeIptvStatus(token);
-
-    if (isApproved) {
-      console.log('Sondagem OK: Conta está ativa. Navegando para a Home.');
       navigateToSection(SECTIONS.HOME, false);
-    } else {
-      console.log('Sondagem FAILED: Conta não está ativa (pendente ou inexistente). Navegando para a configuração.');
-      // A lógica para diferenciar pendente/inexistente será no IptvSetupScreen
-      navigateToSection(SECTIONS.IPTV_SETUP, false);
+    } catch (error) {
+      if (error.isPending) {
+        console.log('Conta IPTV PENDENTE. Navegando para a tela de espera.');
+        navigateToSection(SECTIONS.IPTV_PENDING, false);
+      } else {
+        // Se não está pendente, pode ser que a conta ainda não foi criada.
+        // Direciona para a tela de setup para criar ou vincular.
+        console.error('Conta IPTV não encontrada ou erro. Direcionando para Setup.', error.message);
+        navigateToSection(SECTIONS.IPTV_SETUP, false);
+      }
     }
   };
 
@@ -404,19 +439,21 @@ function App() {
     navigateToSection(SECTIONS.HOME, false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.clear();
+    clearPlayerConfig(); // Limpa a configuração dinâmica
     setClienteData(null);
     setMacAddress('');
     setSectionHistory([]);
     navigateToSection(SECTIONS.LOGIN, false);
-  };
+  }, [navigateToSection]);
 
   const handleSectionChange = (sectionId) => {
     navigateToSection(sectionId); // Usar função que rastreia histórico
     setOnMenu(false);
     setShelfFocus(0);
     setItemFocus(0);
+    setSelectedSeriesData(null);
   };
 
   const handleBackFromPlayer = () => {
@@ -439,6 +476,7 @@ function App() {
             onGoToSignup={handleGoToSignup}
             onSkipLogin={handleSkipLogin}
             isActive={currentSection === SECTIONS.LOGIN}
+            authError={authError}
           />
         );
 
@@ -545,6 +583,15 @@ function App() {
                      currentSection !== SECTIONS.IPTV_SETUP &&
                      currentSection !== SECTIONS.PLAYER && 
                      currentSection !== SECTIONS.SERIES_DETAILS;
+
+  if (isLoading) {
+    return (
+      <div className="loading-screen">
+        <h1>BIG TV</h1>
+        <p>Carregando sua programação...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="App">

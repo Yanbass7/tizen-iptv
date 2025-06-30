@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { getClienteStatus } from '../services/authService';
+import { getPlayerConfig } from '../services/authService';
 import './LoginScreen.css'; 
 
 const IptvPendingScreen = ({ onApprovalSuccess, onLogout, isActive }) => {
@@ -15,6 +15,7 @@ const IptvPendingScreen = ({ onApprovalSuccess, onLogout, isActive }) => {
     if (!token) {
       setError('Sessão não encontrada. Por favor, faça login novamente.');
       if (intervalRef.current) clearInterval(intervalRef.current);
+      // A tela de login será exibida pelo App.js
       return;
     }
 
@@ -22,17 +23,22 @@ const IptvPendingScreen = ({ onApprovalSuccess, onLogout, isActive }) => {
     setError('');
 
     try {
-      const cliente = await getClienteStatus(token);
-      if (cliente && cliente.conta_iptv_status === 'ATIVO') {
-        console.log('Conta aprovada!');
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        onApprovalSuccess();
-      } else {
-        console.log('Conta ainda pendente...');
-      }
+      // getPlayerConfig só retorna sucesso se a conta estiver APROVADA.
+      // Se estiver pendente, ele lança um erro com `isPending: true`.
+      await getPlayerConfig(token);
+      
+      // Se chegamos aqui, a conta foi aprovada.
+      console.log('Conta aprovada na verificação periódica!');
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      onApprovalSuccess();
+
     } catch (err) {
-      setError(err.message || 'Erro ao verificar status.');
-      if (err.message.includes('Sessão expirada')) {
+      if (err.isPending) {
+        // Este é o comportamento esperado enquanto a conta não é aprovada.
+        console.log('Verificação: Conta ainda pendente...');
+      } else {
+        // Qualquer outro erro (token inválido, etc.) deve deslogar.
+        setError(err.message || 'Erro ao verificar status. Saindo...');
         if (intervalRef.current) clearInterval(intervalRef.current);
         setTimeout(onLogout, 3000);
       }
