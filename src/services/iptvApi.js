@@ -3,19 +3,12 @@
 
 import { API_BASE_URL, API_CREDENTIALS } from '../config/apiConfig';
 
-const getCreds = () => {
-  const match = API_CREDENTIALS.match(/username=([^&]+)&password=(.+)/);
-  return match ? { username: match[1], password: match[2] } : { username: '', password: '' };
-};
-
-const buildBaseQuery = () => {
-  const { username, password } = getCreds();
-  return `username=${username}&password=${password}`;
-};
+// As funções getCreds e buildBaseQuery foram removidas para simplificar
+// e alinhar com a implementação original que funcionava. A URL agora
+// é construída diretamente, sem parsing/re-stringifying intermediário.
 
 const endpoint = (action, extra = '') => {
-  const creds = buildBaseQuery();
-  return `${API_BASE_URL}?${creds}&action=${action}${extra}`;
+  return `${API_BASE_URL}?${API_CREDENTIALS}&action=${action}${extra}`;
 };
 
 // URLs da API (migradas do app antigo)

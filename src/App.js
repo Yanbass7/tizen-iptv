@@ -368,7 +368,7 @@ function App() {
   }, []);
 
   const handleLogin = async (loginData, mac) => {
-    console.log('Login bem-sucedido, iniciando verificação de conta IPTV:', loginData);
+    console.log('Login bem-sucedido, redirecionando para a configuração de IPTV.');
     setAuthError('');
     setClienteData(loginData);
     setMacAddress(mac || '');
@@ -377,23 +377,11 @@ function App() {
     localStorage.setItem('authToken', token);
     localStorage.setItem('authEmail', loginData.email);
 
-    try {
-      // Após o login, a única fonte de verdade é getPlayerConfig
-      const playerCfg = await getPlayerConfig(token);
-      console.log('Conta IPTV APROVADA. Configuração recebida:', playerCfg);
-      setPlayerConfig(playerCfg);
-      navigateToSection(SECTIONS.HOME, false);
-    } catch (error) {
-      if (error.isPending) {
-        console.log('Conta IPTV PENDENTE. Navegando para a tela de espera.');
-        navigateToSection(SECTIONS.IPTV_PENDING, false);
-      } else {
-        // Se não está pendente, pode ser que a conta ainda não foi criada.
-        // Direciona para a tela de setup para criar ou vincular.
-        console.error('Conta IPTV não encontrada ou erro. Direcionando para Setup.', error.message);
-        navigateToSection(SECTIONS.IPTV_SETUP, false);
-      }
-    }
+    // Limpar configuração antiga do player para forçar a nova configuração
+    clearPlayerConfig();
+
+    // Sempre navegar para a tela de setup após o login, em vez de verificar config existente
+    navigateToSection(SECTIONS.IPTV_SETUP, false);
   };
 
   const handleGoToSignup = () => {

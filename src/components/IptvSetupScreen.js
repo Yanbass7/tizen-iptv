@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './LoginScreen.css'; // Reutilizar os mesmos estilos da tela de login
-import { criarContaIptv } from '../services/authService';
+import { criarContaIptv, getPlayerConfig } from '../services/authService';
+import { setPlayerConfig } from '../config/apiConfig';
 
 const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive, macAddress }) => {
   const [codigo, setCodigo] = useState('');
@@ -182,11 +183,33 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive, macAd
       }, 3000);
 
     } catch (err) {
-      // Se o erro for 409, significa que a conta já existe mas não está ativa (pendente).
+      // Se o erro for 409, a conta já existe. Verificar o status dela.
       if (err.status === 409) {
-        console.warn('Erro 409: A conta IPTV já existe e provavelmente está pendente. Redirecionando para a tela de espera.');
-        // Força a navegação para a tela de "pendente"
-        onSetupComplete({ ContaIptv: { status: 'pendente' } });
+        console.warn('Erro 409: A conta IPTV já existe. Verificando status com getPlayerConfig.');
+        try {
+          const token = localStorage.getItem('authToken');
+          if (!token) throw new Error('Token não encontrado para verificar conta existente.');
+          
+          const playerCfg = await getPlayerConfig(token);
+          
+          // Se a chamada acima for bem-sucedida, a conta está APROVADA.
+          console.log('Conta existente está APROVADA. Configuração recebida:', playerCfg);
+          setPlayerConfig(playerCfg); // Armazena a configuração para o app usar
+          
+          // Notifica o App.js para navegar para a Home
+          onSetupComplete({ ContaIptv: { status: 'aprovado' } });
+
+        } catch (playerError) {
+          // A chamada para getPlayerConfig falhou.
+          if (playerError.isPending) {
+            // A conta de fato está pendente.
+            console.log('Conta existente está PENDENTE. Redirecionando para a tela de espera.');
+            onSetupComplete({ ContaIptv: { status: 'pendente' } });
+          } else {
+            // Algum outro erro ocorreu ao verificar a conta.
+            setError(playerError.message || 'Erro ao verificar status da conta existente.');
+          }
+        }
       } else {
         setError(err.message || 'Erro ao configurar conta IPTV');
       }
