@@ -37,6 +37,7 @@ const menuItems = [
   { id: 'channels', label: 'Canais Ao Vivo', icon: 'fa-tv' },
   { id: 'movies', label: 'Filmes', icon: 'fa-film' },
   { id: 'series', label: 'Séries', icon: 'fa-video' },
+  { id: 'logout', label: 'Sair', icon: 'fa-right-from-bracket' },
 ];
 
 function App() {
@@ -78,30 +79,36 @@ function App() {
     const checkAuth = async () => {
       setIsLoading(true);
       const token = localStorage.getItem('authToken');
+      const email = localStorage.getItem('authEmail'); // Recupera o email
 
-      if (token) {
+      if (token && email) { // Verifica se ambos existem
         try {
-          // 1. Valida o token para obter dados básicos do cliente
-          const userData = await validarToken(token);
-          setClienteData({ token, ...userData });
-
-          // 2. Verifica o status da conta IPTV e obtém a configuração
+          // A chamada para getPlayerConfig agora serve como validação do token.
           const playerCfg = await getPlayerConfig(token);
-          console.log('Sessão restaurada. Conta aprovada. Configuração:', playerCfg);
+          
+          // Se a chamada acima for bem-sucedida, a conta está APROVADA.
+          const userData = { email }; // Recria os dados do usuário
+          setClienteData({ token, ...userData });
           setPlayerConfig(playerCfg);
+
+          console.log('Sessão restaurada. Conta aprovada. Configuração:', playerCfg);
           navigateToSection(SECTIONS.HOME, false);
 
         } catch (error) {
           if (error.isPending) {
             console.log('Sessão restaurada, mas a conta IPTV está pendente.');
+            // Mesmo pendente, guardamos os dados do cliente para exibir na tela de espera
+            const userData = { email };
+            setClienteData({ token, ...userData });
             navigateToSection(SECTIONS.IPTV_PENDING, false);
           } else {
-            console.error('Falha ao restaurar sessão (token inválido ou outro erro):', error.message);
+            // Qualquer outro erro em getPlayerConfig significa que a sessão é inválida.
+            console.error('Falha ao restaurar sessão (getPlayerConfig falhou):', error.message);
             handleLogout(); // Limpa tudo e volta para o login
           }
         }
       } else {
-        // Sem token, não faz nada, permanece na tela de login
+        // Sem token ou email, não tenta restaurar a sessão.
         navigateToSection(SECTIONS.LOGIN, false);
       }
       setIsLoading(false);
@@ -174,9 +181,13 @@ function App() {
         } else if (keyCode === 39) { // Direita - sair do menu
           setOnMenu(false);
         } else if (keyCode === 13) { // OK - selecionar item do menu
-          const selectedSection = menuItems[menuFocus].id;
-          setCurrentSection(selectedSection);
-          setOnMenu(false);
+          const selectedItem = menuItems[menuFocus];
+          if (selectedItem.id === 'logout') {
+            handleLogout();
+          } else {
+            setCurrentSection(selectedItem.id);
+            setOnMenu(false);
+          }
         }
       } else {
         // Navegação no conteúdo principal
@@ -616,11 +627,12 @@ function App() {
   return (
     <div className="App">
       {showSidebar && (
-        <Sidebar 
+        <Sidebar
           currentSection={currentSection}
           onMenu={onMenu}
           menuFocus={menuFocus}
           onSectionChange={handleSectionChange}
+          onLogout={handleLogout}
         />
       )}
       <div className={`app-content ${showSidebar ? 'with-sidebar' : ''}`}>

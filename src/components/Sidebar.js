@@ -7,11 +7,16 @@ const menuItems = [
   { id: 'channels', label: 'Canais Ao Vivo', icon: 'fa-tv' },
   { id: 'movies', label: 'Filmes', icon: 'fa-film' },
   { id: 'series', label: 'Séries', icon: 'fa-video' },
+  { id: 'logout', label: 'Sair', icon: 'fa-right-from-bracket' },
 ];
 
-const Sidebar = ({ currentSection, onMenu, menuFocus, onSectionChange }) => {
-  const handleItemClick = (sectionId) => {
-    onSectionChange(sectionId);
+const Sidebar = ({ currentSection, onMenu, menuFocus, onSectionChange, onLogout }) => {
+  const handleItemClick = (item) => {
+    if (item.id === 'logout') {
+      onLogout();
+    } else {
+      onSectionChange(item.id);
+    }
   };
 
   return (
@@ -33,7 +38,7 @@ const Sidebar = ({ currentSection, onMenu, menuFocus, onSectionChange }) => {
             } ${
               onMenu && menuFocus === idx ? 'focused' : ''
             }`}
-            onClick={() => handleItemClick(item.id)}
+            onClick={() => handleItemClick(item)}
             data-tooltip={item.label}
           >
             <div className="menu-item-icon">
