@@ -175,7 +175,7 @@ function App() {
           setOnMenu(false);
         } else if (keyCode === 13) { // OK - selecionar item do menu
           const selectedSection = menuItems[menuFocus].id;
-          setCurrentSection(selectedSection);
+          navigateToSection(selectedSection);
           setOnMenu(false);
         }
       } else {
@@ -267,11 +267,15 @@ function App() {
         }
 
         // Tecla de voltar/back
-        if (keyCode === 8) { // Backspace
-          const success = navigateBack();
-          if (!success) {
-            // Se não há histórico, volta para Home
-            setCurrentSection(SECTIONS.HOME);
+        if (keyCode === 8 || keyCode === 10009) { // Backspace or Tizen Return
+          if (currentSection === SECTIONS.PLAYER) {
+            handleBackFromPlayer();
+          } else {
+            const success = navigateBack();
+            if (!success) {
+              // Se não há histórico, volta para Home
+              setCurrentSection(SECTIONS.HOME);
+            }
           }
         }
       }
@@ -279,7 +283,7 @@ function App() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [currentSection, onMenu, menuFocus, shelfFocus, itemFocus, moviePreviewActive, navigateBack]);
+  }, [currentSection, onMenu, menuFocus, shelfFocus, itemFocus, moviePreviewActive, navigateBack, navigateToSection]);
 
   // Listener para eventos de reprodução de conteúdo
   useEffect(() => {
@@ -316,7 +320,7 @@ function App() {
         console.log('📺 StreamInfo configurado para Tizen:', tizenStreamInfo);
         
         setPlayerData({ streamUrl: safeStreamUrl, streamInfo: tizenStreamInfo });
-        setCurrentSection(SECTIONS.PLAYER);
+        navigateToSection(SECTIONS.PLAYER);
         
         // Adicionar pequeno delay para garantir que a transição ocorra
         setTimeout(() => {
@@ -327,7 +331,7 @@ function App() {
         // Comportamento padrão para outros ambientes
         console.log('💻 Usando configuração padrão');
         setPlayerData({ streamUrl: safeStreamUrl, streamInfo });
-        setCurrentSection(SECTIONS.PLAYER);
+        navigateToSection(SECTIONS.PLAYER);
       }
     };
 
@@ -477,14 +481,17 @@ function App() {
   };
 
   const handleBackFromPlayer = () => {
-    // Voltar para a última seção que não seja o player
-    setCurrentSection(SECTIONS.HOME);
     setPlayerData(null);
+    if (!navigateBack()) {
+      setCurrentSection(SECTIONS.HOME);
+    }
   };
 
   const handleBackFromSeriesDetails = () => {
-    setCurrentSection(SECTIONS.SERIES);
     setSelectedSeriesData(null);
+    if (!navigateBack()) {
+      setCurrentSection(SECTIONS.SERIES);
+    }
   };
 
   const renderCurrentSection = () => {
