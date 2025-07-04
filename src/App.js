@@ -327,7 +327,7 @@ function App() {
         console.log('📺 StreamInfo configurado para Tizen:', tizenStreamInfo);
         
         setPlayerData({ streamUrl: safeStreamUrl, streamInfo: tizenStreamInfo });
-        setCurrentSection(SECTIONS.PLAYER);
+        navigateToSection(SECTIONS.PLAYER);
         
         // Adicionar pequeno delay para garantir que a transição ocorra
         setTimeout(() => {
@@ -338,13 +338,13 @@ function App() {
         // Comportamento padrão para outros ambientes
         console.log('💻 Usando configuração padrão');
         setPlayerData({ streamUrl: safeStreamUrl, streamInfo });
-        setCurrentSection(SECTIONS.PLAYER);
+        navigateToSection(SECTIONS.PLAYER);
       }
     };
 
     window.addEventListener('playContent', handlePlayContent);
     return () => window.removeEventListener('playContent', handlePlayContent);
-  }, []);
+  }, [navigateToSection]);
 
   // Listener para navegação para detalhes da série
   useEffect(() => {
@@ -487,11 +487,14 @@ function App() {
     setSelectedSeriesData(null);
   };
 
-  const handleBackFromPlayer = () => {
-    // Voltar para a última seção que não seja o player
-    setCurrentSection(SECTIONS.HOME);
+  const handleBackFromPlayer = useCallback(() => {
+    const success = navigateBack();
+    if (!success) {
+      // Se não houver histórico, volta para a Home como fallback seguro
+      navigateToSection(SECTIONS.HOME, false);
+    }
     setPlayerData(null);
-  };
+  }, [navigateBack, navigateToSection]);
 
   const handleBackFromSeriesDetails = () => {
     setCurrentSection(SECTIONS.SERIES);
