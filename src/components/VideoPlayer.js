@@ -577,55 +577,69 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
   // Função para limpar player
   const cleanupPlayer = useCallback(() => {
-    console.log(`🧹 Limpando player do tipo: ${playerType}`);
-    
     clearTimeouts();
     cleanupBlobUrls();
-
-    if (playerRef.current) {
+    
+  
+    // Limpar elemento video
+    if (videoRef.current) {
+      const videoElement = videoRef.current;
+      
       try {
-        // Lógica de limpeza específica por tipo de player
-        if (playerType === 'shaka' && typeof playerRef.current.destroy === 'function') {
-          playerRef.current.destroy();
-          console.log('✅ Shaka Player destruído.');
-        } else if ((playerType === 'mpegts-live' || playerType === 'mpegts-vod') && typeof playerRef.current.destroy === 'function') {
-          if (typeof playerRef.current.detachMediaElement === 'function') {
-            playerRef.current.detachMediaElement();
-          }
-          playerRef.current.destroy();
-          console.log('✅ mpegts.js Player desanexado e destruído.');
-        }
+        const events = ['loadstart', 'loadeddata', 'canplay', 'canplaythrough', 'playing', 'waiting', 'error', 'stalled'];
+        events.forEach(event => {
+          videoElement.removeEventListener(event, () => {});
+        });
+        
+        if (videoElement.pause) videoElement.pause();
+        if (videoElement.src !== undefined) videoElement.src = '';
+        if (videoElement.load) videoElement.load();
       } catch (err) {
-        console.error('⚠️ Erro ao destruir a instância do player:', err);
-      } finally {
-        playerRef.current = null;
+        console.log('Erro ao limpar video element:', err);
       }
     }
-    
-    // Limpeza final do elemento de vídeo para todos os casos
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.removeAttribute('src'); // Remove a fonte
-      videoRef.current.load(); // Força o elemento a resetar
-      console.log('✅ Elemento de vídeo nativo limpo.');
-    }
 
-    // Resetar estados relacionados ao player
+    // Limpar player mpegts
+    if (playerRef.current) {
+      try {
+        const player = playerRef.current;
+        
+        if (player.isLoaded && player.isLoaded()) {
+          if (player.pause) player.pause();
+          if (player.unload) player.unload();
+        }
+        
+        if (player.detachMediaElement) player.detachMediaElement();
+        if (player.destroy) player.destroy();
+        
+      } catch (err) {
+        console.error('Erro ao limpar player mpegts:', err);
+      }
+      
+      playerRef.current = null;
+    }
+    
     setIsLoading(false);
+    setLoadingMessage('Carregando...');
+    setLoadingProgress(0);
     setError(null);
+    setIsPlaying(false);
     setPlayerType(null);
-    previousStreamUrlRef.current = null;
+    setCurrentTime(0);
+    setDuration(0);
+    setIsControlsVisible(true);
+    
     initializingRef.current = false;
-  }, [playerType]);
+    previousStreamUrlRef.current = null;
+  }, []);
 
   // Função para voltar/sair
   const handleBack = useCallback(() => {
-    // Apenas notifica o componente pai. A limpeza será acionada pelo useEffect
-    // quando a prop 'isActive' mudar para false.
+    cleanupPlayer();
     if (onBack) {
       onBack();
     }
-  }, [onBack]);
+  }, [cleanupPlayer, onBack]);
 
   useEffect(() => {
     if (isActive && streamUrl && !initializingRef.current) {
