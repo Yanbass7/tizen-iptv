@@ -24,25 +24,27 @@ const PaymentScreen = ({ onPaymentComplete, isActive }) => {
   }, [isActive, onPaymentComplete]);
 
   return (
-    <div className="payment-screen">
+    <div className="login-screen">
       <img 
         src="/images/image-mesh-gradient.png" 
         className="background-image" 
         alt="Background" 
       />
-      <div className="payment-content">
+      <div className="login-form">
         <img
           src="/images/logo-bigtv-est.png"
-          className="logo-payment"
+          className="logo-login"
           alt="BIGTV Logo"
         />
+        <p className="qr-code-text">Escaneie o QR Code</p>
         <div className="qr-code-placeholder">
           {/* QR Code será inserido aqui */}
           <p>QR Code Area</p>
         </div>
         <button
           ref={payButtonRef}
-          className="payment-button"
+          id="continueButton"
+          className="login-button"
           onClick={onPaymentComplete}
         >
           Já foi pago

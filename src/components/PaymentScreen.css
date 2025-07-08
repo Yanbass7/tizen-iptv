@@ -1,11 +1,35 @@
-.payment-screen {
+.login-screen {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
-  height: 100vh;
-  width: 100vw;
-  position: relative;
-  overflow: hidden;
+  min-height: 100vh;
+  width: 100%;
+  color: #f0f0f0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .background-image {
@@ -18,47 +42,269 @@
   z-index: -1;
 }
 
-.payment-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.7);
+.login-form {
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 40px;
   border-radius: 10px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 90%;
+  max-width: 600px;
   text-align: center;
-  color: white;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
-.logo-payment {
-  width: 200px;
-  margin-bottom: 20px;
+.logo-login {
+  width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 50px;
+  -webkit-animation: fadeIn 1s ease-in-out;
+  -moz-animation: fadeIn 1s ease-in-out;
+  -o-animation: fadeIn 1s ease-in-out;
+  animation: fadeIn 1s ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .qr-code-placeholder {
-  width: 200px;
-  height: 200px;
+  width: 300px;
+  height: 300px;
   background-color: #fff;
   color: #000;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 20px auto;
   border-radius: 5px;
 }
 
-.payment-button {
-  padding: 15px 30px;
-  font-size: 18px;
+.qr-code-text {
   color: white;
-  background-color: #e50914;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+#continueButton {
+  background-color: #FF8C00;
+  color: white;
   border: none;
+  padding: 15px 20px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 1.2em;
+  font-weight: bold;
+  height: auto;
+  margin: 0;
+  -webkit-transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  -moz-transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  -o-transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.payment-button:focus,
-.payment-button:hover {
-  background-color: #f60c18;
-  outline: 2px solid white;
+#continueButton:hover {
+  background-color: #e67e00;
+}
+
+#continueButton:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 140, 0, 0.8);
+}
+
+#continueButton.focused {
+  background-color: #e67e00;
+  outline: 3px solid rgba(255, 140, 0, 0.6);
+  outline-offset: 2px;
+}
+/* Login Screen Styles - Migrado do app antigo */
+
+/* ==========================================================================
+   RESET CSS ESPECÍFICO PARA TIZEN 5.0+
+   ========================================================================== */
+
+/* Reset otimizado para Tizen 5.0+ */
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+img,
+input {
+  margin: 0;
+  padding: 0;
+  outline: 0;
+  vertical-align: baseline;
+}
+
+/* Force o box-sizing com prefixos para Tizen 5.0+ */
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+  -webkit-scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   OTIMIZAÇÕES ESPECÍFICAS PARA PERFORMANCE TIZEN 5.0+
+   ========================================================================== */
+
+/* Responsividade otimizada */
+@media (max-width: 1920px) {
+  .login-form {
+    max-width: 500px;
+    padding: 35px;
+  }
+
+  .login-form h1 {
+    font-size: 1.8em;
+    margin-bottom: 22px;
+    /* Ajustado */
+  }
+
+  .login-form input {
+    margin-bottom: 22px;
+    /* Ajustado */
+  }
+
+  .login-form input:last-of-type {
+    margin-bottom: 22px;
+    /* Ajustado */
+  }
+}
+
+@media (max-width: 1366px) {
+  .login-form {
+    max-width: 450px;
+    padding: 30px;
+  }
+
+  .login-form h1 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    /* Ajustado */
+  }
+
+  .login-form input {
+    padding: 12px;
+    font-size: 1em;
+    margin-bottom: 20px;
+    /* Ajustado */
+  }
+
+  .login-form input:last-of-type {
+    margin-bottom: 20px;
+    /* Ajustado */
+  }
+
+  #continueButton {
+    padding: 12px 18px;
+    font-size: 1.1em;
+  }
+
+  .logo-login {
+    width: 110px;
+    margin-left: 140px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-form {
+    width: 95%;
+    max-width: 400px;
+    padding: 25px;
+  }
+
+  .login-form h1 {
+    font-size: 1.4em;
+    margin-bottom: 18px;
+    /* Ajustado */
+  }
+
+  .login-form input {
+    margin-bottom: 18px;
+    /* Ajustado */
+  }
+
+  .login-form input:last-of-type {
+    margin-bottom: 18px;
+    /* Ajustado */
+  }
+
+  .logo-login {
+    width: 100px;
+    margin-left: 0;
+    margin-bottom: 20px;
+  }
+}
+
+/* Otimizações GPU mínimas necessárias para Tizen 5.0+ */
+.login-screen,
+.login-form,
+.logo-login,
+#continueButton,
+.login-form input {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Forçar renderização por hardware para elementos críticos */
+.background-image {
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+/* Estilos para indicar foco em navegação por controle remoto */
+.login-form input.focused,
+.login-form button.focused {
+  outline: 3px solid #00a8e6;
+  box-shadow: 0 0 15px rgba(0, 168, 230, 0.7);
+  border-color: #00a8e6;
+  transform: scale(1.02);
+  /* Leve aumento para destaque */
+  transition: all 0.2s ease-in-out;
 }
