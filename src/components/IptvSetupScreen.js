@@ -66,9 +66,9 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive, macAd
           alt="Background" 
         />
         <div className="login-form">
-          <img 
-            src="/images/BIGTV-transparente.png" 
-            className="logo-login" 
+          <img
+            src="/images/logo-bigtv-est.png"
+            className="logo-login"
             alt="BIGTV Logo" 
           />
           <h2 style={{color: 'white', marginBottom: '20px', textAlign: 'center'}}>
@@ -232,27 +232,20 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive, macAd
         alt="Background" 
       />
       <div className="login-form">
-        <img 
-          src="/images/BIGTV-transparente.png" 
-          className="logo-login" 
+        <img
+          src="/images/logo-bigtv-est.png"
+          className="logo-login"
           alt="BIGTV Logo" 
         />
         
-        <h2 style={{color: 'white', marginBottom: '20px', textAlign: 'center'}}>
-          Configurar Conta IPTV
-        </h2>
         
-        <div style={{fontSize: '14px', color: '#ccc', margin: '20px 0', textAlign: 'center'}}>
-          Olá, <strong>{clienteData.email}</strong>!<br/>
-          Para acessar o catálogo de filmes e séries, você precisa vincular sua conta a um grupo IPTV.
-        </div>
         
         <input
           ref={el => (focusableElements.current[0] = el)}
           type="text"
           value={codigo}
           onChange={(e) => setCodigo(e.target.value)}
-          placeholder="Código do Grupo (ex: 2b03512)"
+          placeholder="Código do Grupo"
           style={{marginBottom: '10px'}}
         />
 
@@ -272,26 +265,7 @@ const IptvSetupScreen = ({ clienteData, onSetupComplete, onSkip, isActive, macAd
           {loading ? 'Configurando...' : 'Configurar Conta IPTV'}
         </button>
 
-        <button
-          ref={el => (focusableElements.current[2] = el)}
-          className="skip-btn"
-          onClick={handlePular}
-          style={{
-            marginTop: '15px',
-            background: 'transparent',
-            border: '1px solid #666',
-            color: '#ccc',
-            padding: '10px 20px',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-        >
-          Pular (Configurar Depois)
-        </button>
 
-        <div style={{fontSize: '11px', color: '#999', margin: '15px 0', textAlign: 'center'}}>
-          Você pode configurar sua conta IPTV mais tarde nas configurações do aplicativo.
-        </div>
       </div>
     </div>
   );

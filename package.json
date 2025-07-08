@@ -40,6 +40,6 @@
     ]
   },
   "devDependencies": {
-    "@stagewise/toolbar-react": "^0.1.2"
+    "@stagewise/toolbar-react": "^0.5.0"
   }
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import LoginScreen from './components/LoginScreen';
 import SignupScreen from './components/SignupScreen';
+import PaymentScreen from './components/PaymentScreen';
 import IptvSetupScreen from './components/IptvSetupScreen';
 import Home from './components/Home';
 import Sidebar from './components/Sidebar';
@@ -20,6 +21,7 @@ const SECTIONS = {
   LOGIN: 'login',
   SIGNUP: 'signup',
   IPTV_SETUP: 'iptv_setup',
+  PAYMENT: 'payment',
   HOME: 'home',
   CHANNELS: 'channels', 
   MOVIES: 'movies',
@@ -135,7 +137,7 @@ function App() {
     const handleKeyDown = (e) => {
       const keyCode = e.keyCode;
       
-      const authSections = [SECTIONS.LOGIN, SECTIONS.SIGNUP, SECTIONS.IPTV_SETUP];
+      const authSections = [SECTIONS.LOGIN, SECTIONS.SIGNUP, SECTIONS.IPTV_SETUP, SECTIONS.PAYMENT];
       if (authSections.includes(currentSection)) {
         // Delegar navegação para os componentes de autenticação através de eventos customizados
         const authEvent = new CustomEvent('authNavigation', {
@@ -392,7 +394,7 @@ function App() {
     clearPlayerConfig();
 
     // Sempre navegar para a tela de setup após o login, em vez de verificar config existente
-    navigateToSection(SECTIONS.IPTV_SETUP, false);
+    navigateToSection(SECTIONS.PAYMENT, false);
   };
 
   const handleGoToSignup = () => {
@@ -440,6 +442,10 @@ function App() {
         handleLogout();
       }
     }
+  };
+
+  const handlePaymentComplete = () => {
+    navigateToSection(SECTIONS.IPTV_SETUP, false);
   };
 
   const handleSkipIptvSetup = () => {
@@ -506,7 +512,7 @@ function App() {
       case SECTIONS.LOGIN:
         return (
           <LoginScreen 
-            onLogin={handleLogin} 
+            onLogin={handleLogin}
             onGoToSignup={handleGoToSignup}
             onSkipLogin={handleSkipLogin}
             isActive={currentSection === SECTIONS.LOGIN}
@@ -516,10 +522,18 @@ function App() {
 
       case SECTIONS.SIGNUP:
         return (
-          <SignupScreen 
+          <SignupScreen
             onSignup={handleSignup}
             onBackToLogin={handleBackToLogin}
             isActive={currentSection === SECTIONS.SIGNUP}
+          />
+        );
+      
+      case SECTIONS.PAYMENT:
+        return (
+          <PaymentScreen
+            onPaymentComplete={handlePaymentComplete}
+            isActive={currentSection === SECTIONS.PAYMENT}
           />
         );
 
@@ -612,9 +626,10 @@ function App() {
   };
 
   // Não mostrar sidebar na tela de login, cadastro, configuração IPTV, no player ou na página de detalhes
-  const showSidebar = currentSection !== SECTIONS.LOGIN && 
+  const showSidebar = currentSection !== SECTIONS.LOGIN &&
                      currentSection !== SECTIONS.SIGNUP &&
                      currentSection !== SECTIONS.IPTV_SETUP &&
+                     currentSection !== SECTIONS.PAYMENT &&
                      currentSection !== SECTIONS.PLAYER && 
                      currentSection !== SECTIONS.SERIES_DETAILS;
 

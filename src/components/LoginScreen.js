@@ -177,41 +177,7 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
           {loading ? 'Entrando...' : 'Continuar'}
         </button>
 
-        <button
-          ref={el => (focusableElements.current[3] = el)}
-          className="signup-btn"
-          onClick={onGoToSignup}
-          style={{
-            marginTop: '15px',
-            background: 'transparent',
-            border: '1px solid #666',
-            color: '#ccc',
-            padding: '10px 20px',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-        >
-          Criar Nova Conta
-        </button>
 
-        <button
-          ref={el => (focusableElements.current[4] = el)}
-          className="skip-login-btn-dev"
-          onClick={onSkipLogin}
-          style={{
-            marginTop: '10px',
-            background: '#6a0dad',
-            border: '1px solid #8a2be2',
-            color: '#fff',
-            padding: '8px 15px',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: 'bold'
-          }}
-        >
-          Pular Login (Dev)
-        </button>
       </div>
     </div>
   );

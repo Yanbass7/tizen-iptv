@@ -103,9 +103,9 @@ const IptvPendingScreen = ({ onApprovalSuccess, onLogout, isActive }) => {
         alt="Background" 
       />
       <div className="login-form">
-        <img 
-          src="/images/BIGTV-transparente.png" 
-          className="logo-login" 
+        <img
+          src="/images/logo-bigtv-est.png"
+          className="logo-login"
           alt="BIGTV Logo" 
         />
         

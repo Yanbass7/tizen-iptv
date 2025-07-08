@@ -128,15 +128,12 @@ const SignupScreen = ({ onSignup, onBackToLogin, isActive }) => {
         alt="Background" 
       />
       <div className="login-form">
-        <img 
-          src="/images/BIGTV-transparente.png" 
-          className="logo-login" 
+        <img
+          src="/images/logo-bigtv-est.png"
+          className="logo-login"
           alt="BIGTV Logo" 
         />
         
-        <h2 style={{color: 'white', marginBottom: '20px', textAlign: 'center'}}>
-          Criar Conta
-        </h2>
         
         <input
           ref={el => (focusableElements.current[0] = el)}
@@ -160,7 +157,7 @@ const SignupScreen = ({ onSignup, onBackToLogin, isActive }) => {
           placeholder="Confirmar Senha"
         />
 
-        <div style={{fontSize: '12px', color: '#ccc', margin: '10px 0', textAlign: 'center'}}>
+        <div style={{fontSize: '12px', color: '#ccc', margin: '5px 0 20px 0', textAlign: 'center'}}>
           A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo
         </div>
 
@@ -178,7 +175,7 @@ const SignupScreen = ({ onSignup, onBackToLogin, isActive }) => {
 
         <button
           ref={el => (focusableElements.current[4] = el)}
-          className="back-to-login-btn"
+          className="signup-btn"
           onClick={onBackToLogin}
           style={{
             marginTop: '15px',
