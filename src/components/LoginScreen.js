@@ -45,8 +45,11 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
       } else if (keyCode === 38) { // Up
         setFocusIndex(prev => (prev - 1 + elementsCount) % elementsCount);
       } else if (keyCode === 13) { // Enter
+        e.preventDefault?.();
         const currentElement = focusableElements.current[focusIndex];
-        currentElement?.click();
+        if (currentElement) {
+          currentElement.click();
+        }
       }
     };
 
@@ -171,6 +174,7 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
         <button
           ref={el => (focusableElements.current[2] = el)}
           id="continueButton"
+          type="button"
           onClick={handleContinue}
           disabled={loading}
         >
@@ -180,6 +184,7 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
         <button
           ref={el => (focusableElements.current[3] = el)}
           className="create-account-btn"
+          type="button"
           onClick={onGoToCreateAccount}
         >
           Criar Conta
