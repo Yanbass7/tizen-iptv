@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './LoginScreen.css';
 import { loginCliente } from '../services/authService';
 
-const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
+const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, isActive }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -177,6 +177,13 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
           {loading ? 'Entrando...' : 'Continuar'}
         </button>
 
+        <button
+          ref={el => (focusableElements.current[3] = el)}
+          className="create-account-btn"
+          onClick={onGoToCreateAccount}
+        >
+          Criar Conta
+        </button>
 
       </div>
     </div>

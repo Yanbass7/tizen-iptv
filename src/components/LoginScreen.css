@@ -497,3 +497,39 @@ input {
   outline: 3px solid rgba(255, 140, 0, 0.6);
   outline-offset: 2px;
 }
+
+.create-account-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2em;
+  font-weight: bold;
+  height: auto;
+  margin-top: 15px;
+  -webkit-transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  -moz-transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  -o-transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.create-account-btn:hover {
+  background-color: #45a049;
+}
+
+.create-account-btn:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
+}
+
+.create-account-btn.focused {
+  background-color: #45a049;
+  outline: 3px solid rgba(76, 175, 80, 0.6);
+  outline-offset: 2px;
+}

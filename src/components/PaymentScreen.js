@@ -25,10 +25,10 @@ const PaymentScreen = ({ onPaymentComplete, isActive }) => {
 
   return (
     <div className="login-screen">
-      <img 
-        src="/images/image-mesh-gradient.png" 
-        className="background-image" 
-        alt="Background" 
+      <img
+        src="/images/image-mesh-gradient.png"
+        className="background-image"
+        alt="Background"
       />
       <div className="login-form">
         <img
@@ -38,9 +38,15 @@ const PaymentScreen = ({ onPaymentComplete, isActive }) => {
         />
         <p className="qr-code-text">Escaneie o QR Code</p>
         <div className="qr-code-placeholder">
-          {/* QR Code será inserido aqui */}
-          <p>QR Code Area</p>
+          <img
+            src="/images/qr-code-bigtv.png"
+            alt="QR Code BIGTV"
+            className="qr-code-image"
+          />
         </div>
+        <p className="website-text">
+          ou acesse o site <span className="website-link">https://bigtv-bc58d.web.app/</span>
+        </p>
         <button
           ref={payButtonRef}
           id="continueButton"

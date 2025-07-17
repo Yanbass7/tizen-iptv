@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import LoginScreen from './components/LoginScreen';
 import SignupScreen from './components/SignupScreen';
+import CreateAccountScreen from './components/CreateAccountScreen';
 import PaymentScreen from './components/PaymentScreen';
 import IptvSetupScreen from './components/IptvSetupScreen';
 import Home from './components/Home';
@@ -20,6 +21,7 @@ import { setPlayerConfig, clearPlayerConfig } from './config/apiConfig';
 const SECTIONS = {
   LOGIN: 'login',
   SIGNUP: 'signup',
+  CREATE_ACCOUNT: 'create_account',
   IPTV_SETUP: 'iptv_setup',
   PAYMENT: 'payment',
   HOME: 'home',
@@ -137,7 +139,7 @@ function App() {
     const handleKeyDown = (e) => {
       const keyCode = e.keyCode;
       
-      const authSections = [SECTIONS.LOGIN, SECTIONS.SIGNUP, SECTIONS.IPTV_SETUP, SECTIONS.PAYMENT];
+      const authSections = [SECTIONS.LOGIN, SECTIONS.SIGNUP, SECTIONS.CREATE_ACCOUNT, SECTIONS.IPTV_SETUP, SECTIONS.PAYMENT];
       if (authSections.includes(currentSection)) {
         // Delegar navegação para os componentes de autenticação através de eventos customizados
         const authEvent = new CustomEvent('authNavigation', {
@@ -401,6 +403,10 @@ function App() {
     navigateToSection(SECTIONS.SIGNUP, false);
   };
 
+  const handleGoToCreateAccount = () => {
+    navigateToSection(SECTIONS.CREATE_ACCOUNT, false);
+  };
+
   const handleBackToLogin = () => {
     navigateToSection(SECTIONS.LOGIN, false);
   };
@@ -514,6 +520,7 @@ function App() {
           <LoginScreen 
             onLogin={handleLogin}
             onGoToSignup={handleGoToSignup}
+            onGoToCreateAccount={handleGoToCreateAccount}
             onSkipLogin={handleSkipLogin}
             isActive={currentSection === SECTIONS.LOGIN}
             authError={authError}
@@ -526,6 +533,14 @@ function App() {
             onSignup={handleSignup}
             onBackToLogin={handleBackToLogin}
             isActive={currentSection === SECTIONS.SIGNUP}
+          />
+        );
+
+      case SECTIONS.CREATE_ACCOUNT:
+        return (
+          <CreateAccountScreen
+            onBack={handleBackToLogin}
+            isActive={currentSection === SECTIONS.CREATE_ACCOUNT}
           />
         );
       
@@ -628,6 +643,7 @@ function App() {
   // Não mostrar sidebar na tela de login, cadastro, configuração IPTV, no player ou na página de detalhes
   const showSidebar = currentSection !== SECTIONS.LOGIN &&
                      currentSection !== SECTIONS.SIGNUP &&
+                     currentSection !== SECTIONS.CREATE_ACCOUNT &&
                      currentSection !== SECTIONS.IPTV_SETUP &&
                      currentSection !== SECTIONS.PAYMENT &&
                      currentSection !== SECTIONS.PLAYER && 
