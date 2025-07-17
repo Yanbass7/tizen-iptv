@@ -45,7 +45,7 @@ const PaymentScreen = ({ onPaymentComplete, isActive }) => {
           />
         </div>
         <p className="website-text">
-          ou acesse o site <span className="website-link">https://bigtv-bc58d.web.app/</span>
+          ou acesse o site <span className="website-link">bigtv-bc58d.web.app/pricing</span>
         </p>
         <button
           ref={payButtonRef}
