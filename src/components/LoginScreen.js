@@ -19,17 +19,17 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
       setMacAddress(mac);
       console.log(`MAC Address obtido da URL: ${mac}`);
     } else if (mac) {
-        const errorMessage = `Dispositivo não suportado ou erro na leitura do MAC (${mac}).`;
-        console.error(errorMessage);
-        setError(errorMessage);
+      const errorMessage = `Dispositivo não suportado ou erro na leitura do MAC (${mac}).`;
+      console.error(errorMessage);
+      setError(errorMessage);
     }
-  }, []); // Executa apenas uma vez na montagem do componente
+  }, []);
 
   useEffect(() => {
-    // Foca o primeiro elemento quando a tela se torna ativa
+
     if (isActive) {
       focusableElements.current[0]?.focus();
-      setFocusIndex(0); // Garante que o foco visual seja aplicado
+      setFocusIndex(0);
     }
   }, [isActive]);
 
@@ -42,15 +42,15 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
 
       console.log('LoginScreen - Navegação:', { keyCode, focusIndex, elementsCount });
 
-      if (keyCode === 40) { // Down
+      if (keyCode === 40) {
         setFocusIndex(prev => (prev + 1) % elementsCount);
-      } else if (keyCode === 38) { // Up
+      } else if (keyCode === 38) {
         setFocusIndex(prev => (prev - 1 + elementsCount) % elementsCount);
-      } else if (keyCode === 13) { // Enter
+      } else if (keyCode === 13) {
         e.preventDefault?.();
         const currentElement = focusableElements.current[focusIndex];
         console.log('LoginScreen - Enter pressionado:', { focusIndex, currentElement });
-        
+
         if (currentElement) {
           // Simular clique no elemento focado
           currentElement.click();
@@ -101,7 +101,7 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
           function (network) {
             macAddress = network.macAddress || '';
           },
-          function () {}
+          function () { }
         );
         if (macAddress) {
           console.log('MAC obtido via systeminfo:', macAddress);
@@ -127,11 +127,11 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
     try {
       const mac_disp = macAddress || getMacAddress();
       console.log('MAC que será enviado na requisição:', mac_disp); // Debug
-      
+
       if (!mac_disp) {
         throw new Error('Não foi possível obter o MAC do dispositivo. Login não pode ser concluído.');
       }
-      
+
       const data = await loginCliente({ email, senha: password, mac_disp });
 
       // Armazenar token e email localmente para uso posterior
@@ -149,13 +149,13 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
 
   return (
     <div className="login-screen">
-      <img 
-        src="/images/image-mesh-gradient.png" 
-        className="background-image" 
-        alt="Background" 
+      <img
+        src="/images/image-mesh-gradient.png"
+        className="background-image"
+        alt="Background"
       />
-<div className="login-form">
-<img
+      <div className="login-form">
+        <img
           src="/images/logo-bigtv-est.png"
           className="logo-login"
           alt="BIGTV Logo"

@@ -10,8 +10,8 @@ const Search = ({ isActive, onExitSearch }) => {
   const [activeSection, setActiveSection] = useState('keyboard'); // 'keyboard', 'results', 'categories'
   const [selectedKey, setSelectedKey] = useState({ row: 0, col: 0 });
   const [resultFocus, setResultFocus] = useState(0);
-  const [searchCategory, setSearchCategory] = useState('all'); // 'all', 'movie', 'serie', 'channel'
-  const [categoryFocus, setCategoryFocus] = useState(0); // 0: Todos, 1: Filmes, 2: Séries, 3: Canais
+  const [searchCategory, setSearchCategory] = useState('movie'); // 'movie', 'serie', 'channel'
+  const [categoryFocus, setCategoryFocus] = useState(0); // 0: Filmes, 1: Séries, 2: Canais
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(0);
@@ -38,7 +38,6 @@ const Search = ({ isActive, onExitSearch }) => {
   ];
 
   const searchCategories = [
-    { id: 'all', name: 'Todos' },
     { id: 'movie', name: 'Filmes' },
     { id: 'serie', name: 'Séries' },
     { id: 'channel', name: 'Canais ao Vivo' },
@@ -133,18 +132,8 @@ const Search = ({ isActive, onExitSearch }) => {
 
     try {
       let fetchedData = [];
-      const categoriesToFetch =
-        searchCategory === 'all'
-          ? ['movie', 'serie', 'channel']
-          : [searchCategory];
-
-      const promises = categoriesToFetch.map(async (category) => {
-        const data = await fetchAllContent(category);
-        return data.map(item => ({ ...item, type: category }));
-      });
-
-      const results = await Promise.all(promises);
-      fetchedData = results.flat();
+      const data = await fetchAllContent(searchCategory);
+      fetchedData = data.map(item => ({ ...item, type: searchCategory }));
 
       const normalizeText = (text) => {
         if (!text) return '';
