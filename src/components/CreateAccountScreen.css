@@ -1,4 +1,4 @@
-.create-account-screen {
+.login-screen {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -42,7 +42,7 @@
   z-index: -1;
 }
 
-.create-account-form {
+.login-form {
   background-color: rgba(0, 0, 0, 0.5);
   padding: 40px;
   border-radius: 10px;
@@ -62,24 +62,17 @@
   transform: translateZ(0);
 }
 
-.logo-create-account {
+.logo-login {
   width: 350px;
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: 30px;
+  margin-bottom: 50px;
   -webkit-animation: fadeIn 1s ease-in-out;
   -moz-animation: fadeIn 1s ease-in-out;
   -o-animation: fadeIn 1s ease-in-out;
   animation: fadeIn 1s ease-in-out;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-}
-
-.create-account-title {
-  color: white;
-  font-size: 2em;
-  margin-bottom: 20px;
-  font-weight: bold;
 }
 
 .qr-code-placeholder {
@@ -130,8 +123,8 @@
   transition: all 0.3s ease;
 }
 
-#backButton {
-  background-color: #666;
+#continueButton {
+  background-color: #FF8C00;
   color: white;
   border: none;
   padding: 15px 20px;
@@ -140,7 +133,7 @@
   font-size: 1.2em;
   font-weight: bold;
   height: auto;
-  margin: 10px 0;
+  margin: 0;
   -webkit-transition: background-color 0.3s ease, box-shadow 0.3s ease;
   -moz-transition: background-color 0.3s ease, box-shadow 0.3s ease;
   -o-transition: background-color 0.3s ease, box-shadow 0.3s ease;
@@ -151,28 +144,146 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-#backButton:hover {
-  background-color: #555;
+#continueButton:hover {
+  background-color: #e67e00;
 }
 
-#backButton:focus {
+#continueButton:focus {
   outline: none;
-  box-shadow: 0 0 10px rgba(102, 102, 102, 0.8);
+  box-shadow: 0 0 10px rgba(255, 140, 0, 0.8);
 }
 
-#backButton.focused {
-  background-color: #555;
-  outline: 3px solid rgba(102, 102, 102, 0.6);
+#continueButton.focused {
+  background-color: #e67e00;
+  outline: 3px solid rgba(255, 140, 0, 0.6);
   outline-offset: 2px;
+}
+
+/* Reset CSS específico para Tizen 5.0+ */
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+img,
+input {
+  margin: 0;
+  padding: 0;
+  outline: 0;
+  vertical-align: baseline;
+}
+
+/* Force o box-sizing com prefixos para Tizen 5.0+ */
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+  -webkit-scroll-behavior: auto !important;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
+}
+
+/* Responsividade otimizada */
+@media (max-width: 1920px) {
+  .login-form {
+    max-width: 500px;
+    padding: 35px;
+  }
+
+  .logo-login {
+    width: 300px;
+    margin-bottom: 40px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .login-form {
+    max-width: 450px;
+    padding: 30px;
+  }
+
+  #continueButton {
+    padding: 12px 18px;
+    font-size: 1.1em;
+  }
+
+  .logo-login {
+    width: 250px;
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-form {
+    width: 95%;
+    max-width: 400px;
+    padding: 25px;
+  }
+
+  .logo-login {
+    width: 200px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Otimizações GPU mínimas necessárias para Tizen 5.0+ */
+.login-screen,
+.login-form,
+.logo-login,
+#continueButton {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Forçar renderização por hardware para elementos críticos */
+.background-image {
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+/* Estilos para indicar foco em navegação por controle remoto */
+.login-form button.focused {
+  outline: 3px solid #00a8e6;
+  box-shadow: 0 0 15px rgba(0, 168, 230, 0.7);
+  border-color: #00a8e6;
+  transform: scale(1.02);
+  transition: all 0.2s ease-in-out;
 }

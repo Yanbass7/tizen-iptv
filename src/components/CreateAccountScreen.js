@@ -26,22 +26,20 @@ const CreateAccountScreen = ({ onBack, isActive }) => {
   }, [isActive, onBack]);
 
   return (
-    <div className="create-account-screen">
+    <div className="login-screen">
       <img 
         src="/images/image-mesh-gradient.png" 
         className="background-image" 
         alt="Background" 
       />
-      <div className="create-account-form">
+      <div className="login-form">
         <img
           src="/images/logo-bigtv-est.png"
-          className="logo-create-account"
+          className="logo-login"
           alt="BIGTV Logo"
         />
-        <h2 className="create-account-title">Criar Nova Conta</h2>
         <p className="qr-code-text">Escaneie o QR Code para criar sua conta</p>
         <div className="qr-code-placeholder">
-          {/* Temporariamente usando o mesmo QR code até você adicionar o novo */}
           <img 
             src="/images/qr-code-bigtv.png" 
             alt="QR Code Criar Conta" 
@@ -49,12 +47,12 @@ const CreateAccountScreen = ({ onBack, isActive }) => {
           />
         </div>
         <p className="website-text">
-          ou acesse o site <span className="website-link">https://bigtv-bc58d.web.app/signup</span>
+          ou acesse o site <span className="website-link">bigtv-bc58d.web.app/signup</span>
         </p>
         <button
           ref={backButtonRef}
-          id="backButton"
-          className="back-button"
+          id="continueButton"
+          className="login-button"
           onClick={onBack}
         >
           Voltar para Login
