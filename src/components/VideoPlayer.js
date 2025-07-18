@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import mpegts from 'mpegts.js';
 import criarUrlProxyStream from '../utils/streamProxy';
 import ConsoleLogModal from './ConsoleLogModal';
 
@@ -147,23 +146,10 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     }
   };
 
-  // Função para detectar tipo de player necessário
+  // Player customizado - usando apenas HTML5 nativo
   const detectPlayerType = (url, info) => {
-    const type = info?.type;
-    
-    // 1. Streams ao vivo usando mpegts.js
-    if (type === 'live' || url.includes('.ts')) {
-        return 'mpegts-live';
-    }
-
-    // 2. Para VOD (filmes/séries), usar mpegts.js também
-    if (type === 'movie' || type === 'series' || url.includes('.mp4')) {
-        console.log("Detector: VOD. Usando mpegts.js para filmes/séries.");
-        return 'mpegts-vod';
-    }
-    
-    // 3. Fallback para mpegts VOD.
-    return 'mpegts-vod';
+    console.log("🎯 Usando player HTML5 customizado");
+    return 'html5-custom';
   };
 
   // Limpar timeouts ativos
@@ -231,17 +217,8 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       const videoElement = videoRef.current;
 
       try {
-        if (type === 'mpegts-vod') {
-          console.log('📽️ Usando mpegts para filmes/séries');
-          await initMpegtsVodPlayer(streamUrl, videoElement);
-        } else if (type === 'mpegts-live') {
-          console.log('📡 Usando mpegts para live stream');
-          await initMpegtsLivePlayer(streamUrl, videoElement);
-        } else {
-          // Fallback para mpegts VOD
-          console.log('📽️ Usando mpegts player (fallback)');
-          await initMpegtsVodPlayer(streamUrl, videoElement);
-        }
+        console.log('🎯 Usando player HTML5 customizado');
+        await initCustomHtml5Player(streamUrl, videoElement);
 
       } catch (err) {
         console.error('💥 Erro ao criar player:', err);
@@ -259,131 +236,35 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
 
 
-  // Função para inicializar mpegts player para VOD (filmes/séries MP4)
-  const initMpegtsVodPlayer = async (url, videoElement) => {
+  // Player HTML5 customizado - criado por vocês
+  const initCustomHtml5Player = async (url, videoElement) => {
     return new Promise((resolve, reject) => {
       try {
-        setLoadingMessage('Carregando vídeo...');
-        
-        const mediaDataSource = {
-          type: 'mp4',
-          isLive: false,
-          url: url
-        };
-
-        // Configuração ultra-mínima para máxima estabilidade no Tizen.
-        // O objetivo primário é evitar o congelamento da UI. O tempo de carregamento
-        // pode ser longo, mas o app deve permanecer responsivo.
-        const playerConfig = {
-          enableWorker: false, // Essencial para Tizen
-        };
-
-        const player = mpegts.createPlayer(mediaDataSource, playerConfig);
-        playerRef.current = player;
-
-        player.on(mpegts.Events.ERROR, (errorType, errorDetail, errorInfo) => {
-          console.error('❌ Erro mpegts VOD:', errorType, errorDetail, errorInfo);
-          reject(new Error(`mpegts VOD error: ${errorType} - ${errorDetail}`));
-        });
-        
-        const handlePlaying = () => {
-          console.log('✅ mpegts VOD: Reproduzindo');
-          clearTimeouts();
-          setLoadingProgress(100);
-          // O estado isPlaying será gerenciado por um useEffect central
-          setTimeout(() => {
-            setIsLoading(false);
-            setLoadingProgress(0);
-          }, 500);
-          setError(null);
-          initializingRef.current = false;
-          resolve();
-        };
-        
-        videoElement.addEventListener('playing', handlePlaying, { once: true });
-
-        player.attachMediaElement(videoElement);
-        player.load();
-        
-        // Timeout longo para permitir o carregamento de arquivos grandes
-        errorTimeoutRef.current = setTimeout(() => {
-          if (initializingRef.current) {
-            console.error(`❌ Timeout mpegts VOD após 3 minutos para URL: ${url}`);
-            reject(new Error(`Timeout mpegts VOD (${streamInfo?.title || 'Filme/Série'})`));
-          }
-        }, 180000); // 3 minutos
-
-      } catch (err) {
-        console.error('💥 Erro ao criar mpegts VOD player:', err);
-        reject(err);
-      }
-    });
-  };
-
-
-
-  // Função para inicializar mpegts player para Live (canais ao vivo)
-  const initMpegtsLivePlayer = async (url, videoElement) => {
-    return new Promise(async (resolve, reject) => {
-      try {
+        console.log('🎯 Inicializando player HTML5 customizado');
         setLoadingMessage('Carregando...');
-        console.log('🔗 URL original:', url);
         
-        // Tentar pré-verificar a URL antes de passar para o player
-        try {
-          await testStreamUrl(url);
-          console.log('✅ Conectividade OK - usando mpegts player');
-        } catch (testError) {
-          console.warn('⚠️ Teste de conectividade falhou, continuando com mpegts player:', testError.message);
-        }
+        // Limpar qualquer player anterior
+        playerRef.current = null;
         
-        // Usando URL original (proxy desabilitado)
-        let streamUrlForPlayer = url;
-        console.log('🎯 URL para player:', streamUrlForPlayer);
-
-        const mediaDataSource = {
-          type: 'mpegts',
-          isLive: true,
-          url: streamUrlForPlayer
+        const handleLoadStart = () => {
+          console.log('📡 Player customizado: Iniciando carregamento');
+          setLoadingProgress(20);
         };
-
-        // Configuração essencial para Tizen - mesma do VOD
-        const playerConfig = {
-          enableWorker: false, // Essencial para Tizen TV
-          enableStashBuffer: false, // Reduzir buffer para live
-          autoCleanupSourceBuffer: true, // Limpeza automática do buffer
-          fixAudioTimestampGap: false, // Melhor para live streams
-          headers: getSafeHeaders() // Headers seguros para CORS
+        
+        const handleLoadedData = () => {
+          console.log('📡 Player customizado: Dados carregados');
+          setLoadingProgress(60);
         };
-
-        const player = mpegts.createPlayer(mediaDataSource, playerConfig);
-        console.log('🎮 Player mpegts criado com sucesso');
-        console.log('⚙️ Configuração aplicada:', playerConfig);
-
-        playerRef.current = player;
-
-        player.on(mpegts.Events.ERROR, (errorType, errorDetail, errorInfo) => {
-          console.error('❌ Erro mpegts Live:', errorType, errorDetail, errorInfo);
-          
-          // Tratamento específico para "Failed to fetch"
-          if (errorDetail && errorDetail.msg && errorDetail.msg.includes('Failed to fetch')) {
-            console.error('🌐 Erro de rede detectado - possível problema CORS ou conectividade');
-            reject(new Error(`Erro de rede: Verifique a conexão com o servidor`));
-          } else {
-            reject(new Error(`mpegts Live error: ${errorType} - ${errorDetail}`));
-          }
-        });
-
-        player.on(mpegts.Events.LOADING_COMPLETE, () => {
-          setLoadingMessage('Iniciando...');
-          setLoadingProgress(90);
-        });
-
+        
+        const handleCanPlay = () => {
+          console.log('✅ Player customizado: Pronto para reproduzir');
+          setLoadingProgress(85);
+        };
+        
         const handlePlaying = () => {
-          console.log('✅ mpegts Live: Reproduzindo');
+          console.log('✅ Player customizado: Reproduzindo');
           clearTimeouts();
           setLoadingProgress(100);
-          // O estado isPlaying será gerenciado por um useEffect central
           setTimeout(() => {
             setIsLoading(false);
             setLoadingProgress(0);
@@ -392,43 +273,60 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
           initializingRef.current = false;
           resolve();
         };
-
-        videoElement.addEventListener('playing', handlePlaying);
-
-        player.attachMediaElement(videoElement);
-        player.load();
-
-        // Para live, tentar autoplay
-        setTimeout(() => {
-          if (playerRef.current && videoRef.current && initializingRef.current) {
-            playerRef.current.play().catch(playError => {
-              console.warn('⚠️ Autoplay falhou, aguardando interação do usuário:', playError);
-              // Para live streams, isso é aceitável
-            });
-          }
-        }, 500);
-
-        // Timeout para live
+        
+        const handleError = (event) => {
+          console.error('❌ Erro no player customizado:', event);
+          const errorMsg = videoElement.error ? 
+            `Erro ${videoElement.error.code}: ${videoElement.error.message}` : 
+            'Erro desconhecido no player';
+          reject(new Error(errorMsg));
+        };
+        
+        const handleWaiting = () => {
+          console.log('⏳ Player customizado: Aguardando dados...');
+          setLoadingMessage('Carregando dados...');
+        };
+        
+        // Adicionar listeners
+        videoElement.addEventListener('loadstart', handleLoadStart, { once: true });
+        videoElement.addEventListener('loadeddata', handleLoadedData, { once: true });
+        videoElement.addEventListener('canplay', handleCanPlay, { once: true });
+        videoElement.addEventListener('playing', handlePlaying, { once: true });
+        videoElement.addEventListener('error', handleError, { once: true });
+        videoElement.addEventListener('waiting', handleWaiting);
+        
+        // Configurar elemento de vídeo
+        videoElement.crossOrigin = 'anonymous';
+        videoElement.preload = 'auto';
+        videoElement.autoplay = true;
+        videoElement.controls = isDevelopment || !isTizenTV;
+        
+        // Definir URL e iniciar carregamento
+        videoElement.src = url;
+        videoElement.load();
+        
+        // Timeout para carregamento
+        const timeoutDuration = streamInfo?.type === 'live' ? 15000 : 60000; // 15s para live, 60s para VOD
         errorTimeoutRef.current = setTimeout(() => {
           if (initializingRef.current) {
-            reject(new Error('Timeout mpegts Live - verifique a conexão'));
+            const contentType = streamInfo?.type === 'live' ? 'Canal' : 'Conteúdo';
+            reject(new Error(`Timeout ao carregar ${contentType} - verifique a conexão`));
           }
-        }, 10000);
-
+        }, timeoutDuration);
+        
       } catch (err) {
-        console.error('💥 Erro ao criar mpegts Live player:', err);
+        console.error('💥 Erro ao criar player customizado:', err);
         reject(err);
       }
     });
   };
 
-  // Função para limpar player
+  // Função para limpar player HTML5 customizado
   const cleanupPlayer = useCallback(() => {
     clearTimeouts();
     cleanupBlobUrls();
     
-  
-    // Limpar elemento video
+    // Limpar elemento video HTML5
     if (videoRef.current) {
       const videoElement = videoRef.current;
       
@@ -446,25 +344,8 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       }
     }
 
-    // Limpar player mpegts
-    if (playerRef.current) {
-      try {
-        const player = playerRef.current;
-        
-        if (player.isLoaded && player.isLoaded()) {
-          if (player.pause) player.pause();
-          if (player.unload) player.unload();
-        }
-        
-        if (player.detachMediaElement) player.detachMediaElement();
-        if (player.destroy) player.destroy();
-        
-      } catch (err) {
-        console.error('Erro ao limpar player mpegts:', err);
-      }
-      
-      playerRef.current = null;
-    }
+    // Limpar referência do player customizado
+    playerRef.current = null;
     
     setIsLoading(false);
     setLoadingMessage('Carregando...');
