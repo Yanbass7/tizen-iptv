@@ -1,16 +1,9 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import mpegts from 'mpegts.js';
-import shaka from 'shaka-player';
 import criarUrlProxyStream from '../utils/streamProxy';
 import ConsoleLogModal from './ConsoleLogModal';
 
 import './VideoPlayer.css';
-
-// Instalar polyfills do Shaka Player para garantir compatibilidade
-shaka.polyfill.installAll();
-
-// A versão do Shaka Player foi fixada em 2.5.4, a mesma usada nos exemplos da Samsung
-// para garantir máxima compatibilidade com TVs Tizen mais antigas.
 
 const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const videoRef = useRef(null);
@@ -158,20 +151,19 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const detectPlayerType = (url, info) => {
     const type = info?.type;
     
-    // 1. Streams ao vivo continuam usando mpegts.js
+    // 1. Streams ao vivo usando mpegts.js
     if (type === 'live' || url.includes('.ts')) {
         return 'mpegts-live';
     }
 
-    // 2. Para VOD (filmes/séries), usar Shaka Player
+    // 2. Para VOD (filmes/séries), usar mpegts.js também
     if (type === 'movie' || type === 'series' || url.includes('.mp4')) {
-        // Usaremos Shaka Player para VOD em todas as plataformas para consistência.
-        console.log("Detector: VOD. Usando Shaka Player.");
-        return 'shaka';
+        console.log("Detector: VOD. Usando mpegts.js para filmes/séries.");
+        return 'mpegts-vod';
     }
     
-    // 3. Fallback para streams ao vivo.
-    return 'mpegts-live';
+    // 3. Fallback para mpegts VOD.
+    return 'mpegts-vod';
   };
 
   // Limpar timeouts ativos
@@ -239,19 +231,16 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       const videoElement = videoRef.current;
 
       try {
-        if (type === 'shaka') {
-          console.log('✨ Usando Shaka Player para VOD');
-          await initShakaPlayer(streamUrl, videoElement);
-        } else if (type === 'mpegts-vod') {
-          console.log('📽️ Usando mpegts para MP4/VOD (Modo de Segurança)');
+        if (type === 'mpegts-vod') {
+          console.log('📽️ Usando mpegts para filmes/séries');
           await initMpegtsVodPlayer(streamUrl, videoElement);
         } else if (type === 'mpegts-live') {
           console.log('📡 Usando mpegts para live stream');
           await initMpegtsLivePlayer(streamUrl, videoElement);
         } else {
-          // Fallback para mpegts live (ou outro se preferir, mas HLS e iframe removidos)
-          console.log('📡 Usando mpegts player para stream (fallback principal agora)');
-          await initMpegtsLivePlayer(streamUrl, videoElement);
+          // Fallback para mpegts VOD
+          console.log('📽️ Usando mpegts player (fallback)');
+          await initMpegtsVodPlayer(streamUrl, videoElement);
         }
 
       } catch (err) {
@@ -268,74 +257,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     initPlayer(detectedPlayerType);
   }, [isActive, streamUrl, streamInfo, isDevelopment, isTizenTV]);
 
-  // Função para inicializar o Shaka Player (v2.5.4)
-  const initShakaPlayer = async (url, videoElement) => {
-    return new Promise((resolve, reject) => {
-      try {
-        const player = new shaka.Player(videoElement);
-        playerRef.current = player; // Armazena a instância do player
 
-        // Configuração mínima e segura para Tizen, baseada na versão 2.5.4
-        // Menos configurações complexas significam menos pontos de falha no Tizen.
-        player.configure({
-          streaming: {
-            // Aumenta o tempo que o player espera por dados antes de dar erro.
-            // Ajuda em conexões lentas ou com instabilidade.
-            preferNativeHls: true, // Em Tizen, é melhor usar o player nativo para HLS.
-            bufferingGoal: 120, // 2 minutos
-            rebufferingGoal: 2,
-            retryParameters: {
-              timeout: 30000, // 30 segundos
-              maxAttempts: 5,
-            }
-          }
-        });
-
-        // Listeners para sucesso e erro
-        player.addEventListener('error', (event) => {
-          console.error('💥 Erro no Shaka Player:', event.detail);
-          reject(new Error(`Erro no Shaka Player: ${event.detail.code}`));
-        });
-
-        // Event listeners para progresso
-        videoElement.addEventListener('loadstart', () => {
-          setLoadingProgress(20);
-        });
-
-        videoElement.addEventListener('loadeddata', () => {
-          setLoadingProgress(60);
-        });
-
-        videoElement.addEventListener('canplay', () => {
-          setLoadingProgress(85);
-        });
-
-        videoElement.addEventListener('playing', () => {
-          setLoadingProgress(100);
-          // O estado isPlaying será gerenciado por um useEffect central
-          setTimeout(() => {
-            setIsLoading(false);
-            setLoadingProgress(0);
-          }, 500);
-          initializingRef.current = false;
-        });
-
-        // Carregar a mídia
-        player.load(url).then(() => {
-          console.log('✅ Shaka Player carregou a mídia com sucesso.');
-          setLoadingProgress(90);
-          resolve();
-        }).catch((error) => {
-          console.error('💥 Erro ao carregar mídia no Shaka Player:', error);
-          reject(error);
-        });
-
-      } catch (error) {
-        console.error('💥 Falha ao inicializar o Shaka Player:', error);
-        reject(error);
-      }
-    });
-  };
 
   // Função para inicializar mpegts player para VOD (filmes/séries MP4)
   const initMpegtsVodPlayer = async (url, videoElement) => {
@@ -398,75 +320,7 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     });
   };
 
-  // Função para inicializar player HTML5 nativo como fallback para live streams
-  const initNativeLivePlayer = async (url, videoElement) => {
-    return new Promise((resolve, reject) => {
-      try {
-        console.log('🎯 Usando player HTML5 nativo para live stream');
-        setLoadingMessage('Carregando com player nativo...');
-        
-        // Limpar qualquer player anterior
-        if (playerRef.current) {
-          playerRef.current = null;
-        }
-        
-        const handleCanPlay = () => {
-          console.log('✅ Player nativo: Pronto para reproduzir');
-          setLoadingProgress(90);
-        };
-        
-        const handlePlaying = () => {
-          console.log('✅ Player nativo: Reproduzindo');
-          clearTimeouts();
-          setLoadingProgress(100);
-          setTimeout(() => {
-            setIsLoading(false);
-            setLoadingProgress(0);
-          }, 500);
-          setError(null);
-          initializingRef.current = false;
-          resolve();
-        };
-        
-        const handleError = (event) => {
-          console.error('❌ Erro no player nativo:', event);
-          reject(new Error('Erro no player HTML5 nativo'));
-        };
-        
-        const handleLoadStart = () => {
-          console.log('📡 Player nativo: Iniciando carregamento');
-          setLoadingProgress(30);
-        };
-        
-        // Adicionar listeners
-        videoElement.addEventListener('canplay', handleCanPlay, { once: true });
-        videoElement.addEventListener('playing', handlePlaying, { once: true });
-        videoElement.addEventListener('error', handleError, { once: true });
-        videoElement.addEventListener('loadstart', handleLoadStart, { once: true });
-        
-        // Configurar atributos para live stream
-        videoElement.crossOrigin = 'anonymous';
-        videoElement.preload = 'none';
-        videoElement.autoplay = true;
-        videoElement.controls = false;
-        
-        // Definir URL
-        videoElement.src = url;
-        videoElement.load();
-        
-        // Timeout para player nativo
-        errorTimeoutRef.current = setTimeout(() => {
-          if (initializingRef.current) {
-            reject(new Error('Timeout player nativo - verifique a conexão'));
-          }
-        }, 15000); // Timeout maior para player nativo
-        
-      } catch (err) {
-        console.error('💥 Erro ao criar player nativo:', err);
-        reject(err);
-      }
-    });
-  };
+
 
   // Função para inicializar mpegts player para Live (canais ao vivo)
   const initMpegtsLivePlayer = async (url, videoElement) => {
@@ -476,18 +330,11 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
         console.log('🔗 URL original:', url);
         
         // Tentar pré-verificar a URL antes de passar para o player
-        let useNativePlayer = false;
         try {
           await testStreamUrl(url);
           console.log('✅ Conectividade OK - usando mpegts player');
         } catch (testError) {
-          console.warn('⚠️ Teste de conectividade falhou, tentando player nativo:', testError.message);
-          useNativePlayer = true;
-        }
-        
-        // Se o teste falhou, tentar player HTML5 nativo
-        if (useNativePlayer) {
-          return await initNativeLivePlayer(url, videoElement);
+          console.warn('⚠️ Teste de conectividade falhou, continuando com mpegts player:', testError.message);
         }
         
         // Usando URL original (proxy desabilitado)
