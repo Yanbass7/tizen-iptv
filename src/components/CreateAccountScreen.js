@@ -41,7 +41,7 @@ const CreateAccountScreen = ({ onBack, isActive }) => {
         <p className="qr-code-text">Escaneie o QR Code para criar sua conta</p>
         <div className="qr-code-placeholder">
           <img 
-            src="/images/qr-code-bigtv.png" 
+            src="/images/qr-code-bigtv-criar.png" 
             alt="QR Code Criar Conta" 
             className="qr-code-image"
           />
