@@ -40,6 +40,8 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
       const { keyCode } = e.detail;
       const elementsCount = focusableElements.current.filter(el => el).length;
 
+      console.log('LoginScreen - Navegação:', { keyCode, focusIndex, elementsCount });
+
       if (keyCode === 40) { // Down
         setFocusIndex(prev => (prev + 1) % elementsCount);
       } else if (keyCode === 38) { // Up
@@ -47,7 +49,10 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
       } else if (keyCode === 13) { // Enter
         e.preventDefault?.();
         const currentElement = focusableElements.current[focusIndex];
+        console.log('LoginScreen - Enter pressionado:', { focusIndex, currentElement });
+        
         if (currentElement) {
+          // Simular clique no elemento focado
           currentElement.click();
         }
       }
@@ -185,7 +190,19 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, 
           ref={el => (focusableElements.current[3] = el)}
           className="create-account-btn"
           type="button"
-          onClick={onGoToCreateAccount}
+          onClick={(e) => {
+            console.log('LoginScreen - Botão Criar Conta clicado via onClick');
+            onGoToCreateAccount();
+          }}
+          onKeyDown={(e) => {
+            console.log('LoginScreen - onKeyDown no botão:', e.keyCode);
+            if (e.keyCode === 13) { // Enter
+              console.log('LoginScreen - Enter detectado no onKeyDown do botão');
+              e.preventDefault();
+              e.stopPropagation();
+              onGoToCreateAccount();
+            }
+          }}
         >
           Criar Conta
         </button>
