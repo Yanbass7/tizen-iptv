@@ -529,7 +529,7 @@ const Search = ({ isActive, onExitSearch }) => {
                       {allResults.length} resultados encontrados
                     </span>
                   </div>
-                  <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
+                  <div className="results-grid">
                     {currentPageResults.map((result, index) => {
                       const translatedType = {
                         'channel': 'Canal',
@@ -544,14 +544,20 @@ const Search = ({ isActive, onExitSearch }) => {
                           className={`search-result-item ${result.type}-result`}
                           onClick={() => handleResultClick(result)}
                         >
-                          <img
-                            src={result.icon}
-                            alt={result.name}
-                            onError={handleImageError}
-                          />
-                          <span className="result-type-badge">{translatedType}</span>
-                          <div className="result-info">
-                            <h4>{result.name}</h4>
+                          <div className="search-result-poster">
+                            {result.icon && (
+                              <img
+                                src={result.icon}
+                                alt={result.name}
+                                onError={handleImageError}
+                              />
+                            )}
+                            <span className="result-type-badge">{translatedType}</span>
+                            <div className="search-result-overlay">
+                              <h3 className="search-result-title">
+                                <span>{result.name}</span>
+                              </h3>
+                            </div>
                           </div>
                         </div>
                       );
