@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { safeScrollIntoView } from '../utils/scrollUtils';
 import { API_BASE_URL, API_CREDENTIALS, buildStreamUrl } from '../config/apiConfig';
+import SearchPreview from './SearchPreview';
 import './Search.css';
 
 const Search = ({ isActive, onExitSearch }) => {
@@ -17,6 +18,11 @@ const Search = ({ isActive, onExitSearch }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const ITEMS_PER_PAGE = 15;
   const GRID_COLUMNS = 5;
+
+  // Estados para o modal de preview
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewItem, setPreviewItem] = useState(null);
+  const [previewType, setPreviewType] = useState(null);
 
   // Referencias para navegação
   const keyboardRef = useRef(null);
@@ -50,39 +56,21 @@ const Search = ({ isActive, onExitSearch }) => {
     try {
       switch (type) {
         case 'channel':
-          // Para canais, usar a mesma lógica do Channels.js
-          const channelStreamUrl = buildStreamUrl('live', item.stream_id, 'ts');
-          const channelStreamInfo = {
-            name: item.name,
-            category: 'Canal',
-            description: `Canal ao vivo - ${item.name}`,
-            type: 'live',
-            logo: item.stream_icon
-          };
-
-          const channelPlayEvent = new CustomEvent('playContent', {
-            detail: { streamUrl: channelStreamUrl, streamInfo: channelStreamInfo }
-          });
-          window.dispatchEvent(channelPlayEvent);
+          // Para canais, abrir modal de preview personalizado
+          console.log('📺 Canal selecionado na pesquisa - abrindo preview:', item);
+          setPreviewItem(item);
+          setPreviewType(type);
+          setShowPreview(true);
+          setActiveSection('preview'); // Mudar foco para o modal
           break;
 
         case 'movie':
-          // Para filmes, abrir modal de preview (igual ao Movies.js)
+          // Para filmes, abrir modal de preview personalizado
           console.log('🎬 Filme selecionado na pesquisa - abrindo preview:', item);
-
-          const movieWithCategory = {
-            ...item,
-            category_name: 'Filme'
-          };
-
-          // Disparar evento para abrir o modal de preview do filme
-          const moviePreviewEvent = new CustomEvent('moviePreviewActive', {
-            detail: {
-              active: true,
-              movie: movieWithCategory
-            }
-          });
-          window.dispatchEvent(moviePreviewEvent);
+          setPreviewItem(item);
+          setPreviewType(type);
+          setShowPreview(true);
+          setActiveSection('preview'); // Mudar foco para o modal
           break;
 
         case 'serie':
@@ -401,7 +389,13 @@ const Search = ({ isActive, onExitSearch }) => {
     const handleSearchNavigation = (event) => {
       const { keyCode } = event.detail;
 
-      if (activeSection === 'keyboard') {
+      if (activeSection === 'preview') {
+        // Redirecionar navegação para o modal de preview
+        const previewEvent = new CustomEvent('searchPreviewNavigation', {
+          detail: { keyCode }
+        });
+        window.dispatchEvent(previewEvent);
+      } else if (activeSection === 'keyboard') {
         handleKeyboardNavigation(keyCode);
       } else if (activeSection === 'results') {
         handleResultsNavigation(keyCode);
@@ -478,6 +472,13 @@ const Search = ({ isActive, onExitSearch }) => {
   const currentPageResults = getCurrentPageResults();
   const totalPages = Math.ceil(allResults.length / ITEMS_PER_PAGE);
 
+  // Função para fechar o modal de preview
+  const closePreview = useCallback(() => {
+    setShowPreview(false);
+    setPreviewItem(null);
+    setPreviewType(null);
+    setActiveSection('results'); // Voltar o foco para os resultados
+  }, []);
 
   if (!isActive) return null;
 
@@ -595,6 +596,16 @@ const Search = ({ isActive, onExitSearch }) => {
           )}
         </div>
       </div>
+
+      {/* Modal de Preview */}
+      {showPreview && (
+        <SearchPreview
+          item={previewItem}
+          type={previewType}
+          isActive={showPreview}
+          onBack={closePreview}
+        />
+      )}
     </div>
   );
 };
