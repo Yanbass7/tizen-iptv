@@ -43,59 +43,126 @@ const Search = ({ isActive, onExitSearch }) => {
     { id: 'channel', name: 'Canais ao Vivo' },
   ];
 
-  const handleResultClick = useCallback((result) => {
+  const handleResultClick = useCallback(async (result) => {
     const { type, rawItem: item } = result;
     console.log('Item selecionado:', { item, type });
 
-    let streamUrl = '';
-    let streamInfo = {};
+    try {
+      switch (type) {
+        case 'channel':
+          // Para canais, usar a mesma lógica do Channels.js
+          const channelStreamUrl = buildStreamUrl('live', item.stream_id, 'ts');
+          const channelStreamInfo = {
+            name: item.name,
+            category: 'Canal',
+            description: `Canal ao vivo - ${item.name}`,
+            type: 'live',
+            logo: item.stream_icon
+          };
 
-    // Construir URL e informações baseado no tipo (estrutura correta da API)
-    switch (type) {
-      case 'channel':
-        streamUrl = buildStreamUrl('live', item.stream_id, 'ts');
-        streamInfo = {
-          name: item.name,
-          category: 'Canal',
-          description: `Canal ao vivo - ${item.name}`,
-          type: 'live'
-        };
-        break;
+          const channelPlayEvent = new CustomEvent('playContent', {
+            detail: { streamUrl: channelStreamUrl, streamInfo: channelStreamInfo }
+          });
+          window.dispatchEvent(channelPlayEvent);
+          break;
 
-      case 'movie':
-        streamUrl = buildStreamUrl('movie', item.stream_id, 'mp4');
-        streamInfo = {
-          name: item.name,
-          category: 'Filme',
-          description: item.plot || `Filme - ${item.name}`,
-          year: item.releaseDate ? new Date(item.releaseDate).getFullYear() : null,
-          rating: item.rating,
-          type: 'movie'
-        };
-        break;
+        case 'movie':
+          // Para filmes, manter a lógica atual que já funciona
+          const movieStreamUrl = buildStreamUrl('movie', item.stream_id, 'mp4');
+          const movieStreamInfo = {
+            name: item.name,
+            category: 'Filme',
+            description: item.plot || `Filme - ${item.name}`,
+            year: item.releaseDate ? new Date(item.releaseDate).getFullYear() : null,
+            rating: item.rating,
+            type: 'movie'
+          };
 
-      case 'serie':
-        streamUrl = buildStreamUrl('series', item.series_id, 'mp4');
-        streamInfo = {
-          name: item.name,
-          category: 'Série',
-          description: item.plot || `Série - ${item.name}`,
-          year: item.year,
-          rating: item.rating,
-          type: 'series'
-        };
-        break;
+          const moviePlayEvent = new CustomEvent('playContent', {
+            detail: { streamUrl: movieStreamUrl, streamInfo: movieStreamInfo }
+          });
+          window.dispatchEvent(moviePlayEvent);
+          break;
 
-      default:
-        console.error('Tipo de conteúdo não reconhecido:', type);
-        return;
+        case 'serie':
+          // Para séries, usar a mesma lógica do Series.js - buscar episódios primeiro
+          console.log('🎬 Série selecionada na pesquisa:', item);
+
+          try {
+            // Buscar informações da série para reproduzir primeiro episódio
+            const response = await fetch(
+              `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series_info&series_id=${item.series_id}`
+            );
+            const seriesData = await response.json();
+
+            if (seriesData.episodes && Object.keys(seriesData.episodes).length > 0) {
+              const firstSeason = Object.keys(seriesData.episodes)[0];
+              const firstEpisode = seriesData.episodes[firstSeason][0];
+
+              if (firstEpisode) {
+                // URL com .mp4 para usar com HTML5 player
+                const seriesStreamUrl = buildStreamUrl('series', firstEpisode.id || firstEpisode.stream_id, 'mp4');
+
+                const seriesStreamInfo = {
+                  name: `${item.name} - T${firstSeason}E${firstEpisode.episode_num || 1} - ${firstEpisode.title || firstEpisode.name || 'Episódio'}`,
+                  type: 'series',
+                  category: 'Série',
+                  description: firstEpisode.plot || firstEpisode.info?.plot || item.plot || 'Descrição não disponível',
+                  year: item.releasedate || item.year || 'N/A',
+                  rating: item.rating || firstEpisode.rating || 'N/A',
+                  poster: item.cover || item.stream_icon
+                };
+
+                const seriesPlayEvent = new CustomEvent('playContent', {
+                  detail: { streamUrl: seriesStreamUrl, streamInfo: seriesStreamInfo }
+                });
+                window.dispatchEvent(seriesPlayEvent);
+              } else {
+                console.error('Nenhum episódio encontrado para a série:', item.name);
+              }
+            } else {
+              console.error('Nenhuma temporada encontrada para a série:', item.name);
+
+              // Fallback: tentar reproduzir com URL genérica
+              const fallbackStreamUrl = buildStreamUrl('series', item.series_id, 'mp4');
+              const fallbackStreamInfo = {
+                name: item.name,
+                category: 'Série',
+                description: `Série - ${item.name}`,
+                type: 'series'
+              };
+
+              const fallbackPlayEvent = new CustomEvent('playContent', {
+                detail: { streamUrl: fallbackStreamUrl, streamInfo: fallbackStreamInfo }
+              });
+              window.dispatchEvent(fallbackPlayEvent);
+            }
+          } catch (error) {
+            console.error('Erro ao carregar informações da série:', error);
+
+            // Fallback: tentar reproduzir com URL genérica
+            const fallbackStreamUrl = buildStreamUrl('series', item.series_id, 'mp4');
+            const fallbackStreamInfo = {
+              name: item.name,
+              category: 'Série',
+              description: `Série - ${item.name}`,
+              type: 'series'
+            };
+
+            const fallbackPlayEvent = new CustomEvent('playContent', {
+              detail: { streamUrl: fallbackStreamUrl, streamInfo: fallbackStreamInfo }
+            });
+            window.dispatchEvent(fallbackPlayEvent);
+          }
+          break;
+
+        default:
+          console.error('Tipo de conteúdo não reconhecido:', type);
+          return;
+      }
+    } catch (error) {
+      console.error('Erro ao processar seleção do resultado:', error);
     }
-
-    // Disparar evento para reproduzir no VideoPlayer
-    const playEvent = new CustomEvent('playContent', {
-      detail: { streamUrl, streamInfo }
-    });
-    window.dispatchEvent(playEvent);
   }, []);
 
   const fetchAllContent = useCallback(async (type) => {
@@ -145,7 +212,7 @@ const Search = ({ isActive, onExitSearch }) => {
       };
 
       const normalizedQuery = normalizeText(searchQuery);
-      
+
       const mappedData = fetchedData.map(item => ({
         ...item,
         icon: item.type === 'serie' ? item.cover : item.stream_icon
@@ -294,7 +361,7 @@ const Search = ({ isActive, onExitSearch }) => {
       }
     } else if (keyCode === 39) { // Direita
       const isLastKeyInRow = currentCol === keyboardLayout[currentRow].length - 1;
-          const hasResults = allResults.length > 0;
+      const hasResults = allResults.length > 0;
       if (currentCol < keyboardLayout[currentRow].length - 1) {
         currentCol++;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
@@ -479,7 +546,7 @@ const Search = ({ isActive, onExitSearch }) => {
               <span className="search-query">{searchQuery}</span>
               <span className="cursor">|</span>
             </div>
-             <div className="category-selector">
+            <div className="category-selector">
               {searchCategories.map((category, index) => (
                 <button
                   key={category.id}
