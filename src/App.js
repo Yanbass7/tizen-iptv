@@ -52,6 +52,7 @@ function App() {
   const [onMenu, setOnMenu] = useState(false);
   const [playerData, setPlayerData] = useState(null);
   const [selectedSeriesData, setSelectedSeriesData] = useState(null);
+  const [seriesDetailsOrigin, setSeriesDetailsOrigin] = useState(null); // Para rastrear de onde veio a navegação
   const [sectionHistory, setSectionHistory] = useState([]);
   const [moviePreviewActive, setMoviePreviewActive] = useState(false);
   const [clienteData, setClienteData] = useState(null);
@@ -355,6 +356,7 @@ function App() {
     const handleShowSeriesDetails = (event) => {
       const { series } = event.detail;
       setSelectedSeriesData(series);
+      setSeriesDetailsOrigin(currentSection); // Rastrear de onde veio a navegação
       navigateToSection(SECTIONS.SERIES_DETAILS); // Usar função que rastreia histórico
     };
 
@@ -509,8 +511,14 @@ function App() {
   }, [navigateBack, navigateToSection]);
 
   const handleBackFromSeriesDetails = () => {
-    setCurrentSection(SECTIONS.SERIES);
+    // Voltar para a origem correta (pesquisa ou séries)
+    if (seriesDetailsOrigin === SECTIONS.SEARCH) {
+      setCurrentSection(SECTIONS.SEARCH);
+    } else {
+      setCurrentSection(SECTIONS.SERIES);
+    }
     setSelectedSeriesData(null);
+    setSeriesDetailsOrigin(null); // Limpar a origem
   };
 
   const renderCurrentSection = () => {
