@@ -35,7 +35,7 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
           Promise.all([
             iptvApi.getHomeMovies(),
             iptvApi.getHomeSeries(),
-            iptvApi.getHomeMovies() // Usar filmes também para clássicos por enquanto
+            iptvApi.getHomeClassics()
           ]),
           timeout
         ]);
