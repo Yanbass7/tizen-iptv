@@ -67,93 +67,38 @@ const Search = ({ isActive, onExitSearch }) => {
           break;
 
         case 'movie':
-          // Para filmes, manter a lógica atual que já funciona
-          const movieStreamUrl = buildStreamUrl('movie', item.stream_id, 'mp4');
-          const movieStreamInfo = {
-            name: item.name,
-            category: 'Filme',
-            description: item.plot || `Filme - ${item.name}`,
-            year: item.releaseDate ? new Date(item.releaseDate).getFullYear() : null,
-            rating: item.rating,
-            type: 'movie'
+          // Para filmes, abrir modal de preview (igual ao Movies.js)
+          console.log('🎬 Filme selecionado na pesquisa - abrindo preview:', item);
+
+          const movieWithCategory = {
+            ...item,
+            category_name: 'Filme'
           };
 
-          const moviePlayEvent = new CustomEvent('playContent', {
-            detail: { streamUrl: movieStreamUrl, streamInfo: movieStreamInfo }
+          // Disparar evento para abrir o modal de preview do filme
+          const moviePreviewEvent = new CustomEvent('moviePreviewActive', {
+            detail: {
+              active: true,
+              movie: movieWithCategory
+            }
           });
-          window.dispatchEvent(moviePlayEvent);
+          window.dispatchEvent(moviePreviewEvent);
           break;
 
         case 'serie':
-          // Para séries, usar a mesma lógica do Series.js - buscar episódios primeiro
-          console.log('🎬 Série selecionada na pesquisa:', item);
+          // Para séries, abrir página de detalhes (igual ao Series.js)
+          console.log('🎬 Série selecionada na pesquisa - abrindo detalhes:', item);
 
-          try {
-            // Buscar informações da série para reproduzir primeiro episódio
-            const response = await fetch(
-              `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series_info&series_id=${item.series_id}`
-            );
-            const seriesData = await response.json();
+          const seriesWithCategory = {
+            ...item,
+            category_name: 'Série'
+          };
 
-            if (seriesData.episodes && Object.keys(seriesData.episodes).length > 0) {
-              const firstSeason = Object.keys(seriesData.episodes)[0];
-              const firstEpisode = seriesData.episodes[firstSeason][0];
-
-              if (firstEpisode) {
-                // URL com .mp4 para usar com HTML5 player
-                const seriesStreamUrl = buildStreamUrl('series', firstEpisode.id || firstEpisode.stream_id, 'mp4');
-
-                const seriesStreamInfo = {
-                  name: `${item.name} - T${firstSeason}E${firstEpisode.episode_num || 1} - ${firstEpisode.title || firstEpisode.name || 'Episódio'}`,
-                  type: 'series',
-                  category: 'Série',
-                  description: firstEpisode.plot || firstEpisode.info?.plot || item.plot || 'Descrição não disponível',
-                  year: item.releasedate || item.year || 'N/A',
-                  rating: item.rating || firstEpisode.rating || 'N/A',
-                  poster: item.cover || item.stream_icon
-                };
-
-                const seriesPlayEvent = new CustomEvent('playContent', {
-                  detail: { streamUrl: seriesStreamUrl, streamInfo: seriesStreamInfo }
-                });
-                window.dispatchEvent(seriesPlayEvent);
-              } else {
-                console.error('Nenhum episódio encontrado para a série:', item.name);
-              }
-            } else {
-              console.error('Nenhuma temporada encontrada para a série:', item.name);
-
-              // Fallback: tentar reproduzir com URL genérica
-              const fallbackStreamUrl = buildStreamUrl('series', item.series_id, 'mp4');
-              const fallbackStreamInfo = {
-                name: item.name,
-                category: 'Série',
-                description: `Série - ${item.name}`,
-                type: 'series'
-              };
-
-              const fallbackPlayEvent = new CustomEvent('playContent', {
-                detail: { streamUrl: fallbackStreamUrl, streamInfo: fallbackStreamInfo }
-              });
-              window.dispatchEvent(fallbackPlayEvent);
-            }
-          } catch (error) {
-            console.error('Erro ao carregar informações da série:', error);
-
-            // Fallback: tentar reproduzir com URL genérica
-            const fallbackStreamUrl = buildStreamUrl('series', item.series_id, 'mp4');
-            const fallbackStreamInfo = {
-              name: item.name,
-              category: 'Série',
-              description: `Série - ${item.name}`,
-              type: 'series'
-            };
-
-            const fallbackPlayEvent = new CustomEvent('playContent', {
-              detail: { streamUrl: fallbackStreamUrl, streamInfo: fallbackStreamInfo }
-            });
-            window.dispatchEvent(fallbackPlayEvent);
-          }
+          // Disparar evento para navegar para a página de detalhes
+          const showDetailsEvent = new CustomEvent('showSeriesDetails', {
+            detail: { series: seriesWithCategory }
+          });
+          window.dispatchEvent(showDetailsEvent);
           break;
 
         default:
