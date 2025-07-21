@@ -79,7 +79,7 @@ const SearchPreview = ({ item, type, isActive, onBack }) => {
         setFocusedElement(prev => prev === 'play' ? 'favorite' : 'favorite');
       } else if (keyCode === 13) { // OK
         handleAction(focusedElement);
-      } else if (keyCode === 10009 || keyCode === 8) { // Voltar
+      } else if (keyCode === 10009 || keyCode === 8 || keyCode === 461) { // Voltar (Back, Backspace, ou Return)
         handleAction('back');
       }
     };
@@ -161,16 +161,10 @@ const SearchPreview = ({ item, type, isActive, onBack }) => {
                 {isFavorite ? 'Remover' : 'Favoritar'}
               </button>
             </div>
+
+
           </div>
         </div>
-
-        {/* Botão de fechar */}
-        <button 
-          className="search-preview-close"
-          onClick={() => handleAction('back')}
-        >
-          <i className="fas fa-times"></i>
-        </button>
       </div>
     </div>
   );
