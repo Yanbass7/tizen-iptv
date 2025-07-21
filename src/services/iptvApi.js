@@ -62,7 +62,63 @@ export const iptvApi = {
   getSeries: (categoryId) => fetchApiData(buildApiUrl('get_series', categoryId)),
   getLiveStreams: (categoryId) => fetchApiData(buildApiUrl('get_live_streams', categoryId)),
   
-  // Conteúdo específico (home)
+  // Conteúdo específico (home) - usando categorias dinâmicas
+  getHomeMovies: async () => {
+    try {
+      // Primeiro, buscar categorias de filmes
+      const categoriesResponse = await fetchApiData(API_ENDPOINTS.vodCategories());
+      if (categoriesResponse && categoriesResponse.length > 0) {
+        // Pegar a primeira categoria disponível
+        const firstCategory = categoriesResponse[0];
+        console.log('Carregando filmes da categoria:', firstCategory.category_name);
+        return fetchApiData(buildApiUrl('get_vod_streams', firstCategory.category_id));
+      }
+      return [];
+    } catch (error) {
+      console.error('Erro ao carregar filmes para home:', error);
+      return [];
+    }
+  },
+  
+  getHomeSeries: async () => {
+    try {
+      // Primeiro, buscar categorias de séries
+      const categoriesResponse = await fetchApiData(API_ENDPOINTS.seriesCategories());
+      if (categoriesResponse && categoriesResponse.length > 0) {
+        // Pegar a primeira categoria disponível
+        const firstCategory = categoriesResponse[0];
+        console.log('Carregando séries da categoria:', firstCategory.category_name);
+        return fetchApiData(buildApiUrl('get_series', firstCategory.category_id));
+      }
+      return [];
+    } catch (error) {
+      console.error('Erro ao carregar séries para home:', error);
+      return [];
+    }
+  },
+  
+  getHomeClassics: async () => {
+    try {
+      // Buscar categorias de filmes e pegar uma categoria diferente para clássicos
+      const categoriesResponse = await fetchApiData(API_ENDPOINTS.vodCategories());
+      if (categoriesResponse && categoriesResponse.length > 1) {
+        // Pegar a segunda categoria disponível para ter variedade
+        const secondCategory = categoriesResponse[1];
+        console.log('Carregando clássicos da categoria:', secondCategory.category_name);
+        return fetchApiData(buildApiUrl('get_vod_streams', secondCategory.category_id));
+      } else if (categoriesResponse && categoriesResponse.length > 0) {
+        // Se só houver uma categoria, usar ela mesmo
+        const firstCategory = categoriesResponse[0];
+        return fetchApiData(buildApiUrl('get_vod_streams', firstCategory.category_id));
+      }
+      return [];
+    } catch (error) {
+      console.error('Erro ao carregar clássicos para home:', error);
+      return [];
+    }
+  },
+  
+  // Manter funções antigas para compatibilidade (mas usar as novas)
   getLancamentos: () => fetchApiData(API_ENDPOINTS.lancamentos()),
   getTelenovelas: () => fetchApiData(API_ENDPOINTS.telenovelas()),
   getClassicos: () => fetchApiData(API_ENDPOINTS.classicos()),

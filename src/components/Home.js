@@ -31,30 +31,30 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
           setTimeout(() => reject(new Error('Timeout na requisição')), 10000)
         );
         
-        const [lancamentosData, telenovelaData, classicosData] = await Promise.race([
+        const [moviesData, seriesData, classicosData] = await Promise.race([
           Promise.all([
-            iptvApi.getLancamentos(),
-            iptvApi.getTelenovelas(),
-            iptvApi.getClassicos()
+            iptvApi.getHomeMovies(),
+            iptvApi.getHomeSeries(),
+            iptvApi.getHomeMovies() // Usar filmes também para clássicos por enquanto
           ]),
           timeout
         ]);
 
         // Limitar a 10 itens por prateleira para navegação correta
-        const lancamentosFiltered = Array.isArray(lancamentosData) ? lancamentosData.slice(0, 10) : [];
-        const telenovelaFiltered = Array.isArray(telenovelaData) ? telenovelaData.slice(0, 10) : [];
-        const classicosFiltered = Array.isArray(classicosData) ? classicosData.slice(0, 10) : [];
+        const moviesFiltered = Array.isArray(moviesData) ? moviesData.slice(0, 10) : [];
+        const seriesFiltered = Array.isArray(seriesData) ? seriesData.slice(0, 10) : [];
+        const classicosFiltered = Array.isArray(classicosData) ? classicosData.slice(10, 20) : []; // Pegar itens diferentes para clássicos
         
-        setLancamentos(lancamentosFiltered);
-        setTelenovelas(telenovelaFiltered);
+        setLancamentos(moviesFiltered);
+        setTelenovelas(seriesFiltered);
         setClassicos(classicosFiltered);
         
-        // Definir conteúdo em destaque (primeiro item dos lançamentos ou qualquer disponível)
-        const featured = lancamentosFiltered[0] || telenovelaFiltered[0] || classicosFiltered[0];
+        // Definir conteúdo em destaque (primeiro item dos filmes ou séries disponíveis)
+        const featured = moviesFiltered[0] || seriesFiltered[0] || classicosFiltered[0];
         if (featured) {
           setFeaturedContent({
             ...featured,
-            type: lancamentosFiltered[0] ? 'movie' : telenovelaFiltered[0] ? 'series' : 'movie'
+            type: moviesFiltered[0] ? 'movie' : seriesFiltered[0] ? 'series' : 'movie'
           });
         }
         
@@ -173,23 +173,41 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus }) => {
   };
 
   const handleItemClick = (item, type) => {
-    console.log('Item selecionado:', item, 'Tipo:', type);
+    console.log('Item selecionado na Home:', item, 'Tipo:', type);
     
-    // Disparar evento customizado para o App.js processar
-    const playEvent = new CustomEvent('playContent', {
-      detail: {
-        streamUrl: type === 'series' 
-          ? buildStreamUrl('series', item.series_id, 'mp4')
-          : buildStreamUrl('movie', item.stream_id, 'mp4'),
-        streamInfo: {
-          name: item.name,
-          type: type,
-          poster: item.stream_icon || item.cover,
-          ...item
+    if (type === 'movie') {
+      // Para filmes, disparar evento para abrir modal de preview
+      console.log('🎬 Filme selecionado na Home - abrindo preview:', item);
+      
+      const movieWithCategory = {
+        ...item,
+        category_name: 'Filme'
+      };
+      
+      // Disparar evento para abrir o modal de preview do filme
+      const moviePreviewEvent = new CustomEvent('moviePreviewActive', {
+        detail: { 
+          active: true,
+          movie: movieWithCategory
         }
-      }
-    });
-    window.dispatchEvent(playEvent);
+      });
+      window.dispatchEvent(moviePreviewEvent);
+      
+    } else if (type === 'series') {
+      // Para séries, disparar evento para abrir página de detalhes
+      console.log('🎬 Série selecionada na Home - abrindo detalhes:', item);
+      
+      const seriesWithCategory = {
+        ...item,
+        category_name: 'Série'
+      };
+      
+      // Disparar evento para navegar para a página de detalhes
+      const showDetailsEvent = new CustomEvent('showSeriesDetails', {
+        detail: { series: seriesWithCategory }
+      });
+      window.dispatchEvent(showDetailsEvent);
+    }
   };
 
   const handleFeaturedPlay = () => {
