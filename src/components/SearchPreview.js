@@ -31,15 +31,6 @@ const SearchPreview = ({ item, type, isActive, onBack }) => {
             rating: item.rating,
             poster: item.stream_icon || item.cover
           };
-        } else if (type === 'channel') {
-          streamUrl = buildStreamUrl('live', item.stream_id, 'ts');
-          streamInfo = {
-            name: item.name,
-            type: 'live',
-            category: 'Canal',
-            description: `Canal ao vivo - ${item.name}`,
-            logo: item.stream_icon
-          };
         }
 
         const playEvent = new CustomEvent('playContent', {
@@ -107,7 +98,7 @@ const SearchPreview = ({ item, type, isActive, onBack }) => {
   if (!isActive || !item) return null;
 
   // Determinar o tipo de conteúdo para exibição
-  const contentType = type === 'movie' ? 'Filme' : type === 'channel' ? 'Canal' : 'Conteúdo';
+  const contentType = type === 'movie' ? 'Filme' : 'Conteúdo';
   const year = item.releaseDate ? new Date(item.releaseDate).getFullYear() : item.year || item.releasedate || 'N/A';
   const rating = item.rating || 'N/A';
   const description = item.plot || item.description || `${contentType} - ${item.name}`;
@@ -150,7 +141,7 @@ const SearchPreview = ({ item, type, isActive, onBack }) => {
                 onClick={() => handleAction('play')}
               >
                 <i className="fas fa-play"></i>
-                {type === 'channel' ? 'Assistir' : 'Reproduzir'}
+                Reproduzir
               </button>
               
               <button 

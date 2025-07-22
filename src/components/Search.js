@@ -56,12 +56,24 @@ const Search = ({ isActive, onExitSearch }) => {
     try {
       switch (type) {
         case 'channel':
-          // Para canais, abrir modal de preview personalizado
-          console.log('📺 Canal selecionado na pesquisa - abrindo preview:', item);
-          setPreviewItem(item);
-          setPreviewType(type);
-          setShowPreview(true);
-          setActiveSection('preview'); // Mudar foco para o modal
+          // Para canais, reproduzir diretamente sem modal
+          console.log('📺 Canal selecionado na pesquisa - reproduzindo diretamente:', item);
+
+          const streamUrl = buildStreamUrl('live', item.stream_id, 'ts');
+          const streamInfo = {
+            name: item.name,
+            type: 'live',
+            category: 'Canal',
+            description: `Canal ao vivo - ${item.name}`,
+            logo: item.stream_icon
+          };
+
+          const playEvent = new CustomEvent('playContent', {
+            detail: { streamUrl, streamInfo }
+          });
+
+          console.log('📺 Disparando evento playContent para canal da pesquisa...');
+          window.dispatchEvent(playEvent);
           break;
 
         case 'movie':
