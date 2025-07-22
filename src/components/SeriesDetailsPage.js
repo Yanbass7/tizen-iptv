@@ -165,10 +165,14 @@ const SeriesDetailsPage = ({ series, isActive, onBack }) => {
       const data = await response.json();
       
       if (data.seasons) {
-        setSeasons(data.seasons);
+        // Filtrar para remover a temporada 0
+        const filteredSeasons = data.seasons.filter(season => season.season_number !== 0);
+        const sortedSeasons = filteredSeasons.sort((a, b) => a.season_number - b.season_number);
         
-        if (data.seasons.length > 0) {
-          const firstSeason = data.seasons[0].season_number;
+        setSeasons(sortedSeasons);
+        
+        if (sortedSeasons.length > 0) {
+          const firstSeason = sortedSeasons[0].season_number;
           setSelectedSeason(firstSeason);
           
           if (data.episodes && data.episodes[firstSeason]) {
