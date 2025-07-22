@@ -89,7 +89,6 @@ img {
   display: -ms-flexbox;
   display: flex;
 
-  gap: 30px;
   height: 100%;
   padding: 20px;
 
@@ -101,6 +100,10 @@ img {
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
   backface-visibility: hidden;
+}
+
+.search-layout>*+* {
+  margin-left: 30px;
 }
 
 /* Área do teclado virtual - Otimizada */
@@ -125,11 +128,17 @@ img {
   -ms-flex-direction: column;
   flex-direction: column;
 
-  gap: 20px;
-
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+}
+
+.search-input-area>*+* {
+  margin-top: 20px;
+}
+
+.search-input-area>* {
+  margin-bottom: 10px;
 }
 
 .search-header h2 {
@@ -151,11 +160,17 @@ img {
   -ms-flex-align: center;
   align-items: center;
 
-  gap: 10px;
-
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.search-header h2>*+* {
+  margin-left: 10px;
+}
+
+.search-header h2>* {
+  margin-bottom: 5px;
 }
 
 .search-input-display {
@@ -193,8 +208,15 @@ img {
 /* Estilos para o seletor de categoria */
 .category-selector {
   display: flex;
-  gap: 10px;
   margin-top: 15px;
+}
+
+.category-selector>*+* {
+  margin-left: 10px;
+}
+
+.category-selector>* {
+  margin-bottom: 5px;
 }
 
 .category-button {
@@ -684,8 +706,8 @@ img {
 
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 colunas fixas igual aos outros componentes */
-  gap: 15px;
+  grid-template-columns: repeat(5, 1fr);
+  /* 5 colunas fixas igual aos outros componentes */
   width: 100%;
 
   /* GPU acceleration */
@@ -698,16 +720,24 @@ img {
   backface-visibility: hidden;
 }
 
+.results-grid>* {
+  margin: 7.5px;
+  margin-bottom: 15px;
+}
+
 /* Items dos resultados - Performance otimizada */
 .search-result-item {
-  aspect-ratio: 2/3; /* Proporção igual aos filmes */
+  aspect-ratio: 2/3;
+  /* Proporção igual aos filmes */
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
   position: relative;
-  width: 100%; /* Usar 100% da célula do grid */
-  margin: 0; /* Remover margens pois o grid já controla o espaçamento */
+  width: 100%;
+  /* Usar 100% da célula do grid */
+  margin: 0;
+  /* Remover margens pois o grid já controla o espaçamento */
 
   /* Fallback para gradiente */
   background: #2a2a2a;
@@ -789,7 +819,7 @@ img {
   font-weight: bold;
   text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9);
   line-height: 1.2;
-  
+
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -821,15 +851,18 @@ img {
 
 /* Tipos específicos de resultado - cores iguais aos outros componentes */
 .channel-result .result-type-badge {
-  background: rgba(0, 123, 255, 0.9); /* Azul para canais */
+  background: rgba(0, 123, 255, 0.9);
+  /* Azul para canais */
 }
 
 .movie-result .result-type-badge {
-  background: rgba(220, 53, 69, 0.9); /* Vermelho para filmes */
+  background: rgba(220, 53, 69, 0.9);
+  /* Vermelho para filmes */
 }
 
 .serie-result .result-type-badge {
-  background: rgba(40, 167, 69, 0.9); /* Verde para séries */
+  background: rgba(40, 167, 69, 0.9);
+  /* Verde para séries */
 }
 
 /* ==========================================================================
@@ -844,8 +877,15 @@ img {
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
+  }
 
-    gap: 20px;
+  .search-layout>*+* {
+    margin-left: 0;
+    margin-top: 20px;
+  }
+
+  .search-layout>* {
+    margin-bottom: 10px;
   }
 
   .search-input-area {
@@ -859,7 +899,11 @@ img {
 
   .results-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
+  }
+
+  .results-grid>* {
+    margin: 6px;
+    margin-bottom: 12px;
   }
 
   .search-result-item {
@@ -876,8 +920,12 @@ img {
 }
 
 @media (max-width: 800px) {
-  .keyboard-row {
-    gap: 6px;
+  .keyboard-row>*+* {
+    margin-left: 6px;
+  }
+
+  .keyboard-row>* {
+    margin-bottom: 3px;
   }
 
   .keyboard-key {
@@ -894,7 +942,11 @@ img {
 
   .results-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
+  }
+
+  .results-grid>* {
+    margin: 5px;
+    margin-bottom: 10px;
   }
 
   .search-result-item {
@@ -930,6 +982,11 @@ img {
 
   .results-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .results-grid>* {
+    margin: 4px;
+    margin-bottom: 8px;
   }
 
   .search-result-item {
