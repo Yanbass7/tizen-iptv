@@ -176,7 +176,14 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
         >
           {loading ? 'Entrando...' : 'Continuar'}
         </button>
-
+        <button
+          ref={el => (focusableElements.current[3] = el)}
+          id="signupButton"
+          className="signup-btn"
+          onClick={onGoToSignup}
+        >
+          Criar Nova Conta
+        </button>
 
       </div>
     </div>

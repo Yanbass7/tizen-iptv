@@ -94,6 +94,14 @@
   text-align: center;
 }
 
+.website-access-text {
+  color: white;
+  font-size: 1.2em;
+  margin-top: 10px;
+  margin-bottom: 20px; /* Adicionado */
+  text-align: center;
+}
+
 #continueButton {
   background-color: #FF8C00;
   color: white;

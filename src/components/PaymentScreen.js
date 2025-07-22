@@ -41,6 +41,7 @@ const PaymentScreen = ({ onPaymentComplete, isActive }) => {
           {/* QR Code será inserido aqui */}
           <p>QR Code Area</p>
         </div>
+        <p className="website-access-text">ou acesse o site exemplo site</p>
         <button
           ref={payButtonRef}
           id="continueButton"
