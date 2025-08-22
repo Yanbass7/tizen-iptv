@@ -67,6 +67,10 @@ export function buildStreamUrl(type, streamId, format = 'mp4') {
     case 'series':
       return `https://${host}/series/${username}/${password}/${streamId}.${format}`;
     case 'live':
+      // Permitir alternar entre TS e M3U8 para compatibilidade de players
+      if (format === 'm3u8') {
+        return `https://${host}/live/${username}/${password}/${streamId}.m3u8`;
+      }
       return `https://${host}/live/${username}/${password}/${streamId}.ts`;
     default:
       return `https://${host}/${username}/${password}/${streamId}`;

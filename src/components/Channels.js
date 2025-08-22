@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Hls from 'hls.js';
 import PasswordModal from './PasswordModal';
 import AlertPopup from './AlertPopup';
 import { iptvApi } from '../services/iptvApi';
@@ -13,6 +14,7 @@ const Channels = ({ isActive }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(false);
   const [channelsLoading, setChannelsLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState('');
 
   // Estados de navegação
   const [focusArea, setFocusArea] = useState('categories'); // 'categories' ou 'channels'
@@ -31,11 +33,14 @@ const Channels = ({ isActive }) => {
   const [epgLoading, setEpgLoading] = useState(false);
   const [epgLoadedAt, setEpgLoadedAt] = useState(null);
 
-  // Estados de paginação (corrigidos para ficar igual ao Series.js)
+  // Estados de paginação (dinâmicos conforme layout)
   const [currentPage, setCurrentPage] = useState(0);
-  const ITEMS_PER_PAGE = 15; // 5 colunas x 3 linhas
-  const GRID_COLUMNS = 5;
-  const GRID_ROWS = 3;
+
+  // Layout dinâmico: lista para canais ao vivo, grid para filmes demo
+  const isMoviesDemoCategory = isDemoMode() && selectedCategory === '25';
+  const GRID_COLUMNS = isMoviesDemoCategory ? 5 : 1;
+  const GRID_ROWS = isMoviesDemoCategory ? 3 : 15; // 15 linhas por página na lista
+  const ITEMS_PER_PAGE = GRID_COLUMNS * GRID_ROWS;
 
   // Ref para restaurar estado ao voltar de player
   const restoreStateRef = useRef(null);
@@ -44,13 +49,15 @@ const Channels = ({ isActive }) => {
   const categoriesRef = useRef([]);
   const channelsRef = useRef([]);
   const containerRef = useRef(null);
+  const previewVideoRef = useRef(null);
+  const previewHlsRef = useRef(null);
 
   // Verificar se está em modo demo (email Samsung)
-  const isDemoMode = () => {
+  function isDemoMode() {
     const testMode = localStorage.getItem('testMode');
     const authEmail = localStorage.getItem('authEmail');
     return testMode === 'true' && authEmail === 'samsungtest1@samsung.com';
-  };
+  }
 
   // Converter filmes demo em formato de canais
   const getMoviesAsChannels = () => {
@@ -378,6 +385,68 @@ const Channels = ({ isActive }) => {
     }
   }, [isActive, loadLiveCategories, loadSavedChannelsState, loadEpg]);
 
+  // Seleciona a URL de preview (primeiro canal) quando abre canais
+  useEffect(() => {
+    if (!isActive) return;
+    if (currentPageChannels.length > 0) {
+      const first = currentPageChannels[0];
+      const url = isDemoMode() ? (first.stream_url || first.url || '') : buildStreamUrl('live', first.stream_id, 'm3u8');
+      if (url && url !== previewUrl) {
+        setPreviewUrl(url);
+      }
+    }
+  }, [isActive, currentPageChannels, previewUrl]);
+
+  // Inicializa o vídeo de preview fixo em background
+  useEffect(() => {
+    if (!isActive) return;
+    const video = previewVideoRef.current;
+    if (!video || !previewUrl) return;
+
+    // Limpar instância antiga
+    if (previewHlsRef.current) {
+      try { previewHlsRef.current.destroy(); } catch (_) {}
+      previewHlsRef.current = null;
+    }
+
+    try {
+      const isM3u8 = typeof previewUrl === 'string' && previewUrl.includes('.m3u8');
+      if (isM3u8 && Hls.isSupported()) {
+        const hls = new Hls({ lowLatencyMode: true });
+        previewHlsRef.current = hls;
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+          hls.loadSource(previewUrl);
+        });
+      } else {
+        video.src = previewUrl;
+        video.load();
+      }
+
+      // Iniciar silencioso para autoplay
+      video.muted = true;
+      video.playsInline = true;
+      const p = video.play();
+      if (p && typeof p.then === 'function') p.catch(() => {});
+    } catch (e) {
+      console.warn('Falha ao iniciar preview de canais:', e);
+    }
+
+    return () => {
+      if (previewHlsRef.current) {
+        try { previewHlsRef.current.destroy(); } catch (_) {}
+        previewHlsRef.current = null;
+      }
+      if (video) {
+        try {
+          video.pause();
+          video.removeAttribute('src');
+          video.load();
+        } catch (_) {}
+      }
+    };
+  }, [isActive, previewUrl]);
+
   // Efeito para auto-scroll baseado no foco
   useEffect(() => {
     // Limpar focos anteriores
@@ -425,19 +494,27 @@ const Channels = ({ isActive }) => {
     }
   }, [categories, categoryFocus, channels.length, loadLiveChannels]);
 
-  // Função de navegação dos canais (corrigida para ficar igual ao Series.js)
+  // Função de navegação dos canais (lista para ao vivo; grid para demo filmes)
   const handleChannelsNavigationInternal = useCallback((keyCode) => {
     const currentPageChannelsCount = currentPageChannels.length;
 
     if (keyCode === 38) { // Cima
-      const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
-
-      if (currentRow > 0) {
-        const newFocus = Math.max(0, channelFocus - GRID_COLUMNS);
-        setChannelFocus(newFocus);
+      if (GRID_COLUMNS === 1) {
+        // Lista
+        if (channelFocus > 0) {
+          setChannelFocus(channelFocus - 1);
+        } else if (currentPage > 0) {
+          setCurrentPage(currentPage - 1);
+          const lastPageCount = channels.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).length;
+          setChannelFocus(Math.max(0, lastPageCount - 1));
+        }
       } else {
-        // Se estiver na primeira linha e houver página anterior
-        if (currentPage > 0) {
+        // Grid (demo filmes)
+        const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
+        if (currentRow > 0) {
+          const newFocus = Math.max(0, channelFocus - GRID_COLUMNS);
+          setChannelFocus(newFocus);
+        } else if (currentPage > 0) {
           setCurrentPage(currentPage - 1);
           const currentCol = channelFocus % GRID_COLUMNS;
           const newFocusAttempt = (GRID_ROWS - 1) * GRID_COLUMNS + currentCol;
@@ -447,48 +524,70 @@ const Channels = ({ isActive }) => {
         }
       }
     } else if (keyCode === 40) { // Baixo
-      const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
-      const maxRow = Math.floor((currentPageChannelsCount - 1) / GRID_COLUMNS);
-
-      if (currentRow < maxRow) {
-        const newFocus = Math.min(currentPageChannelsCount - 1, channelFocus + GRID_COLUMNS);
-        setChannelFocus(newFocus);
-      } else {
-        // Se estiver na última linha e houver próxima página
-        if (currentPage < totalPages - 1) {
+      if (GRID_COLUMNS === 1) {
+        // Lista
+        if (channelFocus < currentPageChannelsCount - 1) {
+          setChannelFocus(channelFocus + 1);
+        } else if (currentPage < totalPages - 1) {
           setCurrentPage(currentPage + 1);
-          setChannelFocus(channelFocus % GRID_COLUMNS); // Manter coluna, ir para primeira linha da próxima página
+          setChannelFocus(0);
+        }
+      } else {
+        // Grid (demo filmes)
+        const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
+        const maxRow = Math.floor((currentPageChannelsCount - 1) / GRID_COLUMNS);
+        if (currentRow < maxRow) {
+          const newFocus = Math.min(currentPageChannelsCount - 1, channelFocus + GRID_COLUMNS);
+          setChannelFocus(newFocus);
+        } else if (currentPage < totalPages - 1) {
+          setCurrentPage(currentPage + 1);
+          setChannelFocus(channelFocus % GRID_COLUMNS);
         }
       }
     } else if (keyCode === 37) { // Esquerda
-      const currentCol = channelFocus % GRID_COLUMNS;
-
-      if (currentCol > 0) {
-        setChannelFocus(channelFocus - 1);
+      if (GRID_COLUMNS === 1) {
+        // Lista: voltar para categorias se estiver no início
+        if (channelFocus === 0) {
+          setFocusArea('categories');
+          const selectedIndex = categories.findIndex(cat => cat.category_id === selectedCategory);
+          setCategoryFocus(selectedIndex >= 0 ? selectedIndex : 0);
+        } else {
+          setChannelFocus(Math.max(0, channelFocus - 1));
+        }
       } else {
-        // Se estiver na primeira coluna, voltar para categorias
-        setFocusArea('categories');
-        const selectedIndex = categories.findIndex(cat => cat.category_id === selectedCategory);
-        setCategoryFocus(selectedIndex >= 0 ? selectedIndex : 0);
+        // Grid
+        const currentCol = channelFocus % GRID_COLUMNS;
+        if (currentCol > 0) {
+          setChannelFocus(channelFocus - 1);
+        } else {
+          setFocusArea('categories');
+          const selectedIndex = categories.findIndex(cat => cat.category_id === selectedCategory);
+          setCategoryFocus(selectedIndex >= 0 ? selectedIndex : 0);
+        }
       }
     } else if (keyCode === 39) { // Direita
-      const currentCol = channelFocus % GRID_COLUMNS;
-
-      if (currentCol < GRID_COLUMNS - 1 && channelFocus < currentPageChannelsCount - 1) {
-        // Mover para próximo item na mesma linha
-        setChannelFocus(channelFocus + 1);
-      } else if (currentCol === GRID_COLUMNS - 1) {
-        // Estamos na última coluna
-        const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
-        const maxRow = Math.floor((currentPageChannelsCount - 1) / GRID_COLUMNS);
-
-        if (currentRow < maxRow) {
-          // Há linha abaixo na mesma página → descer para primeira coluna da próxima linha
-          setChannelFocus((currentRow + 1) * GRID_COLUMNS);
+      if (GRID_COLUMNS === 1) {
+        // Lista
+        if (channelFocus < currentPageChannelsCount - 1) {
+          setChannelFocus(channelFocus + 1);
         } else if (currentPage < totalPages - 1) {
-          // Última linha da página → mudar página
           setCurrentPage(currentPage + 1);
-          setChannelFocus(0); // Ir para primeiro item da nova página
+          setChannelFocus(0);
+        }
+      } else {
+        // Grid
+        const currentCol = channelFocus % GRID_COLUMNS;
+        if (currentCol < GRID_COLUMNS - 1 && channelFocus < currentPageChannelsCount - 1) {
+          setChannelFocus(channelFocus + 1);
+        } else if (currentCol === GRID_COLUMNS - 1) {
+          const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
+          const maxRow = Math.floor((currentPageChannelsCount - 1) / GRID_COLUMNS);
+          if (currentRow < maxRow) {
+            setChannelFocus((currentRow + 1) * GRID_COLUMNS);
+          } else if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+            setChannelFocus(0);
+          }
         }
       }
     } else if (keyCode === 13) { // OK - selecionar canal
@@ -654,6 +753,15 @@ const Channels = ({ isActive }) => {
 
   return (
     <div className="channels-page" ref={containerRef}>
+      {/* Vídeo de preview em background para efeito de transparência */}
+      <video
+        ref={previewVideoRef}
+        className="channels-preview-video"
+        muted
+        playsInline
+        autoPlay
+        loop
+      />
       {alertMessage && <AlertPopup message={alertMessage} onClose={() => setAlertMessage(null)} />}
       {isPasswordModalOpen && (
         <PasswordModal
@@ -699,35 +807,69 @@ const Channels = ({ isActive }) => {
                   </span>
                 </div>
               )}
-              <div className="channels-grid">
-                {currentPageChannels.map((channel, index) => (
-                  <div
-                    key={channel.stream_id}
-                    ref={el => channelsRef.current[index] = el}
-                    className="channel"
-                  >
-                    <div className="channel-poster">
-                      {channel.stream_icon && (
-                        <img
-                          src={channel.stream_icon}
-                          alt={channel.name}
-                          onError={handleImageError}
-                        />
-                      )}
-                      <div className="channel-overlay">
-                        <h3 className="channel-card-title">{channel.name}</h3>
-                        {(() => {
-                          const epgId = channel.epg_channel_id || channel.epg_channel || channel.tvg_id;
-                          const info = getCurrentAndNextFromIndex(epgIndex, epgId);
-                          return info.currentProgram ? (
-                            <p className="channel-epg-now">{info.currentProgram.title} • {info.currentProgram.startTime}</p>
-                          ) : null;
-                        })()}
+              {isMoviesDemoCategory ? (
+                <div className="channels-grid">
+                  {currentPageChannels.map((channel, index) => (
+                    <div
+                      key={channel.stream_id}
+                      ref={el => channelsRef.current[index] = el}
+                      className="channel"
+                    >
+                      <div className="channel-poster">
+                        {channel.stream_icon && (
+                          <img
+                            src={channel.stream_icon}
+                            alt={channel.name}
+                            onError={handleImageError}
+                          />
+                        )}
+                        <div className="channel-overlay">
+                          <h3 className="channel-card-title">{channel.name}</h3>
+                          {(() => {
+                            const epgId = channel.epg_channel_id || channel.epg_channel || channel.tvg_id;
+                            const info = getCurrentAndNextFromIndex(epgIndex, epgId);
+                            return info.currentProgram ? (
+                              <p className="channel-epg-now">{info.currentProgram.title} • {info.currentProgram.startTime}</p>
+                            ) : null;
+                          })()}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="channels-list">
+                  {currentPageChannels.map((channel, index) => {
+                    const channelNumber = channel.num != null
+                      ? String(channel.num).padStart(3, '0')
+                      : '';
+                    const epgId = channel.epg_channel_id || channel.epg_channel || channel.tvg_id;
+                    const info = getCurrentAndNextFromIndex(epgIndex, epgId);
+                    return (
+                      <div
+                        key={channel.stream_id}
+                        ref={el => channelsRef.current[index] = el}
+                        className="channel-row"
+                        onClick={() => handleChannelSelect(channel)}
+                      >
+                        <span className="channel-number">{channelNumber}</span>
+                        {channel.stream_icon && (
+                          <img
+                            className="channel-logo"
+                            src={channel.stream_icon}
+                            alt={channel.name}
+                            onError={handleImageError}
+                          />
+                        )}
+                        <span className="channel-name">{channel.name}</span>
+                        {info.currentProgram && (
+                          <span className="channel-epg">{info.currentProgram.title} • {info.currentProgram.startTime}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </>
           )}
         </div>
