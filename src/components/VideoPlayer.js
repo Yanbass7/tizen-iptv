@@ -1,4 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import Hls from 'hls.js';
+import mpegts from 'mpegts.js';
 import criarUrlProxyStream from '../utils/streamProxy';
 import { buildStreamUrl } from '../config/apiConfig';
 import { watchProgressService } from '../services/watchProgressService';
@@ -9,6 +11,8 @@ import './VideoPlayer.css';
 const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
+  const hlsRef = useRef(null);
+  const mpegtsRef = useRef(null);
 
   const initializingRef = useRef(false);
   const errorTimeoutRef = useRef(null);
@@ -259,9 +263,18 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     }
   };
 
-  // Player customizado - usando apenas HTML5 nativo
+  // Seleciona player conforme tipo e URL
   const detectPlayerType = (url, info) => {
-    console.log("🎯 Usando player HTML5 customizado");
+    if (info?.type === 'live') {
+      if (typeof url === 'string' && url.endsWith('.m3u8')) {
+        if (Hls.isSupported()) return 'hls';
+        return 'html5-hls';
+      }
+      if (typeof url === 'string' && url.endsWith('.ts')) {
+        if (mpegts.isSupported()) return 'mpegts';
+        return 'html5-custom';
+      }
+    }
     return 'html5-custom';
   };
 
@@ -354,8 +367,15 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
       const videoElement = videoRef.current;
 
       try {
-        console.log('🎯 Usando player HTML5 customizado');
-        await initCustomHtml5Player(streamUrl, videoElement);
+        if (type === 'hls') {
+          await initHlsPlayer(streamUrl, videoElement);
+        } else if (type === 'html5-hls') {
+          await initCustomHtml5Player(streamUrl, videoElement);
+        } else if (type === 'mpegts') {
+          await initMpegtsPlayer(streamUrl, videoElement);
+        } else {
+          await initCustomHtml5Player(streamUrl, videoElement);
+        }
 
       } catch (err) {
         console.error('💥 Erro ao criar player:', err);
@@ -577,7 +597,8 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
             }
           }
           // Último fallback: tentar inferir dados da série ou filme se ainda não foi restaurado
-          else if (!restored) {
+          // Não aplicar para canais ao vivo
+          else if (!restored && streamInfo?.type !== 'live') {
             console.log('🔄 Tentando inferir dados como último fallback');
             
             // Tentar série primeiro
@@ -687,10 +708,106 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
     });
   };
 
+  // Player HLS (.m3u8) com hls.js, com fallback nativo
+  const initHlsPlayer = async (url, videoElement) => {
+    return new Promise((resolve, reject) => {
+      try {
+        // Limpar Hls antigo
+        if (hlsRef.current) {
+          try { hlsRef.current.destroy(); } catch (_) {}
+          hlsRef.current = null;
+        }
+
+        if (Hls.isSupported()) {
+          const hls = new Hls({
+            lowLatencyMode: true,
+            fragLoadingTimeOut: 15000,
+            manifestLoadingTimeOut: 15000,
+            liveSyncDuration: 2,
+            maxLiveSyncPlaybackRate: 1.5
+          });
+          hlsRef.current = hls;
+          hls.attachMedia(videoElement);
+          hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+            setLoadingProgress(30);
+            hls.loadSource(url);
+          });
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            setLoadingProgress(70);
+            setTimeout(() => safePlay(), 50);
+          });
+          hls.on(Hls.Events.ERROR, (event, data) => {
+            console.error('❌ hls.js error:', data);
+            if (data?.fatal) {
+              try { hls.destroy(); } catch (_) {}
+              hlsRef.current = null;
+              reject(new Error(`HLS fatal: ${data?.type || 'unknown'}`));
+            }
+          });
+          resolve();
+        } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+          // Playback HLS nativo
+          videoElement.src = url;
+          videoElement.load();
+          setTimeout(() => safePlay(), 100);
+          resolve();
+        } else {
+          reject(new Error('Ambiente sem suporte a HLS'));
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
+  // Player MPEG-TS (.ts) com mpegts.js (transmux para MSE)
+  const initMpegtsPlayer = async (url, videoElement) => {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!mpegts.isSupported()) {
+          reject(new Error('Ambiente sem suporte a MPEG-TS (MSE)'));
+          return;
+        }
+        // Limpar instância anterior
+        if (mpegtsRef.current) {
+          try { mpegtsRef.current.destroy(); } catch (_) {}
+          mpegtsRef.current = null;
+        }
+
+        const player = mpegts.createPlayer({
+          type: 'mpegts',
+          isLive: true,
+          url
+        }, {
+          enableStashBuffer: true,
+          stashInitialSize: 128
+        });
+        mpegtsRef.current = player;
+        playerRef.current = player;
+        player.attachMediaElement(videoElement);
+        player.load();
+        setTimeout(() => safePlay(), 100);
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
   // Função para limpar player HTML5 customizado
   const cleanupPlayer = useCallback(() => {
     clearTimeouts();
     cleanupBlobUrls();
+
+    // Destruir players de terceiros
+    if (hlsRef.current) {
+      try { hlsRef.current.destroy(); } catch (_) {}
+      hlsRef.current = null;
+    }
+    if (mpegtsRef.current) {
+      try { mpegtsRef.current.destroy(); } catch (_) {}
+      mpegtsRef.current = null;
+    }
 
     // Limpar elemento video HTML5
     if (videoRef.current) {
