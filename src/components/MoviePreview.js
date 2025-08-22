@@ -12,13 +12,18 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
   const handleAction = useCallback((action) => {
+    console.log('🎬 MoviePreview - Ação executada:', action);
+
     switch (action) {
       case 'play':
         console.log('🎬 Reproduzindo filme:', movie);
         console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
-        
-        // Construir a URL de stream correta para filmes
-        const streamUrl = buildStreamUrl('movie', movie.stream_id, 'mp4');
+
+        // Construir a URL de stream correta para filmes (usar stream_url no modo teste)
+        const isTestMode = localStorage.getItem('testMode') === 'true';
+        const streamUrl = isTestMode && movie.stream_url
+          ? movie.stream_url
+          : buildStreamUrl('movie', movie.stream_id, 'mp4');
 
         // Simplificado para despachar o evento de forma síncrona e direta.
         // O setTimeout e a lógica de branch do Tizen foram removidos para evitar congelamento.
@@ -40,20 +45,26 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
         console.log('📺 Disparando evento playContent para filme...');
         window.dispatchEvent(playEvent);
         break;
-      
+
       case 'favorite':
         toggleFavorite();
         break;
-      
+
+      case 'back':
+        console.log('🎬 MoviePreview - Fechando modal de preview');
+        onBack();
+        break;
+
       default:
+        console.log('🎬 MoviePreview - Ação não reconhecida:', action);
         break;
     }
-  }, [movie, isTizenTV, isDevelopment]);
+  }, [movie, isTizenTV, isDevelopment, onBack]);
 
   const toggleFavorite = useCallback(() => {
     const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
     const movieKey = `movie_${movie.stream_id}`;
-    
+
     if (favorites[movieKey]) {
       delete favorites[movieKey];
       setIsFavorite(false);
@@ -65,7 +76,7 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
       };
       setIsFavorite(true);
     }
-    
+
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [movie]);
 
@@ -87,7 +98,7 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
     // Reset do estado quando a página fica ativa
     setFocusedElement('play');
     setFocusArea('actions');
-    
+
     const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
     const movieKey = `movie_${movie.stream_id}`;
     setIsFavorite(!!favorites[movieKey]);
@@ -97,28 +108,31 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
   useEffect(() => {
     if (!isActive) return;
 
-    const handleMovieDetailsNavigation = (event) => {
+    const handleMoviePreviewNavigation = (event) => {
       const { keyCode } = event.detail;
-      
-      // Tratar tecla de voltar
-      if (keyCode === 8 || keyCode === 10009) { // Backspace ou Return
-        onBack();
+
+      console.log('🎬 MoviePreview - Tecla pressionada:', keyCode);
+
+      // Tratar tecla de voltar seguindo o padrão do SearchPreview
+      if (keyCode === 8 || keyCode === 10009 || keyCode === 461 || keyCode === 27) { // Backspace, Return, Back, ESC
+        console.log('🎬 MoviePreview - Tecla de voltar detectada:', keyCode);
+        handleAction('back');
         return;
       }
-      
+
       // Delegar navegação baseada na área de foco
       if (focusArea === 'actions') {
         handleActionsNavigation(keyCode);
       }
     };
 
-    window.addEventListener('movieDetailsNavigation', handleMovieDetailsNavigation);
-    return () => window.removeEventListener('movieDetailsNavigation', handleMovieDetailsNavigation);
+    window.addEventListener('moviePreviewNavigation', handleMoviePreviewNavigation);
+    return () => window.removeEventListener('moviePreviewNavigation', handleMoviePreviewNavigation);
   }, [
     isActive,
     focusArea,
     handleActionsNavigation,
-    onBack
+    handleAction
   ]);
 
   if (!isActive || !movie) return null;
@@ -128,19 +142,19 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
       <div className="movie-main-layout">
         <div className="movie-info-panel">
           <div className="movie-header-info">
-            <img 
-              src="/images/logo-provider.png" 
-              alt="Provider Logo" 
+            <img
+              src="/images/logo-provider.png"
+              alt="Provider Logo"
               className="movie-provider-logo"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
-            
+
             <div className="new-movie-badge">
               Filme em Destaque
             </div>
-            
+
             <h1 className="movie-title-main">{movie.name}</h1>
-            
+
             <div className="movie-meta-info">
               <div className="meta-item age-rating">
                 <i className="fas fa-shield-alt"></i>
@@ -156,29 +170,29 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
               </div>
             </div>
           </div>
-          
+
           <div className="movie-synopsis">
             <p className="synopsis-text expanded">
               {movie.plot || 'Descrição não disponível para este filme.'}
             </p>
           </div>
-          
+
           <div className="movie-genres">
             <div className="genre-tag">{movie.category_name || 'Filme'}</div>
             <div className="genre-tag">HD</div>
             <div className="genre-tag">Legendado</div>
           </div>
-          
+
           <div className="movie-action-buttons">
-            <button 
+            <button
               className={`primary-action-btn ${focusArea === 'actions' && focusedElement === 'play' ? 'focused' : ''}`}
               onClick={() => handleAction('play')}
             >
               <i className="fas fa-play"></i>
               Assistir Filme
             </button>
-            
-            <button 
+
+            <button
               className={`secondary-action-btn ${focusArea === 'actions' && focusedElement === 'favorite' ? 'focused' : ''}`}
               onClick={() => handleAction('favorite')}
             >
@@ -187,10 +201,10 @@ const MoviePreview = ({ movie, isActive, onBack }) => {
             </button>
           </div>
         </div>
-        
+
         <div className="movie-promotional-art">
-          <img 
-            src={movie.stream_icon || '/images/placeholder-movie.jpg'} 
+          <img
+            src={movie.stream_icon || '/images/placeholder-movie.jpg'}
             alt={movie.name}
             className="promotional-image"
             loading="lazy"

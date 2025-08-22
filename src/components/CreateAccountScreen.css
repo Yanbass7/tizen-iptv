@@ -1,0 +1,289 @@
+.login-screen {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  color: #f0f0f0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+.login-form {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 40px;
+  border-radius: 10px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.logo-login {
+  width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 50px;
+  -webkit-animation: fadeIn 1s ease-in-out;
+  -moz-animation: fadeIn 1s ease-in-out;
+  -o-animation: fadeIn 1s ease-in-out;
+  animation: fadeIn 1s ease-in-out;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.qr-code-placeholder {
+  width: 300px;
+  height: 300px;
+  background-color: #fff;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+  border-radius: 5px;
+}
+
+.qr-code-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 5px;
+}
+
+.qr-code-text {
+  color: white;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.website-text {
+  color: white;
+  font-size: 1.2em;
+  margin-top: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.website-link {
+  color: #FF8C00;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: #FF8C00;
+  text-decoration-thickness: 2px;
+  text-shadow: 0 0 8px rgba(255, 140, 0, 0.6);
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+#continueButton {
+  background-color: rgba(64, 64, 64, 0.4);
+  color: white;
+  border: 2px solid rgba(96, 96, 96, 0.7);
+  padding: 15px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2em;
+  font-weight: bold;
+  height: auto;
+  margin: 0;
+  -webkit-transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  -moz-transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  -o-transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#continueButton:hover {
+  background-color: rgba(64, 64, 64, 0.6);
+  border-color: rgba(96, 96, 96, 0.9);
+}
+
+#continueButton:focus {
+  box-shadow: 0 0 10px rgba(96, 96, 96, 0.8);
+}
+
+#continueButton.focused {
+  background-color: rgba(64, 64, 64, 0.6);
+  border-color: rgba(96, 96, 96, 0.9);
+  border: 3px solid rgba(96, 96, 96, 0.6);
+}
+
+/* Reset CSS específico para Tizen 5.0+ */
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+img,
+input {
+  margin: 0;
+  padding: 0;
+  vertical-align: baseline;
+}
+
+/* Force o box-sizing com prefixos para Tizen 5.0+ */
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  -ms-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+}
+
+/* Disable smooth scrolling para melhor performance */
+* {
+  scroll-behavior: auto !important;
+  -webkit-scroll-behavior: auto !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsividade otimizada */
+@media (max-width: 1920px) {
+  .login-form {
+    max-width: 500px;
+    padding: 35px;
+  }
+
+  .logo-login {
+    width: 300px;
+    margin-bottom: 40px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .login-form {
+    max-width: 450px;
+    padding: 30px;
+  }
+
+  #continueButton {
+    padding: 12px 18px;
+    font-size: 1.1em;
+  }
+
+  .logo-login {
+    width: 250px;
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-form {
+    width: 95%;
+    max-width: 400px;
+    padding: 25px;
+  }
+
+  .logo-login {
+    width: 200px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Otimizações GPU mínimas necessárias para Tizen 5.0+ */
+.login-screen,
+.login-form,
+.logo-login,
+#continueButton {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Forçar renderização por hardware para elementos críticos */
+.background-image {
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+/* Estilos para indicar foco em navegação por controle remoto */
+.login-form button.focused {
+  border: 3px solid #00a8e6;
+  box-shadow: 0 0 15px rgba(0, 168, 230, 0.7);
+  border-color: #00a8e6;
+  transform: scale(1.02);
+  transition: all 0.2s ease-in-out;
+}

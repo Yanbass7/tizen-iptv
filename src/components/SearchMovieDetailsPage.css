@@ -1,0 +1,351 @@
+/* ==========================================================================
+   RESET CSS ESPECÍFICO PARA TIZEN 5.0+
+   ========================================================================== */
+*,
+*::before,
+*::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+}
+
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+img {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL COM CORREÇÕES TIZEN 5.0+
+   ========================================================================== */
+
+.search-movie-details-page {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    color: white;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Layout Principal */
+.search-movie-main-layout {
+    display: -webkit-flex;
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    position: relative;
+}
+
+/* Wrapper interno para padding seguro no Tizen */
+.search-movie-info-panel {
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    max-width: 50%;
+    padding: 40px;
+    position: relative;
+    z-index: 2;
+    background-color: #222222;
+}
+
+.search-movie-header-info {
+    margin-top: 150px;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.search-movie-provider-logo {
+    height: 30px;
+    opacity: 0.8;
+    display: block;
+    margin-bottom: 20px;
+    max-width: 100%;
+}
+
+.search-movie-badge {
+    background: linear-gradient(135deg, #FF8C00, #FF6B35);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+}
+
+.search-movie-title-main {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 0 0 20px 0;
+    color: white;
+    line-height: 1.2;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.search-movie-meta-info {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 25px;
+}
+
+.meta-item {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    color: #ccc;
+    font-size: 1.1rem;
+    margin-right: 20px;
+}
+
+.meta-item:last-child {
+    margin-right: 0;
+}
+
+.meta-item i {
+    margin-right: 8px;
+    color: #FF8C00;
+}
+
+.meta-item.release-year {
+    color: #aaa;
+}
+
+.meta-item.rating {
+    color: #FFD700;
+}
+
+.meta-item.category {
+    color: #FF8C00;
+}
+
+.search-movie-synopsis {
+    -webkit-flex: 1;
+    flex: 1;
+    margin-bottom: 30px;
+}
+
+.synopsis-text {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #ddd;
+    margin: 0;
+}
+
+.synopsis-text.expanded {
+    display: block;
+}
+
+.search-movie-actions {
+    display: -webkit-flex;
+    display: flex;
+    margin-top: auto;
+    margin-bottom: 250px;
+}
+
+.search-movie-details-btn {
+    padding: 15px 30px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+.search-movie-details-btn i {
+    margin-right: 10px;
+}
+
+.search-movie-details-btn.primary-action-btn {
+    background: linear-gradient(135deg, #FF8C00, #FF6B35);
+    color: white;
+    border-color: #FF8C00;
+}
+
+.search-movie-details-btn.secondary-action-btn {
+    background: transparent;
+    color: #ccc;
+    border-color: #666;
+}
+
+.search-movie-details-btn:hover,
+.search-movie-details-btn.focused {
+    -webkit-transform: scale(1.05) translateZ(0);
+    transform: scale(1.05) translateZ(0);
+    box-shadow: 0 8px 25px rgba(255, 140, 0, 0.4);
+}
+
+.search-movie-details-btn.primary-action-btn:hover,
+.search-movie-details-btn.primary-action-btn.focused {
+    background: linear-gradient(135deg, #E07B00, #E05A25);
+    border-color: #FF8C00;
+}
+
+.search-movie-details-btn.secondary-action-btn:hover,
+.search-movie-details-btn.secondary-action-btn.focused {
+    background: rgba(255, 140, 0, 0.1);
+    border-color: #FF8C00;
+    color: #FF8C00;
+}
+
+/* Área da imagem promocional */
+.search-movie-promotional-art {
+    -webkit-flex: 1;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+}
+
+.promotional-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+.promotional-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(0, 0, 0, 0.1) 50%,
+        rgba(0, 0, 0, 0.6) 100%
+    );
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE OTIMIZADA PARA TIZEN 5.0+
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+    .search-movie-main-layout {
+        -webkit-flex-direction: column;
+        flex-direction: column;
+    }
+
+    .search-movie-info-panel {
+        max-width: 100%;
+        padding: 30px;
+    }
+
+    .search-movie-title-main {
+        font-size: 2.5rem;
+    }
+
+    .search-movie-promotional-art {
+        height: 40vh;
+    }
+}
+
+@media (max-width: 800px) {
+    .search-movie-info-panel {
+        padding: 20px;
+    }
+
+    .search-movie-title-main {
+        font-size: 2rem;
+    }
+
+    .search-movie-meta-info {
+        gap: 15px;
+    }
+
+    .meta-item {
+        font-size: 1rem;
+    }
+
+    .search-movie-actions {
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .search-movie-details-btn {
+        padding: 12px 25px;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .search-movie-info-panel {
+        padding: 15px;
+    }
+
+    .search-movie-title-main {
+        font-size: 1.8rem;
+    }
+
+    .synopsis-text {
+        font-size: 1rem;
+    }
+
+    .search-movie-details-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+}
+
+/* GPU acceleration para elementos críticos */
+.search-movie-details-page,
+.search-movie-main-layout,
+.search-movie-info-panel,
+.search-movie-promotional-art,
+.search-movie-details-btn,
+.promotional-image {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    backface-visibility: hidden;
+} 

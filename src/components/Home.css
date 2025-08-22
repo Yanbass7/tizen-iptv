@@ -2,7 +2,8 @@
    RESET CSS ESPECÍFICO PARA TIZEN 5.0+
    ========================================================================== */
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -12,14 +13,25 @@ html, body {
   -ms-text-size-adjust: 100%;
 }
 
-div, span, p, h1, h2, h3, h4, h5, h6, button, img {
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+img {
   margin: 0;
   padding: 0;
-  outline: 0;
   vertical-align: baseline;
 }
 
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -36,13 +48,13 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   color: #ffffff;
   overflow-y: auto;
   overflow-x: hidden;
-  
+
   /* GPU acceleration otimizada para Tizen 5.0 */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  
+
   /* Scroll otimizado */
   -webkit-overflow-scrolling: touch;
 }
@@ -143,7 +155,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   transition: background 0.2s ease;
 }
 
-.error-retry-btn > i {
+.error-retry-btn>i {
   margin-right: 8px;
 }
 
@@ -234,11 +246,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   margin-bottom: 20px;
 }
 
-.hero-meta > * {
+.hero-meta>* {
   margin-right: 15px;
 }
 
-.hero-meta > *:last-child {
+.hero-meta>*:last-child {
   margin-right: 0;
 }
 
@@ -284,11 +296,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: flex;
 }
 
-.hero-actions > button {
+.hero-actions>button {
   margin-right: 15px;
 }
 
-.hero-actions > button:last-child {
+.hero-actions>button:last-child {
   margin-right: 0;
 }
 
@@ -541,11 +553,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   align-items: center;
 }
 
-.card-meta > * {
+.card-meta>* {
   margin-right: 10px;
 }
 
-.card-meta > *:last-child {
+.card-meta>*:last-child {
   margin-right: 0;
 }
 
@@ -559,6 +571,26 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 .card-duration {
   color: #b3b3b3;
   font-size: 0.9rem;
+}
+
+.card-episode {
+  color: #e57309;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.card-meta-continue {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
 }
 
 /* ==========================================================================
@@ -587,7 +619,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 .empty-content i {
   font-size: 3rem;
-  margin-bottom: 15px;
+  margin-bottom: 0px;
   opacity: 0.5;
 }
 
@@ -654,11 +686,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   margin-bottom: 15px;
 }
 
-.preview-meta > * {
+.preview-meta>* {
   margin-right: 10px;
 }
 
-.preview-meta > *:last-child {
+.preview-meta>*:last-child {
   margin-right: 0;
 }
 
@@ -725,11 +757,11 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.nav-hint > * {
+.nav-hint>* {
   margin-right: 10px;
 }
 
-.nav-hint > *:last-child {
+.nav-hint>*:last-child {
   margin-right: 0;
 }
 
@@ -742,19 +774,25 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
    ========================================================================== */
 
 @-webkit-keyframes spin {
-  0% { 
-    -webkit-transform: rotate(0deg); 
-    transform: rotate(0deg); 
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
   }
-  100% { 
-    -webkit-transform: rotate(360deg); 
-    transform: rotate(360deg); 
+
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @-webkit-keyframes slideInRight {
@@ -763,6 +801,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     -webkit-transform: translateX(100%);
     transform: translateX(100%);
   }
+
   to {
     opacity: 1;
     -webkit-transform: translateX(0);
@@ -775,6 +814,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     opacity: 0;
     transform: translateX(100%);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -790,12 +830,12 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   .hero-title {
     font-size: 5rem;
   }
-  
+
   .content-card {
     min-width: 320px;
     max-width: 320px;
   }
-  
+
   .card-image {
     height: 480px;
   }
@@ -806,7 +846,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   .hero-content {
     padding: 0 50px;
   }
-  
+
   .content-shelves {
     padding: 0 50px 50px;
   }
@@ -817,21 +857,229 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   .hero-title {
     font-size: 3.5rem;
   }
-  
+
   .content-card {
     min-width: 240px;
     max-width: 240px;
   }
-  
+
   .card-image {
     height: 360px;
   }
-  
+
   .hero-content {
     padding: 0 40px;
   }
-  
+
   .content-shelves {
     padding: 0 40px 40px;
+  }
+}
+
+/* ==========================================================================
+   EMPTY STATE - QUANDO NÃO HÁ CÓDIGO DE GRUPO
+   ========================================================================== */
+
+.home-empty {
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, #141414 0%, #1a1a1a 50%, #141414 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+}
+
+.empty-content {
+  text-align: center;
+  max-width: 600px;
+  padding: 40px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.empty-icon {
+  font-size: 80px;
+  color: #FF8C00;
+  margin-bottom: 30px;
+  text-shadow: 0 0 30px rgba(255, 140, 0, 0.5);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.empty-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: 1px;
+}
+
+.empty-message {
+  font-size: 20px;
+  color: #e0e0e0;
+  margin-bottom: 15px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.empty-instruction {
+  font-size: 18px;
+  color: #cccccc;
+  margin-bottom: 30px;
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+.empty-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 20px;
+  background: rgba(255, 140, 0, 0.1);
+  border: 2px solid rgba(255, 140, 0, 0.3);
+  border-radius: 15px;
+  font-size: 16px;
+  color: #FF8C00;
+  font-weight: 500;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px rgba(255, 140, 0, 0.2);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.4);
+  }
+}
+
+.empty-hint i {
+  font-size: 20px;
+  animation: bounce 1.5s ease-in-out infinite;
+  margin-top: 3px;
+}
+
+/* Espaçamento entre a seta e o texto quando flex-gap não é utilizado */
+.empty-hint i + span {
+  margin-left: 15px;
+}
+.empty-hint span + i {
+  margin-left: 15px;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-1px);
+  }
+}
+
+/* Responsive adjustments for different TV sizes */
+@media (max-width: 1366px) {
+  .empty-title {
+    font-size: 32px;
+  }
+  
+  .empty-message {
+    font-size: 18px;
+  }
+  
+  .empty-instruction {
+    font-size: 16px;
+  }
+  
+  .empty-icon {
+    font-size: 70px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .empty-title {
+    font-size: 28px;
+  }
+  
+  .empty-message {
+    font-size: 16px;
+  }
+  
+  .empty-instruction {
+    font-size: 14px;
+  }
+  
+  .empty-icon {
+    font-size: 60px;
+  }
+  
+  .empty-content {
+    padding: 30px;
+  }
+}
+
+/* ==========================================================================
+   ESTILOS PARA CONTINUAR ASSISTINDO
+   ========================================================================== */
+
+/* Barra de progresso nos cards */
+.continue-watching-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.continue-watching-progress .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e50914 0%, #ff6b35 100%);
+  transition: width 0.3s ease;
+}
+
+
+
+
+
+/* Hover states para continuar assistindo */
+.content-card:hover .continue-watching-progress,
+.content-card.focused .continue-watching-progress {
+  height: 6px;
+}
+
+/* Responsividade */
+@media (max-width: 1366px) {
+  .continue-watching-progress {
+    height: 3px;
+  }
+
+  .content-card:hover .continue-watching-progress,
+  .content-card.focused .continue-watching-progress {
+    height: 4px;
   }
 }

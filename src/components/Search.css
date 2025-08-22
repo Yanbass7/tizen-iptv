@@ -28,7 +28,6 @@ img {
   margin: 0;
   padding: 0;
   border: 0;
-  outline: 0;
   vertical-align: baseline;
 }
 
@@ -89,7 +88,6 @@ img {
   display: -ms-flexbox;
   display: flex;
 
-  gap: 30px;
   height: 100%;
   padding: 20px;
 
@@ -101,6 +99,10 @@ img {
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
   backface-visibility: hidden;
+}
+
+.search-layout>*+* {
+  margin-left: 30px;
 }
 
 /* Área do teclado virtual - Otimizada */
@@ -125,11 +127,17 @@ img {
   -ms-flex-direction: column;
   flex-direction: column;
 
-  gap: 20px;
-
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+}
+
+.search-input-area>*+* {
+  margin-top: 20px;
+}
+
+.search-input-area>* {
+  margin-bottom: 10px;
 }
 
 .search-header h2 {
@@ -151,11 +159,17 @@ img {
   -ms-flex-align: center;
   align-items: center;
 
-  gap: 10px;
-
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.search-header h2>*+* {
+  margin-left: 10px;
+}
+
+.search-header h2>* {
+  margin-bottom: 5px;
 }
 
 .search-input-display {
@@ -193,15 +207,22 @@ img {
 /* Estilos para o seletor de categoria */
 .category-selector {
   display: flex;
-  gap: 10px;
   margin-top: 15px;
+}
+
+.category-selector>*+* {
+  margin-left: 10px;
+}
+
+.category-selector>* {
+  margin-bottom: 5px;
 }
 
 .category-button {
   flex: 1;
   padding: 10px 15px;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 1.3rem;
+  font-weight: 700;
   color: #ccc;
   background-color: #333;
   border: 2px solid #444;
@@ -398,10 +419,10 @@ img {
   justify-content: center;
 
   /* Transições otimizadas */
-  -webkit-transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
-  -moz-transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
-  -o-transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
-  transition: background-color 0.1s ease, outline 0.1s ease, border-color 0.1s ease;
+  -webkit-transition: background-color 0.1s ease, border-color 0.1s ease;
+  -moz-transition: background-color 0.1s ease, border-color 0.1s ease;
+  -o-transition: background-color 0.1s ease, border-color 0.1s ease;
+  transition: background-color 0.1s ease, border-color 0.1s ease;
 
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
@@ -684,9 +705,9 @@ img {
 
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 15px;
-
+  grid-template-columns: repeat(5, 1fr);
+  /* 5 colunas fixas igual aos outros componentes */
+  width: 100%;
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   -moz-transform: translateZ(0);
@@ -697,17 +718,21 @@ img {
   backface-visibility: hidden;
 }
 
+.results-grid>* {
+  margin: 7.5px;
+}
+
 /* Items dos resultados - Performance otimizada */
 .search-result-item {
+  aspect-ratio: 2/3;
+  /* Proporção igual aos filmes */
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
-  height: 260px;
-  margin: 0;
-  padding: 0;
   position: relative;
-  /* Adicionado para posicionamento do título */
+  /* Usar 100% da célula do grid */
+  margin: 5px;
 
   /* Fallback para gradiente */
   background: #2a2a2a;
@@ -716,26 +741,11 @@ img {
   background: -o-linear-gradient(145deg, #2a2a2a, #1a1a1a);
   background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
 
-  /* Fallback para browsers antigos */
-  display: block;
-  /* Prefixos WebKit para Tizen */
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-
-  /* Direção com prefixos */
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-
   /* Transições otimizadas */
-  -webkit-transition: background-color 0.1s ease, outline 0.1s ease;
-  -moz-transition: background-color 0.1s ease, outline 0.1s ease;
-  -o-transition: background-color 0.1s ease, outline 0.1s ease;
-  transition: background-color 0.1s ease, outline 0.1s ease;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition: all 0.2s ease;
 
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
@@ -749,81 +759,106 @@ img {
 
 .search-result-item:hover,
 .search-result-item.focused {
-  background: rgba(255, 140, 0, 0.1);
-  border: 2px solid rgba(255, 140, 0, 0.6);
-  border-color: #FF8C00;
+  -webkit-transform: scale(1.05) translateZ(0);
+  -moz-transform: scale(1.05) translateZ(0);
+  -ms-transform: scale(1.05) translateZ(0);
+  transform: scale(1.05) translateZ(0);
+  border: 2px solid #FF8C00;
+  box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
+  z-index: 10;
 }
 
-.search-result-item img {
+/* Poster wrapper - igual aos outros componentes */
+.search-result-poster {
   width: 100%;
-  height: 100%; /* Alterado para 100% */
+  height: 100%;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.search-result-poster img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   margin: 0;
   padding: 0;
 
   /* Transição otimizada */
-  -webkit-transition: opacity 0.1s ease;
-  -moz-transition: opacity 0.1s ease;
-  -o-transition: opacity 0.1s ease;
-  transition: opacity 0.1s ease;
+  -webkit-transition: opacity 0.2s ease;
+  -moz-transition: opacity 0.2s ease;
+  -o-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
 
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  border-radius: 8px;
 }
 
-.result-info {
+/* Overlay - igual aos outros componentes */
+.search-result-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  padding: 15px 10px 10px 10px; /* Ajustado padding */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+  padding: 15px 10px 10px 10px;
   box-sizing: border-box;
   text-align: left;
 }
 
-.result-info h4 {
-  font-size: 1rem; /* Increased font size */
+.search-result-title {
+  font-size: 1rem;
   margin: 0;
   color: white;
   font-weight: bold;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9); /* Added stronger text shadow */
-  text-overflow: ellipsis;
-  overflow: hidden;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9);
   line-height: 1.2;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+
+  /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+.search-result-title span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge de tipo - posicionado no topo */
 .result-type-badge {
   position: absolute;
   top: 8px;
   left: 8px;
-  background-color: rgba(255, 140, 0, 0.8);
+  background-color: rgba(255, 140, 0, 0.9);
   color: white;
   padding: 4px 8px;
   border-radius: 5px;
-  font-size: 0.85rem; /* Increased font size */
+  font-size: 0.75rem;
   font-weight: bold;
   text-transform: uppercase;
   z-index: 10;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* Tipos específicos de resultado */
+/* Tipos específicos de resultado - cores iguais aos outros componentes */
 .channel-result .result-type-badge {
   background: rgba(0, 123, 255, 0.9);
+  /* Azul para canais */
 }
 
 .movie-result .result-type-badge {
   background: rgba(220, 53, 69, 0.9);
+  /* Vermelho para filmes */
 }
 
 .serie-result .result-type-badge {
   background: rgba(40, 167, 69, 0.9);
+  /* Verde para séries */
 }
 
 /* ==========================================================================
@@ -838,8 +873,15 @@ img {
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
+  }
 
-    gap: 20px;
+  .search-layout>*+* {
+    margin-left: 0;
+    margin-top: 20px;
+  }
+
+  .search-layout>* {
+    margin-bottom: 10px;
   }
 
   .search-input-area {
@@ -853,7 +895,11 @@ img {
 
   .results-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
+  }
+
+  .results-grid>* {
+    margin: 6px;
+    margin-bottom: 12px;
   }
 
   .search-result-item {
@@ -870,8 +916,12 @@ img {
 }
 
 @media (max-width: 800px) {
-  .keyboard-row {
-    gap: 6px;
+  .keyboard-row>*+* {
+    margin-left: 6px;
+  }
+
+  .keyboard-row>* {
+    margin-bottom: 3px;
   }
 
   .keyboard-key {
@@ -888,7 +938,11 @@ img {
 
   .results-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
+  }
+
+  .results-grid>* {
+    margin: 5px;
+    margin-bottom: 10px;
   }
 
   .search-result-item {
@@ -924,6 +978,11 @@ img {
 
   .results-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .results-grid>* {
+    margin: 4px;
+    margin-bottom: 8px;
   }
 
   .search-result-item {

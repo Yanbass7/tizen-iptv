@@ -1,0 +1,592 @@
+/* ==========================================================================
+   SEARCH PREVIEW MODAL - OTIMIZADO PARA TIZEN 5.0+
+   ========================================================================== */
+
+/* Overlay do modal */
+.search-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 1000;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Modal principal - agora mais parecido com uma página */
+.search-preview-modal {
+  background: #0c0c0c;
+  border-radius: 0;
+  width: 95%;
+  height: 90vh;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  
+  /* Fallback para gradiente */
+  background: #0c0c0c;
+  background: -webkit-gradient(linear, left top, right bottom, from(#0c0c0c), to(#1a1a1a));
+  background: -webkit-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  background: -o-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Header da página */
+.search-preview-header {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 20px 30px;
+  border-bottom: 1px solid #333;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.search-preview-header-content {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.search-preview-page-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+  color: white;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.search-preview-breadcrumb {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  color: #ccc;
+  font-size: 1rem;
+}
+
+.search-preview-breadcrumb > * + * {
+  margin-left: 10px;
+}
+
+.search-preview-breadcrumb i {
+  color: #FF8C00;
+}
+
+/* Conteúdo do modal */
+.search-preview-content {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  height: calc(100% - 80px);
+  padding: 30px;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Seção principal */
+.search-preview-main-section {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  margin-bottom: 30px;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.search-preview-main-section > * + * {
+  margin-left: 30px;
+}
+
+/* Poster/Imagem */
+.search-preview-poster {
+  width: 250px;
+  min-width: 250px;
+  height: 375px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #333;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.search-preview-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Informações */
+.search-preview-info {
+  /* Flex com prefixos */
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Direção com prefixos */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  
+  color: white;
+}
+
+.search-preview-info > * + * {
+  margin-top: 20px;
+}
+
+/* Seção do título */
+.search-preview-title-section {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  margin-bottom: 15px;
+}
+
+.search-preview-title-section > * + * {
+  margin-left: 15px;
+}
+
+.search-preview-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0;
+  color: white;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.search-preview-type-badge {
+  background: #FF8C00;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Meta informações */
+.search-preview-meta {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  color: #ccc;
+  font-size: 1.2rem;
+}
+
+.search-preview-meta > * + * {
+  margin-left: 20px;
+}
+
+.search-preview-year,
+.search-preview-rating {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.search-preview-year > * + *,
+.search-preview-rating > * + * {
+  margin-left: 5px;
+}
+
+.search-preview-rating {
+  color: #FFD700;
+}
+
+/* Descrição */
+.search-preview-description {
+  /* Flex com prefixos */
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.search-preview-description p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #ddd;
+  margin: 0;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Botões de ação */
+.search-preview-actions {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  margin-top: 20px;
+}
+
+.search-preview-actions > * + * {
+  margin-left: 15px;
+}
+
+.search-preview-btn {
+  padding: 15px 30px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  /* Alinhamento com prefixos */
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  
+  /* Transições otimizadas */
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  
+  /* GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.search-preview-btn i {
+  margin-right: 10px;
+}
+
+.search-preview-btn.play-btn {
+  background: #FF8C00;
+  color: white;
+}
+
+.search-preview-btn.favorite-btn {
+  background: transparent;
+  color: #ccc;
+  border-color: #666;
+}
+
+.search-preview-btn:hover,
+.search-preview-btn.focused {
+  -webkit-transform: scale(1.05) translateZ(0);
+  -moz-transform: scale(1.05) translateZ(0);
+  -ms-transform: scale(1.05) translateZ(0);
+  transform: scale(1.05) translateZ(0);
+  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+}
+
+.search-preview-btn.play-btn:hover,
+.search-preview-btn.play-btn.focused {
+  background: #E07B00;
+  border-color: #FF8C00;
+}
+
+.search-preview-btn.favorite-btn:hover,
+.search-preview-btn.favorite-btn.focused {
+  background: rgba(255, 140, 0, 0.1);
+  border-color: #FF8C00;
+  color: #FF8C00;
+}
+
+/* Seção de detalhes */
+.search-preview-details-section {
+  /* Flex com prefixos */
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  
+  margin-top: 20px;
+}
+
+.search-preview-details-grid {
+  /* Fallback para browsers antigos */
+  display: block;
+  /* Prefixos WebKit para Tizen */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  
+  gap: 30px;
+  height: 100%;
+}
+
+.search-preview-detail-item {
+  /* Flex com prefixos */
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-preview-detail-item h3 {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #FF8C00;
+  margin: 0 0 15px 0;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.search-preview-detail-content p {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #ddd;
+  margin: 0 0 8px 0;
+  
+  /* Otimização de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.search-preview-detail-content strong {
+  color: #FF8C00;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE OTIMIZADA PARA TIZEN 5.0+
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .search-preview-main-section {
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    
+    gap: 20px;
+  }
+  
+  .search-preview-poster {
+    width: 200px;
+    height: 300px;
+    margin: 0 auto;
+  }
+  
+  .search-preview-title {
+    font-size: 2rem;
+  }
+  
+  .search-preview-details-grid {
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 800px) {
+  .search-preview-modal {
+    width: 98%;
+    height: 95vh;
+  }
+  
+  .search-preview-content {
+    padding: 20px;
+  }
+  
+  .search-preview-title {
+    font-size: 1.8rem;
+  }
+  
+  .search-preview-actions {
+    /* Direção com prefixos */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+  
+  .search-preview-actions > * + * {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+}
+
+/* GPU acceleration para elementos críticos */
+.search-preview-overlay,
+.search-preview-modal,
+.search-preview-content,
+.search-preview-poster,
+.search-preview-info,
+.search-preview-btn,
+.search-preview-detail-item {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+}

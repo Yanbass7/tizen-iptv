@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { iptvApi } from '../services/iptvApi';
 import { API_BASE_URL, API_CREDENTIALS, buildStreamUrl } from '../config/apiConfig';
 import { safeScrollIntoView } from '../utils/scrollUtils';
-import { formatEpisode } from '../utils/formatters';
+import { demoSeries, demoSeriesCategories } from '../data/demoContent';
 import SeriesDetailsPage from './SeriesDetailsPage';
 import './Series.css';
 
@@ -23,6 +24,9 @@ const Series = ({ isActive }) => {
   const GRID_COLUMNS = 5;
   const GRID_ROWS = 3;
 
+  // Ref para restaurar estado ao voltar de player/detalhes
+  const restoreStateRef = useRef(null);
+
   // Referencias para navegação
   const categoriesRef = useRef([]);
   const seriesRef = useRef([]);
@@ -32,59 +36,131 @@ const Series = ({ isActive }) => {
   const isTizenTV = typeof tizen !== 'undefined' || window.navigator.userAgent.includes('Tizen');
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-  // Carregar categorias de séries
-  useEffect(() => {
-    const loadSeriesCategories = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series_categories`
-        );
-        const data = await response.json();
-        setCategories(data);
-        
-        // Selecionar primeira categoria automaticamente
-        if (data.length > 0) {
-          setSelectedCategory(data[0].category_id);
-          setCategoryFocus(0);
-          loadSeries(data[0].category_id);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar categorias de séries:', error);
-        setCategories([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Verificar se está em modo demo (email Samsung)
+  const isDemoMode = useCallback(() => {
+    const testMode = localStorage.getItem('testMode');
+    const authEmail = localStorage.getItem('authEmail');
+    return testMode === 'true' && authEmail === 'samsungtest1@samsung.com';
+  }, []);
 
-    const loadSeries = async (categoryId) => {
-      setSeriesLoading(true);
-      setSeriesFocus(0); // Reset series focus
-      setCurrentPage(0); // Reset para primeira página
-      try {
+  // Persistência de estado da página de séries
+  const saveSeriesState = useCallback(() => {
+    try {
+      const stateToSave = {
+        selectedCategory,
+        categoryFocus,
+        currentPage,
+        seriesFocus,
+        focusArea: 'series'
+      };
+      localStorage.setItem('seriesState', JSON.stringify(stateToSave));
+      console.log('💾 Series - Estado salvo:', stateToSave);
+    } catch (e) {
+      console.warn('Não foi possível salvar o estado das séries:', e);
+    }
+  }, [selectedCategory, categoryFocus, currentPage, seriesFocus]);
+
+  const loadSavedSeriesState = useCallback(() => {
+    try {
+      const raw = localStorage.getItem('seriesState');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch (e) {
+      return null;
+    }
+  }, []);
+
+  // Função para carregar séries de uma categoria (declarada antes de loadSeriesCategories para evitar ReferenceError)
+  const loadSeries = useCallback(async (categoryId, options = {}) => {
+    setSeriesLoading(true);
+
+    const isRestoring = !!options.restoreState;
+    if (!options.preserveFocus) {
+      setSeriesFocus(0);
+      setCurrentPage(0);
+    } else if (isRestoring) {
+      const restorePage = Math.max(0, options.restoreState.currentPage || 0);
+      setCurrentPage(restorePage);
+    }
+    try {
+      let series = [];
+      
+      if (isDemoMode()) {
+        // Em modo demo, usar séries demo
+        series = demoSeries.filter(s => s.category_id === categoryId);
+        console.log('🧪 Carregando séries demo para categoria:', categoryId, series);
+      } else {
+        // Modo normal, carregar da API
         const response = await fetch(
           `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series&category_id=${categoryId}`
         );
-        const data = await response.json();
-        setSeries(data);
-        
-        // Se estivermos no grid de series, voltar o foco para as series
-        if (focusArea === 'series') {
-          setSeriesFocus(0);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar series:', error);
-        setSeries([]);
-      } finally {
-        setSeriesLoading(false);
+        series = await response.json();
       }
-    };
-
-    if (isActive) {
-      loadSeriesCategories();
+      
+      setSeries(series);
+      
+      if (isRestoring && options.restoreState) {
+        const restorePage = Math.max(0, options.restoreState.currentPage || 0);
+        const restoreSeriesFocus = Math.max(0, options.restoreState.seriesFocus || 0);
+        const startIndex = restorePage * ITEMS_PER_PAGE;
+        const countInPage = series.slice(startIndex, startIndex + ITEMS_PER_PAGE).length;
+        const clampedFocus = Math.min(restoreSeriesFocus, Math.max(0, countInPage - 1));
+        setSeriesFocus(clampedFocus);
+      } else {
+        setSeriesFocus(0);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar series:', error);
+      setSeries([]);
+    } finally {
+      setSeriesLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isActive]);
+  }, [API_BASE_URL, API_CREDENTIALS]);
+
+  // Carregar categorias de séries com suporte a restauração
+  const loadSeriesCategories = useCallback(async () => {
+    setLoading(true);
+    try {
+      let loadedCategories = [];
+      if (isDemoMode()) {
+        loadedCategories = demoSeriesCategories;
+        console.log('🧪 Carregando categorias demo para séries:', loadedCategories);
+      } else {
+        loadedCategories = await iptvApi.getSeriesCategories();
+      }
+
+      setCategories(loadedCategories);
+
+      const saved = restoreStateRef.current;
+      if (saved && loadedCategories.length > 0) {
+        const savedCategoryId = String(saved.selectedCategory);
+        const catIndex = loadedCategories.findIndex(c => String(c.category_id) === savedCategoryId);
+        if (catIndex >= 0) {
+          console.log('📺 Series - Restaurando estado salvo:', saved);
+          setSelectedCategory(savedCategoryId);
+          setCategoryFocus(catIndex);
+          await loadSeries(savedCategoryId, { restoreState: saved, preserveFocus: true });
+          setFocusArea('series');
+          return;
+        }
+      }
+
+      if (loadedCategories.length > 0) {
+        // Evitar loop: só define defaults se ainda não houver categoria selecionada
+        if (selectedCategory == null) {
+          setSelectedCategory(loadedCategories[0].category_id);
+          setCategoryFocus(0);
+          loadSeries(loadedCategories[0].category_id);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar categorias de séries:', error);
+      setCategories([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [isDemoMode, loadSeries, selectedCategory]);
 
   // Efeito para auto-scroll baseado no foco
   useEffect(() => {
@@ -110,29 +186,7 @@ const Series = ({ isActive }) => {
     }
   }, [focusArea, categoryFocus, seriesFocus]);
 
-  // Função para carregar séries de uma categoria
-  const loadSeries = useCallback(async (categoryId) => {
-    setSeriesLoading(true);
-    setSeriesFocus(0); // Reset series focus
-    setCurrentPage(0); // Reset para primeira página
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series&category_id=${categoryId}`
-      );
-      const data = await response.json();
-      setSeries(data);
-      
-      // Se estivermos no grid de series, voltar o foco para as series
-      if (focusArea === 'series') {
-        setSeriesFocus(0);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar series:', error);
-      setSeries([]);
-    } finally {
-      setSeriesLoading(false);
-    }
-  }, [API_BASE_URL, API_CREDENTIALS, focusArea]);
+  // (Removido: definição duplicada de loadSeries)
 
   // Função para navegar para detalhes da série
   const handleSeriesDetails = useCallback((series) => {
@@ -142,86 +196,125 @@ const Series = ({ isActive }) => {
       category_name: categoryInfo?.category_name || 'Série'
     };
     
+    // Salvar estado atual antes de sair para a página de detalhes
+    saveSeriesState();
+
     // Disparar evento para navegar para a página de detalhes
     const showDetailsEvent = new CustomEvent('showSeriesDetails', {
       detail: { series: seriesWithCategory }
     });
     window.dispatchEvent(showDetailsEvent);
-  }, [categories, selectedCategory]);
+  }, [categories, selectedCategory, saveSeriesState]);
 
   // Função para reproduzir série diretamente (primeira temporada, primeiro episódio)
   const handleSeriesSelect = useCallback(async (series) => {
     console.log('🎬 Série selecionada:', series);
     console.log('🔧 Ambiente detectado:', { isTizenTV, isDevelopment });
     
+    // Salvar estado atual antes de sair para o player
+    saveSeriesState();
+
     try {
-      // Tentar carregar informações da série para reproduzir primeiro episódio
-      const response = await fetch(
-        `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series_info&series_id=${series.series_id}`
-      );
-      const data = await response.json();
+      let streamUrl;
+      let streamInfo;
       
-      if (data.episodes && Object.keys(data.episodes).length > 0) {
-        const firstSeason = Object.keys(data.episodes)[0];
-        const firstEpisode = data.episodes[firstSeason][0];
+      if (isDemoMode() && series.seasons) {
+        // Se for série demo com estrutura de episódios própria
+        const firstSeason = series.seasons[0];
+        const firstEpisode = firstSeason.episodes[0];
         
         if (firstEpisode) {
-          // URL com .mp4 para usar com HTML5 player
-          const streamUrl = buildStreamUrl('series', firstEpisode.id || firstEpisode.stream_id, 'mp4');
-          
-          const streamInfo = {
-            name: `${series.name} - ${formatEpisode(firstSeason, firstEpisode.episode_num || 1)} - ${firstEpisode.title || firstEpisode.name || 'Episódio'}`,
+          streamUrl = firstEpisode.stream_url;
+          streamInfo = {
+            name: `${series.name} - T${firstSeason.season_number}E1 - ${firstEpisode.title}`,
             type: 'series',
-            category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Série',
-            description: firstEpisode.plot || firstEpisode.info?.plot || series.plot || 'Descrição não disponível',
+            category: series.category_name || 'Série Demo',
+            description: firstEpisode.plot || series.plot || 'Descrição não disponível',
             year: series.releasedate || 'N/A',
-            rating: series.rating || firstEpisode.rating || 'N/A',
+            rating: series.rating || 'N/A',
             poster: series.cover || series.stream_icon
           };
           
-          // Para Tizen TV, usar configuração específica que força player interno
-          if (isTizenTV) {
-            console.log('📺 Configuração Tizen TV ativada para série');
+          console.log('🧪 Reproduzindo série demo:', streamInfo);
+        }
+      } else {
+        // Lógica original para séries normais ou demo sem estrutura própria
+        const response = await fetch(
+          `${API_BASE_URL}?${API_CREDENTIALS}&action=get_series_info&series_id=${series.series_id}`
+        );
+        const data = await response.json();
+        
+        if (data.episodes && Object.keys(data.episodes).length > 0) {
+          const firstSeason = Object.keys(data.episodes)[0];
+          const firstEpisode = data.episodes[firstSeason][0];
+          
+          if (firstEpisode) {
+            // URL com .mp4 para usar com HTML5 player
+            streamUrl = isDemoMode() ? firstEpisode.stream_url : buildStreamUrl('series', firstEpisode.id || firstEpisode.stream_id, 'mp4');
             
-            const playEvent = new CustomEvent('playContent', {
-              detail: {
-                streamUrl,
-                streamInfo: {
-                  ...streamInfo,
-                  // Flags específicas para Tizen TV
-                  forceTizenPlayer: true,
-                  preventBrowserRedirect: true,
-                  useInternalPlayer: true
-                }
-              },
-              bubbles: false,
-              cancelable: false
-            });
-            
-            setTimeout(() => {
-              console.log('📺 Disparando evento playContent para Tizen TV (série)');
-              window.dispatchEvent(playEvent);
-            }, 100);
-            
-          } else {
-            console.log('💻 Configuração padrão ativada para série');
-            
-            const playEvent = new CustomEvent('playContent', {
-              detail: { streamUrl, streamInfo }
-            });
-            window.dispatchEvent(playEvent);
+            streamInfo = {
+              name: `${series.name} - Episódio ${firstEpisode.episode_num || 1}`,
+              type: 'series',
+              category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Série',
+              description: firstEpisode.plot || firstEpisode.info?.plot || series.plot || 'Descrição não disponível',
+              year: series.releasedate || 'N/A',
+              rating: series.rating || firstEpisode.rating || 'N/A',
+              poster: series.cover || series.stream_icon
+            };
           }
+        }
+      }
+      
+      if (streamUrl && streamInfo) {
+        // Para Tizen TV, usar configuração específica que força player interno
+        if (isTizenTV) {
+          console.log('📺 Configuração Tizen TV ativada para série');
+          
+          const playEvent = new CustomEvent('playContent', {
+            detail: {
+              streamUrl,
+              streamInfo: {
+                ...streamInfo,
+                // Flags específicas para Tizen TV
+                forceTizenPlayer: true,
+                preventBrowserRedirect: true,
+                useInternalPlayer: true
+              }
+            },
+            bubbles: false,
+            cancelable: false
+          });
+          
+          setTimeout(() => {
+            console.log('📺 Disparando evento playContent para Tizen TV (série)');
+            window.dispatchEvent(playEvent);
+          }, 100);
+          
+        } else {
+          console.log('💻 Configuração padrão ativada para série');
+          
+          const playEvent = new CustomEvent('playContent', {
+            detail: { streamUrl, streamInfo }
+          });
+          window.dispatchEvent(playEvent);
         }
       }
     } catch (error) {
       console.error('Erro ao carregar informações da série:', error);
       
       // Fallback: tentar reproduzir primeiro episódio com URL genérica
-      const streamUrl = buildStreamUrl('series', series.series_id, 'mp4');
+      let streamUrl;
+      
+      if (isDemoMode() && series.seasons) {
+        // Para séries demo, usar o primeiro episódio
+        streamUrl = series.seasons[0].episodes[0].stream_url;
+      } else {
+        streamUrl = buildStreamUrl('series', series.series_id, 'mp4');
+      }
       
       const streamInfo = {
         name: series.name,
-        category: selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Série',
+        category: isDemoMode() ? series.category_name || 'Série Demo' : (selectedCategory ? categories.find(cat => cat.category_id === selectedCategory)?.category_name : 'Série'),
         description: `Série - ${series.name}`,
         type: 'series'
       };
@@ -258,7 +351,7 @@ const Series = ({ isActive }) => {
         window.dispatchEvent(playEvent);
       }
     }
-  }, [selectedCategory, categories, API_BASE_URL, API_CREDENTIALS, isTizenTV, isDevelopment]);
+  }, [selectedCategory, categories, API_BASE_URL, API_CREDENTIALS, isTizenTV, isDevelopment, saveSeriesState]);
 
   // Calcular séries da página atual
   const getCurrentPageSeries = useCallback(() => {
@@ -397,6 +490,47 @@ const Series = ({ isActive }) => {
     return () => window.removeEventListener('seriesNavigation', handleSeriesNavigation);
   }, [isActive, focusArea, handleCategoriesNavigation, handleSeriesNavigationInternal]);
 
+  // Carregar/restaurar estado quando a seção ficar ativa
+  useEffect(() => {
+    if (!isActive) return;
+
+    // Carregar estado salvo somente uma vez ao ativar a seção
+    if (!restoreStateRef.current) {
+      restoreStateRef.current = loadSavedSeriesState();
+    }
+
+    if (!categories || categories.length === 0) {
+      // Dispara carregamento de categorias uma vez
+      loadSeriesCategories();
+      return;
+    }
+
+    // Se já temos categorias e existe estado salvo da mesma categoria, restaurar focos
+    const saved = restoreStateRef.current;
+    if (saved && saved.selectedCategory && String(saved.selectedCategory) === String(selectedCategory)) {
+      setCurrentPage(prev => (prev === saved.currentPage ? prev : Math.max(0, saved.currentPage || 0)));
+      setSeriesFocus(prev => (prev === saved.seriesFocus ? prev : Math.max(0, saved.seriesFocus || 0)));
+      setFocusArea(prev => (prev === 'series' ? prev : 'series'));
+    }
+  }, [isActive, loadSeriesCategories, loadSavedSeriesState, categories, selectedCategory]);
+
+  // Salvar estado ao desmontar o componente
+  useEffect(() => {
+    return () => {
+      try {
+        const stateToSave = {
+          selectedCategory,
+          categoryFocus,
+          currentPage,
+          seriesFocus,
+          focusArea: 'series'
+        };
+        localStorage.setItem('seriesState', JSON.stringify(stateToSave));
+        console.log('💾 Series - Estado salvo no unmount:', stateToSave);
+      } catch (e) {}
+    };
+  }, [selectedCategory, categoryFocus, currentPage, seriesFocus]);
+
   // Função para tratar erros de imagem
   const handleImageError = (e) => {
     e.target.style.display = 'none';
@@ -447,9 +581,9 @@ const Series = ({ isActive }) => {
                 </div>
               )}
               <div className="series-grid">
-                {currentPageSeries.map((series, index) => (
+                {currentPageSeries.map((serieItem, index) => (
                   <div
-                    key={series.series_id}
+                    key={serieItem.series_id}
                     ref={el => seriesRef.current[index] = el}
                     className="serie"
                     onClick={() => {
@@ -459,13 +593,13 @@ const Series = ({ isActive }) => {
                   >
                     <div className="serie-poster">
                       <img
-                        src={series.cover}
-                        alt={series.name}
+                        src={serieItem.cover}
+                        alt={serieItem.name}
                         onError={handleImageError}
                       />
                       <div className="serie-overlay">
                         <h3 className="serie-title">
-                        <span>{series.name}</span>
+                        <span>{serieItem.name}</span>
                         </h3>
                       </div>
                     </div>

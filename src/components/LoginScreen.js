@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './LoginScreen.css';
 import { loginCliente } from '../services/authService';
 
-const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
+const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, onGoToCreateAccount, isActive }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,17 +19,17 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
       setMacAddress(mac);
       console.log(`MAC Address obtido da URL: ${mac}`);
     } else if (mac) {
-        const errorMessage = `Dispositivo não suportado ou erro na leitura do MAC (${mac}).`;
-        console.error(errorMessage);
-        setError(errorMessage);
+      const errorMessage = `Dispositivo não suportado ou erro na leitura do MAC (${mac}).`;
+      console.error(errorMessage);
+      setError(errorMessage);
     }
-  }, []); // Executa apenas uma vez na montagem do componente
+  }, []);
 
   useEffect(() => {
-    // Foca o primeiro elemento quando a tela se torna ativa
+
     if (isActive) {
       focusableElements.current[0]?.focus();
-      setFocusIndex(0); // Garante que o foco visual seja aplicado
+      setFocusIndex(0);
     }
   }, [isActive]);
 
@@ -40,13 +40,21 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
       const { keyCode } = e.detail;
       const elementsCount = focusableElements.current.filter(el => el).length;
 
-      if (keyCode === 40) { // Down
+      console.log('LoginScreen - Navegação:', { keyCode, focusIndex, elementsCount });
+
+      if (keyCode === 40) {
         setFocusIndex(prev => (prev + 1) % elementsCount);
-      } else if (keyCode === 38) { // Up
+      } else if (keyCode === 38) {
         setFocusIndex(prev => (prev - 1 + elementsCount) % elementsCount);
-      } else if (keyCode === 13) { // Enter
+      } else if (keyCode === 13) {
+        e.preventDefault?.();
         const currentElement = focusableElements.current[focusIndex];
-        currentElement?.click();
+        console.log('LoginScreen - Enter pressionado:', { focusIndex, currentElement });
+
+        if (currentElement) {
+          // Simular clique no elemento focado
+          currentElement.click();
+        }
       }
     };
 
@@ -93,7 +101,7 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
           function (network) {
             macAddress = network.macAddress || '';
           },
-          function () {}
+          function () { }
         );
         if (macAddress) {
           console.log('MAC obtido via systeminfo:', macAddress);
@@ -117,21 +125,50 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
     setLoading(true);
 
     try {
+      // Bypass para credenciais de teste (sem opção de preenchimento automático na UI)
+      if (email === 'samsungtest1@samsung.com' && password === 'samsung') {
+        console.log('Usando bypass de teste para Samsung');
+
+        const mac_disp = macAddress || getMacAddress() || '00:11:22:33:44:55'; // MAC fake para teste
+
+        const testData = {
+          token: 'test-token-samsung-' + Date.now(),
+          email: 'samsungtest1@samsung.com',
+          id: 'test-user-id',
+          name: 'Samsung Test User'
+        };
+
+        localStorage.setItem('authToken', testData.token);
+        localStorage.setItem('authEmail', testData.email);
+        localStorage.setItem('testMode', 'true');
+
+        console.log('✅ Login de teste bem-sucedido:', testData);
+
+        setTimeout(() => {
+          onLogin(testData, mac_disp);
+          setLoading(false);
+        }, 400);
+
+        return;
+      }
+
+      // Fluxo normal de autenticação
       const mac_disp = macAddress || getMacAddress();
-      console.log('MAC que será enviado na requisição:', mac_disp); // Debug
-      
+      console.log('MAC que será enviado na requisição:', mac_disp);
+
       if (!mac_disp) {
         throw new Error('Não foi possível obter o MAC do dispositivo. Login não pode ser concluído.');
       }
-      
+
       const data = await loginCliente({ email, senha: password, mac_disp });
 
       // Armazenar token e email localmente para uso posterior
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('authEmail', data.email);
+      localStorage.removeItem('testMode');
 
-      console.log('Dados de login para enviar ao App:', data); // Debug
-      onLogin(data, mac_disp); // Informa App que login foi bem-sucedido e passa o MAC
+      console.log('Dados de login para enviar ao App:', data);
+      onLogin(data, mac_disp);
     } catch (err) {
       setError(err.message || 'Erro ao logar');
     } finally {
@@ -141,13 +178,13 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
 
   return (
     <div className="login-screen">
-      <img 
-        src="/images/image-mesh-gradient.png" 
-        className="background-image" 
-        alt="Background" 
+      <img
+        src="/images/image-mesh-gradient.png"
+        className="background-image"
+        alt="Background"
       />
-<div className="login-form">
-<img
+      <div className="login-form">
+        <img
           src="/images/logo-bigtv-est.png"
           className="logo-login"
           alt="BIGTV Logo"
@@ -155,6 +192,12 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
         <input
           ref={el => (focusableElements.current[0] = el)}
           type="email"
+          name="loginEmail"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          inputMode="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
@@ -162,6 +205,11 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
         <input
           ref={el => (focusableElements.current[1] = el)}
           type="password"
+          name="loginPassword"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Senha"
@@ -171,18 +219,32 @@ const LoginScreen = ({ onLogin, onGoToSignup, onSkipLogin, isActive }) => {
         <button
           ref={el => (focusableElements.current[2] = el)}
           id="continueButton"
+          type="button"
           onClick={handleContinue}
           disabled={loading}
         >
           {loading ? 'Entrando...' : 'Continuar'}
         </button>
+
         <button
           ref={el => (focusableElements.current[3] = el)}
-          id="signupButton"
-          className="signup-btn"
-          onClick={onGoToSignup}
+          className="create-account-btn"
+          type="button"
+          onClick={(e) => {
+            console.log('LoginScreen - Botão Criar Conta clicado via onClick');
+            onGoToCreateAccount();
+          }}
+          onKeyDown={(e) => {
+            console.log('LoginScreen - onKeyDown no botão:', e.keyCode);
+            if (e.keyCode === 13) { // Enter
+              console.log('LoginScreen - Enter detectado no onKeyDown do botão');
+              e.preventDefault();
+              e.stopPropagation();
+              onGoToCreateAccount();
+            }
+          }}
         >
-          Criar Nova Conta
+          Criar Conta
         </button>
 
       </div>

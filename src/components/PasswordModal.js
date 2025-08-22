@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './PasswordModal.css';
 import { safeScrollIntoView } from '../utils/scrollUtils';
 
-const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, password, onNavigation }) => {
+const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, password, onNavigation, showError = false }) => {
     const inputRef = useRef(null);
     const submitRef = useRef(null);
     const cancelRef = useRef(null);
@@ -15,11 +15,17 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
         ['4', '5', '6'],
         ['7', '8', '9'],
         [
-            { type: 'action', action: 'clear', display: <i className="fas fa-trash-alt"></i> },
+            { type: 'action', action: 'clear', display: <i className="fas fa-trash-alt"></i>, className: 'action-button' },
             '0',
-            { type: 'action', action: 'backspace', display: <i className="fas fa-backspace"></i> }
+            { type: 'action', action: 'backspace', display: <i className="fas fa-delete-left"></i>, className: 'control-button' }
         ]
     ];
+
+    // Reset modal state when component mounts
+    useEffect(() => {
+        setActiveElement('keyboard');
+        setSelectedKey({ row: 0, col: 0 });
+    }, []);
 
     const handleKeyPress = (key) => {
         if (typeof key === 'object' && key.action) {
@@ -30,13 +36,25 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
             }
         } else {
             if (password.length < 4) {
-                onPasswordChange(password + key);
+                const newPassword = password + key;
+                onPasswordChange(newPassword);
+
+                // Se completou 4 dígitos, chamar automaticamente o submit
+                if (newPassword.length === 4) {
+                    setTimeout(() => {
+                        onPasswordSubmit(newPassword);
+                    }, 300); // Pequeno delay para que o usuário veja os 4 dígitos
+                }
             }
         }
     };
 
     const handleSubmit = () => {
         onPasswordSubmit(password);
+    };
+
+    const handleCancel = () => {
+        onCancel();
     };
 
     const handlePasswordInputChange = (e) => {
@@ -90,16 +108,16 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
             if (activeElement === 'submit') {
                 handleSubmit();
             } else if (activeElement === 'cancel') {
-                onCancel();
+                handleCancel();
             }
         }
-    }, [activeElement, handleSubmit, onCancel]);
+    }, [activeElement, handleSubmit, handleCancel]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.keyCode === 10009) { // Back button on Tizen
                 e.preventDefault();
-                onCancel();
+                handleCancel();
                 return;
             }
 
@@ -115,7 +133,7 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [activeElement, handleKeyboardNavigation, handleButtonNavigation, onCancel]);
+    }, [activeElement, handleKeyboardNavigation, handleButtonNavigation, handleCancel]);
 
     const updateFocusVisual = useCallback(() => {
         document.querySelectorAll('.keyboard-key, .password-modal-buttons button').forEach(el => {
@@ -135,9 +153,9 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
                 }
             }
         } else if (activeElement === 'submit') {
-            submitRef.current.classList.add('focused');
+            submitRef.current?.classList.add('focused');
         } else if (activeElement === 'cancel') {
-            cancelRef.current.classList.add('focused');
+            cancelRef.current?.classList.add('focused');
         }
     }, [activeElement, selectedKey]);
 
@@ -151,11 +169,24 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
         }
     };
 
+    // Mostrar erro apenas se tem 4 dígitos E showError é true
+    const shouldShowError = showError && password.length === 4;
+
     return (
         <div className="password-modal-overlay" onClick={handleOverlayClick}>
             <div className="password-modal">
                 <h2>Canal Adulto</h2>
                 <p>Por favor, insira a senha para continuar:</p>
+                {shouldShowError && (
+                    <div className="password-error-message" style={{
+                        color: '#ff4444',
+                        fontSize: '1rem',
+                        marginBottom: '15px',
+                        textAlign: 'center'
+                    }}>
+                        Senha incorreta!
+                    </div>
+                )}
                 <input
                     ref={inputRef}
                     type="password"
@@ -175,7 +206,7 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
                                 return (
                                     <button
                                         key={`${rowIndex}-${colIndex}`}
-                                        className={`keyboard-key ${typeof key === 'object' ? 'special-key' : ''}`}
+                                        className={`keyboard-key ${typeof key === 'object' ? (key.className || 'special-key') : ''}`}
                                         onClick={() => handleKeyPress(valueToPress)}
                                     >
                                         {keyContent}
@@ -187,7 +218,7 @@ const PasswordModal = ({ onPasswordChange, onPasswordSubmit, onCancel, focus, pa
                 </div>
                 <div className="password-modal-buttons">
                     <button ref={submitRef} onClick={handleSubmit}>Acessar</button>
-                    <button ref={cancelRef} onClick={onCancel}>Cancelar</button>
+                    <button ref={cancelRef} onClick={handleCancel}>Cancelar</button>
                 </div>
             </div>
         </div>

@@ -96,3 +96,22 @@ export function getPlayerConfig() {
     password: credsMatch[2],
   };
 } 
+
+// Constrói a URL do XMLTV (EPG) a partir da base e credenciais atuais
+export function buildEpgUrl() {
+  const credsMatch = API_CREDENTIALS.match(/username=([^&]+)&password=(.+)/);
+  if (!API_BASE_URL || !credsMatch) return '';
+
+  const username = credsMatch[1];
+  const password = credsMatch[2];
+
+  // Detecta protocolo da base e extrai host antes de /player_api.php
+  const usesHttp = API_BASE_URL.startsWith('http://');
+  const protocol = usesHttp ? 'http' : 'https';
+  const host = API_BASE_URL
+    .replace('https://', '')
+    .replace('http://', '')
+    .replace('/player_api.php', '');
+
+  return `${protocol}://${host}/xmltv.php?username=${username}&password=${password}`;
+}

@@ -1,17 +1,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { safeScrollIntoView } from '../utils/scrollUtils';
+import PasswordModal from './PasswordModal';
+import AlertPopup from './AlertPopup';
 import { API_BASE_URL, API_CREDENTIALS, buildStreamUrl } from '../config/apiConfig';
+import { safeScrollIntoView } from '../utils/scrollUtils';
 import './Search.css';
+import { demoMovies, demoSeries, demoChannels } from '../data/demoContent';
 
 const Search = ({ isActive, onExitSearch }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  // Recuperar o texto da pesquisa do localStorage ou usar string vazia
+  const [searchQuery, setSearchQuery] = useState(() => {
+    const savedQuery = localStorage.getItem('searchQuery');
+    console.log('🔍 Search - Texto recuperado do localStorage:', savedQuery);
+    return savedQuery || '';
+  });
   const [allResults, setAllResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeSection, setActiveSection] = useState('keyboard'); // 'keyboard', 'results', 'categories'
   const [selectedKey, setSelectedKey] = useState({ row: 0, col: 0 });
   const [resultFocus, setResultFocus] = useState(0);
-  const [searchCategory, setSearchCategory] = useState('all'); // 'all', 'movie', 'serie', 'channel'
-  const [categoryFocus, setCategoryFocus] = useState(0); // 0: Todos, 1: Filmes, 2: Séries, 3: Canais
+  const [searchCategory, setSearchCategory] = useState('movie'); // 'movie', 'serie', 'channel'
+  const [categoryFocus, setCategoryFocus] = useState(0); // 0: Filmes, 1: Séries, 2: Canais
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(0);
@@ -21,6 +29,17 @@ const Search = ({ isActive, onExitSearch }) => {
   // Referencias para navegação
   const keyboardRef = useRef(null);
   const resultsRef = useRef([]);
+
+  // Salvar o texto da pesquisa no localStorage sempre que mudar
+  useEffect(() => {
+    if (searchQuery) {
+      localStorage.setItem('searchQuery', searchQuery);
+      console.log('🔍 Search - Texto salvo no localStorage:', searchQuery);
+    } else {
+      localStorage.removeItem('searchQuery');
+      console.log('🔍 Search - Texto removido do localStorage');
+    }
+  }, [searchQuery]);
 
   // Layout do teclado virtual
   const keyboardLayout = [
@@ -38,68 +57,92 @@ const Search = ({ isActive, onExitSearch }) => {
   ];
 
   const searchCategories = [
-    { id: 'all', name: 'Todos' },
     { id: 'movie', name: 'Filmes' },
     { id: 'serie', name: 'Séries' },
     { id: 'channel', name: 'Canais ao Vivo' },
   ];
 
-  const handleResultClick = useCallback((result) => {
+  const handleResultClick = useCallback(async (result) => {
     const { type, rawItem: item } = result;
     console.log('Item selecionado:', { item, type });
 
-    let streamUrl = '';
-    let streamInfo = {};
+    try {
+      const isTestMode = localStorage.getItem('testMode') === 'true';
+      switch (type) {
+        case 'channel':
+          // Para canais, reproduzir diretamente sem modal
+          console.log('📺 Canal selecionado na pesquisa - reproduzindo diretamente:', item);
 
-    // Construir URL e informações baseado no tipo (estrutura correta da API)
-    switch (type) {
-      case 'channel':
-        streamUrl = buildStreamUrl('live', item.stream_id, 'ts');
-        streamInfo = {
-          name: item.name,
-          category: 'Canal',
-          description: `Canal ao vivo - ${item.name}`,
-          type: 'live'
-        };
-        break;
+          const streamUrl = isTestMode && item.stream_url
+            ? item.stream_url
+            : buildStreamUrl('live', item.stream_id, 'ts');
+          const streamInfo = {
+            name: item.name,
+            type: 'live',
+            category: 'Canal',
+            description: `Canal ao vivo - ${item.name}`,
+            logo: item.stream_icon
+          };
 
-      case 'movie':
-        streamUrl = buildStreamUrl('movie', item.stream_id, 'mp4');
-        streamInfo = {
-          name: item.name,
-          category: 'Filme',
-          description: item.plot || `Filme - ${item.name}`,
-          year: item.releaseDate ? new Date(item.releaseDate).getFullYear() : null,
-          rating: item.rating,
-          type: 'movie'
-        };
-        break;
+          const playEvent = new CustomEvent('playContent', {
+            detail: { streamUrl, streamInfo }
+          });
 
-      case 'serie':
-        streamUrl = buildStreamUrl('series', item.series_id, 'mp4');
-        streamInfo = {
-          name: item.name,
-          category: 'Série',
-          description: item.plot || `Série - ${item.name}`,
-          year: item.year,
-          rating: item.rating,
-          type: 'series'
-        };
-        break;
+          console.log('📺 Disparando evento playContent para canal da pesquisa...');
+          window.dispatchEvent(playEvent);
+          break;
 
-      default:
-        console.error('Tipo de conteúdo não reconhecido:', type);
-        return;
+        case 'movie':
+          // Para filmes, abrir página de detalhes (igual ao Movies.js)
+          console.log('🎬 Filme selecionado na pesquisa - abrindo detalhes:', item);
+
+          const movieWithCategory = {
+            ...item,
+            category_name: 'Filme'
+          };
+
+          // Disparar evento para navegar para a página de detalhes
+          const showMovieDetailsEvent = new CustomEvent('showSearchMovieDetails', {
+            detail: { movie: movieWithCategory }
+          });
+          window.dispatchEvent(showMovieDetailsEvent);
+          break;
+
+        case 'serie':
+          // Para séries, abrir página de detalhes (igual ao Series.js)
+          console.log('🎬 Série selecionada na pesquisa - abrindo detalhes:', item);
+
+          const seriesWithCategory = {
+            ...item,
+            category_name: 'Série'
+          };
+
+          // Disparar evento para navegar para a página de detalhes
+          const showDetailsEvent = new CustomEvent('showSeriesDetails', {
+            detail: { series: seriesWithCategory }
+          });
+          window.dispatchEvent(showDetailsEvent);
+          break;
+
+        default:
+          console.error('Tipo de conteúdo não reconhecido:', type);
+          return;
+      }
+    } catch (error) {
+      console.error('Erro ao processar seleção do resultado:', error);
     }
-
-    // Disparar evento para reproduzir no VideoPlayer
-    const playEvent = new CustomEvent('playContent', {
-      detail: { streamUrl, streamInfo }
-    });
-    window.dispatchEvent(playEvent);
   }, []);
 
   const fetchAllContent = useCallback(async (type) => {
+    // Modo demo: usar conteúdo mockado local
+    const isTestMode = localStorage.getItem('testMode') === 'true';
+    if (isTestMode) {
+      if (type === 'movie') return demoMovies.slice();
+      if (type === 'serie') return demoSeries.slice();
+      if (type === 'channel') return demoChannels.slice();
+      return [];
+    }
+
     const actionMap = {
       movie: 'get_vod_streams',
       serie: 'get_series',
@@ -133,18 +176,8 @@ const Search = ({ isActive, onExitSearch }) => {
 
     try {
       let fetchedData = [];
-      const categoriesToFetch =
-        searchCategory === 'all'
-          ? ['movie', 'serie', 'channel']
-          : [searchCategory];
-
-      const promises = categoriesToFetch.map(async (category) => {
-        const data = await fetchAllContent(category);
-        return data.map(item => ({ ...item, type: category }));
-      });
-
-      const results = await Promise.all(promises);
-      fetchedData = results.flat();
+      const data = await fetchAllContent(searchCategory);
+      fetchedData = data.map(item => ({ ...item, type: searchCategory }));
 
       const normalizeText = (text) => {
         if (!text) return '';
@@ -156,10 +189,12 @@ const Search = ({ isActive, onExitSearch }) => {
       };
 
       const normalizedQuery = normalizeText(searchQuery);
-      
+
       const mappedData = fetchedData.map(item => ({
         ...item,
-        icon: item.type === 'serie' ? item.cover : item.stream_icon
+        // Em demo, séries usam cover; filmes/canais usam stream_icon
+        icon: (item.type || searchCategory) === 'serie' ? (item.cover || item.stream_icon) : item.stream_icon,
+        type: item.type || searchCategory
       }));
 
       const filteredResults = mappedData
@@ -204,6 +239,7 @@ const Search = ({ isActive, onExitSearch }) => {
       } else if (key.action === 'clear') {
         setSearchQuery('');
         setAllResults([]);
+        localStorage.removeItem('searchQuery'); // Limpar do localStorage também
       } else if (key.type === 'char') {
         setSearchQuery(prev => {
           if (prev.length < 30) { // Add limit check
@@ -305,7 +341,7 @@ const Search = ({ isActive, onExitSearch }) => {
       }
     } else if (keyCode === 39) { // Direita
       const isLastKeyInRow = currentCol === keyboardLayout[currentRow].length - 1;
-          const hasResults = allResults.length > 0;
+      const hasResults = allResults.length > 0;
       if (currentCol < keyboardLayout[currentRow].length - 1) {
         currentCol++;
         setSelectedKey(prev => ({ ...prev, col: currentCol }));
@@ -400,6 +436,8 @@ const Search = ({ isActive, onExitSearch }) => {
     const handleSearchNavigation = (event) => {
       const { keyCode } = event.detail;
 
+      console.log('🔍 Search - Navegação recebida:', { keyCode, activeSection });
+
       if (activeSection === 'keyboard') {
         handleKeyboardNavigation(keyCode);
       } else if (activeSection === 'results') {
@@ -411,7 +449,7 @@ const Search = ({ isActive, onExitSearch }) => {
 
     window.addEventListener('searchNavigation', handleSearchNavigation);
     return () => window.removeEventListener('searchNavigation', handleSearchNavigation);
-  }, [isActive, activeSection, handleKeyboardNavigation, handleResultsNavigation, handleCategoryNavigation]);
+      }, [isActive, activeSection, handleKeyboardNavigation, handleResultsNavigation, handleCategoryNavigation]);
 
   // Atualizar foco visual
   const updateFocusVisual = useCallback(() => {
@@ -477,7 +515,6 @@ const Search = ({ isActive, onExitSearch }) => {
   const currentPageResults = getCurrentPageResults();
   const totalPages = Math.ceil(allResults.length / ITEMS_PER_PAGE);
 
-
   if (!isActive) return null;
 
   return (
@@ -490,7 +527,7 @@ const Search = ({ isActive, onExitSearch }) => {
               <span className="search-query">{searchQuery}</span>
               <span className="cursor">|</span>
             </div>
-             <div className="category-selector">
+            <div className="category-selector">
               {searchCategories.map((category, index) => (
                 <button
                   key={category.id}
@@ -540,7 +577,7 @@ const Search = ({ isActive, onExitSearch }) => {
                       {allResults.length} resultados encontrados
                     </span>
                   </div>
-                  <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
+                  <div className="results-grid">
                     {currentPageResults.map((result, index) => {
                       const translatedType = {
                         'channel': 'Canal',
@@ -555,14 +592,20 @@ const Search = ({ isActive, onExitSearch }) => {
                           className={`search-result-item ${result.type}-result`}
                           onClick={() => handleResultClick(result)}
                         >
-                          <img
-                            src={result.icon}
-                            alt={result.name}
-                            onError={handleImageError}
-                          />
-                          <span className="result-type-badge">{translatedType}</span>
-                          <div className="result-info">
-                            <h4>{result.name}</h4>
+                          <div className="search-result-poster">
+                            {result.icon && (
+                              <img
+                                src={result.icon}
+                                alt={result.name}
+                                onError={handleImageError}
+                              />
+                            )}
+                            <span className="result-type-badge">{translatedType}</span>
+                            <div className="search-result-overlay">
+                              <h3 className="search-result-title">
+                                <span>{result.name}</span>
+                              </h3>
+                            </div>
                           </div>
                         </div>
                       );

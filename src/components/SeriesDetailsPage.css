@@ -32,7 +32,6 @@ img {
     margin: 0;
     padding: 0;
     border: 0;
-    outline: 0;
     vertical-align: baseline;
 }
 
@@ -137,7 +136,7 @@ img {
     margin-bottom: 25px;
 }
 
-.series-meta-info > *:not(:last-child) {
+.series-meta-info>*:not(:last-child) {
     margin-right: 25px;
 }
 
@@ -150,7 +149,7 @@ img {
     font-size: 14px;
 }
 
-.meta-item > *:not(:last-child) {
+.meta-item>*:not(:last-child) {
     margin-right: 4px;
 }
 
@@ -178,7 +177,7 @@ img {
     margin-bottom: 35px;
 }
 
-.series-genres > .genre-tag:not(:last-child) {
+.series-genres>.genre-tag:not(:last-child) {
     margin-right: 15px;
 }
 
@@ -210,12 +209,12 @@ img {
     display: flex;
     -webkit-align-items: center;
     align-items: center;
-    -webkit-transition: background-color 0.1s ease, outline 0.1s ease;
-    transition: background-color 0.1s ease, outline 0.1s ease;
+    -webkit-transition: background-color 0.1s ease, border 0.1s ease;
+    transition: background-color 0.1s ease, border 0.1s ease;
 }
 
-.primary-action-btn > *:not(:last-child),
-.secondary-action-btn > *:not(:last-child) {
+.primary-action-btn>*:not(:last-child),
+.secondary-action-btn>*:not(:last-child) {
     margin-right: 5px;
 }
 
@@ -229,7 +228,7 @@ img {
     background: #ffffff25;
     border: 2px solid #f1f1f1;
     color: rgb(255, 255, 255);
-    
+
 }
 
 /* Estados de foco otimizados para performance */
@@ -330,7 +329,7 @@ img {
     margin-bottom: 35px;
 }
 
-.season-selector-hbo > *:not(:last-child) {
+.season-selector-hbo>*:not(:last-child) {
     margin-right: 20px;
 }
 
@@ -346,7 +345,7 @@ img {
     position: relative;
 }
 
-.season-numbers-container > .season-number-item:not(:last-child) {
+.season-numbers-container>.season-number-item:not(:last-child) {
     margin-right: 18px;
 }
 
@@ -358,8 +357,8 @@ img {
     cursor: pointer;
     font-weight: bold;
     border: 0;
-    -webkit-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
-    transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
+    -webkit-transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
+    transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
 }
 
 .season-number-item:hover,
@@ -408,8 +407,8 @@ img {
     display: flex;
     -webkit-flex-direction: column;
     flex-direction: column;
-    -webkit-transition: background-color 0.1s ease, outline 0.1s ease, -webkit-transform 0.1s ease;
-    transition: background-color 0.1s ease, outline 0.1s ease, transform 0.1s ease;
+    -webkit-transition: background-color 0.1s ease, border 0.1s ease, -webkit-transform 0.1s ease;
+    transition: background-color 0.1s ease, border 0.1s ease, transform 0.1s ease;
     box-sizing: border-box;
     position: relative;
 }
@@ -503,6 +502,7 @@ img {
 .episode-duration {
     color: #b3b3b3;
     font-size: 12px;
+    font-weight: 500;
 }
 
 .episode-title-new {
@@ -518,10 +518,14 @@ img {
 .episode-meta {
     display: -webkit-flex;
     display: flex;
-    margin-bottom: 10px;
+    -webkit-align-items: center;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
-.episode-meta > *:not(:last-child) {
+
+
+.episode-meta>*:not(:last-child) {
     margin-right: 10px;
 }
 
@@ -538,7 +542,8 @@ img {
     -webkit-flex: 1;
     flex: 1;
     /* Fallback para line-clamp */
-    max-height: 4.2em; /* 3 linhas * 1.4 line-height */
+    max-height: 4.2em;
+    /* 3 linhas * 1.4 line-height */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -558,7 +563,7 @@ img {
     color: #b3b3b3;
 }
 
-.loading > *:not(:last-child) {
+.loading>*:not(:last-child) {
     margin-right: 10px;
 }
 
@@ -568,13 +573,23 @@ img {
 }
 
 @-webkit-keyframes spin {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .no-episodes-message {
@@ -612,7 +627,7 @@ img {
     opacity: 0.8;
 }
 
-.episodes-navigation-hint > *:not(:last-child) {
+.episodes-navigation-hint>*:not(:last-child) {
     margin-right: 8px;
 }
 
@@ -622,13 +637,27 @@ img {
 }
 
 @-webkit-keyframes simple-bounce {
-    0%, 100% { -webkit-transform: translateY(0); }
-    50% { -webkit-transform: translateY(-3px); }
+
+    0%,
+    100% {
+        -webkit-transform: translateY(0);
+    }
+
+    50% {
+        -webkit-transform: translateY(-3px);
+    }
 }
 
 @keyframes simple-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
 }
 
 /* ==========================================================================
@@ -664,15 +693,15 @@ img {
     }
 
     /* Reduzir espaçamentos em telas menores */
-    .series-meta-info > *:not(:last-child) {
+    .series-meta-info>*:not(:last-child) {
         margin-right: 20px;
     }
 
-    .series-genres > .genre-tag:not(:last-child) {
+    .series-genres>.genre-tag:not(:last-child) {
         margin-right: 12px;
     }
 
-    .series-action-buttons > *:not(:last-child) {
+    .series-action-buttons>*:not(:last-child) {
         margin-right: 15px;
     }
 
@@ -680,7 +709,7 @@ img {
         padding: 15px 30px;
     }
 
-    .episodes-grid-new > .episode-card-new:not(:last-child) {
+    .episodes-grid-new>.episode-card-new:not(:last-child) {
         margin-right: 20px;
     }
 
@@ -724,4 +753,155 @@ img {
 .episode-thumbnail img {
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
-} 
+}
+
+/* ==========================================================================
+   INDICADORES DE PROGRESSO DOS EPISÓDIOS
+   ========================================================================== */
+
+/* Barra de progresso no thumbnail */
+.episode-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+.episode-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e50914 0%, #ff6b35 100%);
+    transition: width 0.3s ease;
+    border-radius: 0 2px 2px 0;
+}
+
+/* Badge de episódio completo */
+.episode-completed-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background-color: #00c851;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.episode-completed-badge i {
+    color: white;
+    font-size: 12px;
+}
+
+/* Modificações no card do episódio para episódios completos */
+.episode-card-new.completed {
+    opacity: 0.8;
+    border: 2px solid #00c851;
+}
+
+.episode-card-new.completed .episode-play-overlay {
+    background-color: rgba(0, 200, 81, 0.9);
+}
+
+.episode-card-new.completed .episode-play-overlay i {
+    color: white;
+}
+
+/* Hover e focus states para indicadores */
+.episode-card-new:hover .episode-progress-bar,
+.episode-card-new.focused .episode-progress-bar {
+    height: 6px;
+}
+
+.episode-card-new:hover .episode-completed-badge,
+.episode-card-new.focused .episode-completed-badge {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+/* Responsividade para indicadores */
+@media (max-width: 1600px) {
+    .episode-completed-badge {
+        width: 20px;
+        height: 20px;
+        top: 6px;
+        right: 6px;
+    }
+
+    .episode-completed-badge i {
+        font-size: 10px;
+    }
+
+    .episode-progress-bar {
+        height: 3px;
+    }
+}
+
+@media (max-width: 1366px) {
+    .episode-completed-badge {
+        width: 18px;
+        height: 18px;
+        top: 4px;
+        right: 4px;
+    }
+
+    .episode-completed-badge i {
+        font-size: 9px;
+    }
+
+    .episode-progress-bar {
+        height: 3px;
+    }
+
+    .episode-card-new:hover .episode-progress-bar,
+    .episode-card-new.focused .episode-progress-bar {
+        height: 4px;
+    }
+}
+
+/* ==========================================================================
+   INFORMAÇÃO DE PROGRESSO NOS EPISÓDIOS
+   ========================================================================== */
+
+.episode-progress-info {
+    margin-top: 8px;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    font-size: 11px;
+    border-left: 3px solid #e50914;
+}
+
+.progress-completed {
+    color: #00c851;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.progress-time {
+    color: #fff;
+    font-weight: 500;
+}
+
+/* Responsividade para informação de progresso */
+@media (max-width: 1600px) {
+    .episode-progress-info {
+        margin-top: 6px;
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 1366px) {
+    .episode-progress-info {
+        margin-top: 4px;
+        padding: 2px 4px;
+        font-size: 9px;
+    }
+}

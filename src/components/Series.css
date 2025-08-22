@@ -28,7 +28,6 @@ img {
   margin: 0;
   padding: 0;
   border: 0;
-  outline: 0;
   vertical-align: baseline;
 }
 
@@ -103,8 +102,8 @@ img {
 
 /* Aplicar margens nos elementos filhos do layout principal */
 .series-page>* {
-  margin: 20px 20px 20px 0;
-  /* Margem nos elementos filhos */
+  margin: 20px 6px 20px 0;
+  /* Reduz ainda mais o espaçamento lateral entre a sidebar e os cards */
 }
 
 .series-page> :first-child {
@@ -119,8 +118,8 @@ img {
 
 /* Estilos para a lista de categorias de séries - Otimizada */
 .category-sidebar {
-  width: 260px;
-  min-width: 260px;
+  width: 380px;
+  min-width: 380px;
   border-radius: 8px;
   overflow-y: auto;
   height: calc(100vh - 40px);
@@ -222,17 +221,17 @@ img {
   /* Ajustado para consistência */
   cursor: pointer;
   text-align: left;
-  font-size: 1.4rem;
-  /* Mantido - bom tamanho */
+  font-size: 4rem;
+  /* Aumentado para 4rem conforme solicitado */
   font-family: inherit;
-  font-weight: 500;
-  /* Peso padrão */
+  font-weight: 700;
+  /* Negrito para melhor legibilidade */
 
   /* Transições otimizadas */
-  -webkit-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
-  -moz-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
-  -o-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
-  transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
+  -webkit-transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
+  -moz-transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
+  -o-transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
+  transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
 
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
@@ -413,10 +412,10 @@ img {
   margin-bottom: 15px;
 
   /* Transições otimizadas */
-  -webkit-transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
-  -moz-transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
-  -o-transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
+  -webkit-transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.1s ease;
+  -moz-transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.1s ease;
+  -o-transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.1s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.1s ease;
 
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
@@ -520,7 +519,8 @@ img {
   display: inline-block;
   white-space: nowrap;
   will-change: transform;
-  padding-left: 0; /* sem espaçamento extra */
+  padding-left: 0;
+  /* sem espaçamento extra */
 }
 
 .serie.focused .serie-title span,
@@ -531,15 +531,19 @@ img {
   animation-iteration-count: infinite;
   animation-fill-mode: forwards;
   animation-play-state: running;
-  padding-left: 0; /* começa colado */
+  padding-left: 0;
+  /* começa colado */
 }
 
 @keyframes scroll-text {
   0% {
-    transform: translateX(0); /* começa colado na esquerda */
+    transform: translateX(0);
+    /* começa colado na esquerda */
   }
+
   100% {
-    transform: translateX(-100%); /* rola até sumir completamente */
+    transform: translateX(-100%);
+    /* rola até sumir completamente */
   }
 }
 
@@ -751,6 +755,7 @@ img {
     min-width: 120px;
     margin-bottom: 0;
     width: auto;
+    font-size: 1.2rem;
   }
 
   .series-grid {

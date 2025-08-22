@@ -1,0 +1,283 @@
+/* ==========================================================================
+   RESET CSS ESPECÍFICO PARA TIZEN 5.0+
+   ========================================================================== */
+*,
+*::before,
+*::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+}
+
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+img {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL COM CORREÇÕES TIZEN 5.0+
+   ========================================================================== */
+
+.movie-details-page {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    color: white;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Layout Principal */
+.movie-main-layout {
+    display: -webkit-flex;
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    position: relative;
+}
+
+/* Wrapper interno para padding seguro no Tizen */
+.movie-info-panel {
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    max-width: 50%;
+    padding: 40px;
+    position: relative;
+    z-index: 2;
+    background-color: #222222;
+}
+
+.movie-header-info {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.movie-provider-logo {
+    height: 30px;
+    opacity: 0.8;
+    display: block;
+    margin-bottom: 20px;
+    max-width: 100%;
+}
+
+.movie-title-main {
+    font-size: 3.5rem;
+    font-weight: bold;
+    line-height: 1.1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin-bottom: 25px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.movie-meta-info {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.movie-meta-info>*:not(:last-child) {
+    margin-right: 25px;
+}
+
+.meta-item {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    color: #b3b3b3;
+    font-size: 14px;
+}
+
+.meta-item>*:not(:last-child) {
+    margin-right: 4px;
+}
+
+.meta-item.release-year {
+    color: #ffd700;
+}
+
+.meta-item.rating {
+    color: #ffd700;
+}
+
+.meta-item.category {
+    color: #b3b3b3;
+}
+
+.movie-synopsis {
+    margin-bottom: 25px;
+}
+
+.synopsis-text {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #cccccc;
+    max-height: 120px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.synopsis-text.expanded {
+    max-height: none;
+}
+
+/* Botões de Ação - Otimizados para Performance */
+.movie-action-buttons {
+    display: -webkit-flex;
+    display: flex;
+    margin-top: auto;
+    margin-bottom: 250px;
+}
+
+.primary-action-btn,
+.secondary-action-btn {
+    padding: 16px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-transition: background-color 0.1s ease, border 0.1s ease;
+    transition: background-color 0.1s ease, border 0.1s ease;
+    position: relative;
+    z-index: 10;
+}
+
+.primary-action-btn>*:not(:last-child),
+.secondary-action-btn>*:not(:last-child) {
+    margin-right: 5px;
+}
+
+.primary-action-btn {
+    background: #ef8401;
+    color: white;
+    margin-right: 25px;
+}
+
+.secondary-action-btn {
+    background: #ffffff25;
+    border: 2px solid #f1f1f1;
+    color: rgb(255, 255, 255);
+}
+
+/* Estados de foco otimizados para performance */
+.primary-action-btn.focused {
+    background: #FF8C00;
+    box-shadow: 0 5px 20px rgba(255, 140, 0, 0.4);
+    border: 3px solid #FF8C00;
+    border-color: #FF8C00;
+}
+
+.secondary-action-btn.focused {
+    background: #d6d6d640;
+    box-shadow: 0 5px 20px rgba(236, 236, 236, 0.4);
+    border: 3px solid #ffffff;
+    border-color: #ffffff;
+}
+
+/* Arte Promocional */
+.movie-promotional-art {
+    -webkit-flex: 1;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.promotional-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.promotional-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, #222222 0%, #222222 0%, #22222200 100%);
+}
+
+/* ==========================================================================
+   OTIMIZAÇÕES ESPECÍFICAS PARA PERFORMANCE TIZEN 5.0+
+   ========================================================================== */
+
+/* Responsividade otimizada */
+@media (max-width: 1920px) {
+    .movie-title-main {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 1366px) {
+
+    /* Reduzir espaçamentos em telas menores */
+    .movie-meta-info>*:not(:last-child) {
+        margin-right: 20px;
+    }
+
+    .movie-action-buttons>*:not(:last-child) {
+        margin-right: 15px;
+    }
+
+    /* Ajustar padding do painel info em telas menores */
+    .movie-info-panel {
+        padding: 30px;
+    }
+}
+
+/* Otimizações GPU mínimas necessárias para Tizen 5.0+ */
+.movie-main-layout,
+.primary-action-btn,
+.secondary-action-btn {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Forçar renderização por hardware para elementos críticos */
+.movie-details-page,
+.promotional-image {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+}

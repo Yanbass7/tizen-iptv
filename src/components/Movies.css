@@ -3,7 +3,8 @@
    ========================================================================== */
 
 /* Reset otimizado para Tizen 5.0+ */
-html, body {
+html,
+body {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
@@ -13,16 +14,27 @@ html, body {
   -ms-text-size-adjust: 100%;
 }
 
-div, span, p, h1, h2, h3, h4, h5, h6, button, img {
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+img {
   margin: 0;
   padding: 0;
   border: 0;
-  outline: 0;
   vertical-align: baseline;
 }
 
 /* Force o box-sizing com prefixos para Tizen 5.0+ */
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   -webkit-box-sizing: border-box !important;
   -moz-box-sizing: border-box !important;
   -ms-box-sizing: border-box !important;
@@ -45,14 +57,14 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   height: 100vh;
   color: white;
   overflow: hidden;
-  
+
   /* Fallback para gradiente */
   background: #0c0c0c;
   background: -webkit-gradient(linear, left top, right bottom, from(#0c0c0c), to(#1a1a1a));
   background: -webkit-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
   background: -o-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
   background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
-  
+
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   -moz-transform: translateZ(0);
@@ -61,7 +73,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
   backface-visibility: hidden;
-  
+
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -75,9 +87,9 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  
+
   height: 100%;
-  
+
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   -moz-transform: translateZ(0);
@@ -89,35 +101,38 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 /* Aplicar margens nos elementos filhos do layout principal */
-.movies-page > * {
-  margin: 20px 20px 20px 0; /* Margem nos elementos filhos */
+.movies-page>* {
+  margin: 20px 6px 20px 0;
+  /* Reduz ainda mais o espaçamento lateral entre a sidebar e os cards */
 }
 
-.movies-page > :first-child {
-  margin-left: 20px; /* Margem esquerda no primeiro elemento */
+.movies-page> :first-child {
+  margin-left: 20px;
+  /* Margem esquerda no primeiro elemento */
 }
 
-.movies-page > :last-child {
-  margin-right: 20px; /* Margem direita no último elemento */
+.movies-page> :last-child {
+  margin-right: 20px;
+  /* Margem direita no último elemento */
 }
 
 /* Estilos para a lista de categorias de filmes - Otimizada */
 .category-sidebar {
-  width: 260px;
-  min-width: 260px;
+  width: 380px;
+  min-width: 380px;
   border-radius: 8px;
   overflow-y: auto;
   height: calc(100vh - 40px);
   scrollbar-width: none;
   padding: 10px;
-  
+
   /* Fallback para gradiente */
   background: #0c0c0c;
   background: -webkit-gradient(linear, left top, right bottom, from(#0c0c0c), to(#1a1a1a));
   background: -webkit-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
   background: -o-linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
   background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
-  
+
   /* Fallback para browsers antigos */
   display: block;
   /* Prefixos WebKit para Tizen */
@@ -125,24 +140,24 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  
+
   /* Direção com prefixos */
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  
+
   /* Force o box-sizing com prefixos */
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
   box-sizing: border-box;
-  
+
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  
+
   /* Otimizações de scroll cross-browser */
   -webkit-overflow-scrolling: touch;
   -ms-overflow-style: none;
@@ -168,7 +183,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   text-align: center;
   border-bottom: 2px solid rgba(255, 140, 0, 0.3);
   padding-bottom: 15px;
-  
+
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -181,7 +196,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
-  
+
   /* Direção com prefixos */
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
@@ -195,22 +210,27 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: block;
   width: 100%;
   background-color: transparent;
-  color: #ccc; /* Ajustado para consistência */
+  color: #ccc;
+  /* Ajustado para consistência */
   border: none;
-  margin: 0; /* Reset geral de margens para o botão */
+  margin: 0;
+  /* Reset geral de margens para o botão */
   padding: 12px 15px;
-  border-radius: 12px; /* Ajustado para consistência */
+  border-radius: 12px;
+  /* Ajustado para consistência */
   cursor: pointer;
   text-align: left;
-  font-size: 1.4rem; /* Mantido - bom tamanho */
+  font-size: 4rem;
+  /* Aumentado para 4rem conforme solicitado */
   font-family: inherit;
-  font-weight: 500; /* Peso padrão */
+  font-weight: 700;
+  /* Negrito para melhor legibilidade */
 
   /* Transições otimizadas */
-  -webkit-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
-  -moz-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
-  -o-transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
-  transition: background-color 0.1s ease, color 0.1s ease, outline 0.1s ease;
+  -webkit-transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
+  -moz-transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
+  -o-transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
+  transition: background-color 0.1s ease, color 0.1s ease, border 0.1s ease;
 
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
@@ -218,25 +238,31 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 /* Aplicando margin-bottom a todos os botões de categoria dentro da lista */
-.category-list > .category-button {
-  margin-bottom: 15px; /* Aumentado para 15px */
+.category-list>.category-button {
+  margin-bottom: 15px;
+  /* Aumentado para 15px */
 }
 
 /* Remove a margin-bottom do último botão para evitar espaço extra no final da lista */
-.category-list > .category-button:last-child {
+.category-list>.category-button:last-child {
   margin-bottom: 0;
 }
 
 .category-button.active {
-  background-color: rgba(255, 140, 0, 0.2); /* Cor da Sidebar.css */
-  color: #FF8C00; /* Cor da Sidebar.css */
-  font-weight: bold; /* Destaque para ativo */
+  background-color: rgba(255, 140, 0, 0.2);
+  /* Cor da Sidebar.css */
+  color: #FF8C00;
+  /* Cor da Sidebar.css */
+  font-weight: bold;
+  /* Destaque para ativo */
 }
 
 .category-button.focused,
 .category-button:hover {
-  background-color: rgba(255, 140, 0, 0.1); /* Cor da Sidebar.css */
-  color: white; /* Cor da Sidebar.css */
+  background-color: rgba(255, 140, 0, 0.1);
+  /* Cor da Sidebar.css */
+  color: white;
+  /* Cor da Sidebar.css */
   border: 3px solid #e57e09;
   border-color: #e57e09;
   -webkit-transform: scale(1.04) translateZ(0);
@@ -248,8 +274,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Estado combinado de ativo e focado */
 .category-button.active.focused {
-  background-color: rgba(255, 140, 0, 0.3); /* Mais escuro que active ou focused sozinhos */
-  color: #FF8C00; /* Mantém cor do active */
+  background-color: rgba(255, 140, 0, 0.3);
+  /* Mais escuro que active ou focused sozinhos */
+  color: #FF8C00;
+  /* Mantém cor do active */
   border: 3px solid #e57e09;
   border-color: #e57e09;
   -webkit-transform: scale(1.04) translateZ(0);
@@ -266,23 +294,23 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  
+
   background-color: rgba(20, 20, 20, 0.5);
   border-radius: 8px;
   overflow-y: auto;
   height: calc(100vh - 40px);
   scrollbar-width: none;
-  
+
   /* Force o box-sizing com prefixos */
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
   box-sizing: border-box;
-  
+
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  
+
   /* Otimizações de scroll cross-browser */
   -webkit-overflow-scrolling: touch;
   -ms-overflow-style: none;
@@ -303,8 +331,9 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 .movies-content {
   padding: 20px;
-  padding-bottom: 35px; /* Adicionado para espaço após a última linha do grid */
-  
+  padding-bottom: 35px;
+  /* Adicionado para espaço após a última linha do grid */
+
   /* Force o box-sizing com prefixos */
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -321,25 +350,25 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  
+
   /* Justify com prefixos */
   -webkit-box-pack: justify;
   -webkit-justify-content: space-between;
   -ms-flex-pack: justify;
   justify-content: space-between;
-  
+
   /* Align com prefixos */
   -webkit-box-align: center;
   -webkit-align-items: center;
   -ms-flex-align: center;
   align-items: center;
-  
+
   margin-bottom: 20px;
   padding: 10px 15px;
   background: rgba(255, 140, 0, 0.1);
   border-radius: 8px;
   border: 1px solid rgba(255, 140, 0, 0.3);
-  
+
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -367,14 +396,15 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  
+
   /* Wrap com prefixos */
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  
-  /* gap: 15px; */ /* Removido devido a problemas de compatibilidade com Tizen 5.0 */
-  
+
+  /* gap: 15px; */
+  /* Removido devido a problemas de compatibilidade com Tizen 5.0 */
+
   /* Otimização de performance */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -382,43 +412,45 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Estilo individual do filme */
 .movie {
-  width: calc(20% - 12px); /* 5 colunas com gap de 15px */
-  aspect-ratio: 2/3; /* ATENÇÃO: aspect-ratio não é suportado no Tizen 5.0 */
+  width: calc(20% - 12px);
+  /* 5 colunas com gap de 15px */
+  aspect-ratio: 2/3;
+  /* ATENÇÃO: aspect-ratio não é suportado no Tizen 5.0 */
   background: rgba(30, 30, 30, 0.8);
   border-radius: 8px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  
+
   /* Adicionando margens para simular o gap */
   margin-right: 15px;
   margin-bottom: 15px;
-  
+
   /* Transições otimizadas */
-  -webkit-transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
-  -moz-transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
-  -o-transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
-  
+  -webkit-transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.1s ease;
+  -moz-transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.1s ease;
+  -o-transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.1s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.1s ease;
+
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  
+
   /* Animação de entrada */
   -webkit-animation: fadeInUp 0.6s ease-out;
   -moz-animation: fadeInUp 0.6s ease-out;
   -o-animation: fadeInUp 0.6s ease-out;
   animation: fadeInUp 0.6s ease-out;
-  
+
   /* Opacity inicial para animação */
   opacity: 0;
   -webkit-animation-fill-mode: forwards;
   -moz-animation-fill-mode: forwards;
   -o-animation-fill-mode: forwards;
   animation-fill-mode: forwards;
-  
+
   /* Force o box-sizing com prefixos */
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -427,7 +459,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 }
 
 /* Remove a margem direita do último item de cada linha (para 5 colunas) */
-.movies-grid > .movie:nth-child(5n) {
+.movies-grid>.movie:nth-child(5n) {
   margin-right: 0;
 }
 
@@ -437,7 +469,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   -moz-transform: scale(1.05) translateZ(0);
   -ms-transform: scale(1.05) translateZ(0);
   transform: scale(1.05) translateZ(0);
-  
+
   box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4);
   border: 3px solid #FF8C00;
   border-color: #FF8C00;
@@ -459,13 +491,13 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   height: 100%;
   object-fit: cover;
   border-radius: 8px;
-  
+
   /* Transições otimizadas */
   -webkit-transition: transform 0.3s ease;
   -moz-transition: transform 0.3s ease;
   -o-transition: transform 0.3s ease;
   transition: transform 0.3s ease;
-  
+
   /* GPU acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -486,7 +518,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   background: -o-linear-gradient(top, transparent, rgba(0, 0, 0, 0.9));
   background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.9));
   padding: 15px;
-  
+
   /* Force o box-sizing com prefixos */
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -513,7 +545,8 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: inline-block;
   white-space: nowrap;
   will-change: transform;
-  padding-left: 0; /* sem espaçamento extra */
+  padding-left: 0;
+  /* sem espaçamento extra */
 }
 
 .movie.focused .movie-title span,
@@ -524,15 +557,19 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   animation-iteration-count: infinite;
   animation-fill-mode: forwards;
   animation-play-state: running;
-  padding-left: 0; /* começa colado */
+  padding-left: 0;
+  /* começa colado */
 }
 
 @keyframes scroll-text {
   0% {
-    transform: translateX(0); /* começa colado na esquerda */
+    transform: translateX(0);
+    /* começa colado na esquerda */
   }
+
   100% {
-    transform: translateX(-100%); /* rola até sumir completamente */
+    transform: translateX(-100%);
+    /* rola até sumir completamente */
   }
 }
 
@@ -547,7 +584,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  
+
   /* Justify com prefixos */
   -webkit-box-pack: justify;
   -webkit-justify-content: space-between;
@@ -573,14 +610,14 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   color: rgba(255, 255, 255, 0.9);
   margin-bottom: 8px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  
+
   /* Limitar a 3 linhas */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.3;
-  
+
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -594,14 +631,14 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  
+
   /* Direção com prefixos */
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  
+
   gap: 3px;
 }
 
@@ -610,7 +647,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   color: #FF8C00;
   font-weight: 600;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  
+
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -625,23 +662,23 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  
+
   /* Justify com prefixos */
   -webkit-box-pack: center;
   -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
-  
+
   /* Align com prefixos */
   -webkit-box-align: center;
   -webkit-align-items: center;
   -ms-flex-align: center;
   align-items: center;
-  
+
   height: 200px;
   font-size: 1.5rem;
   color: #FF8C00;
-  
+
   /* Otimização de texto */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -655,7 +692,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   border-top: 3px solid #FF8C00;
   border-radius: 50%;
   margin-left: 15px;
-  
+
   /* Animação de rotação */
   -webkit-animation: spin 1s linear infinite;
   -moz-animation: spin 1s linear infinite;
@@ -665,23 +702,43 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
 
 /* Animação de rotação */
 @-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 @-moz-keyframes spin {
-  0% { -moz-transform: rotate(0deg); }
-  100% { -moz-transform: rotate(360deg); }
+  0% {
+    -moz-transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(360deg);
+  }
 }
 
 @-o-keyframes spin {
-  0% { -o-transform: rotate(0deg); }
-  100% { -o-transform: rotate(360deg); }
+  0% {
+    -o-transform: rotate(0deg);
+  }
+
+  100% {
+    -o-transform: rotate(360deg);
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsividade */
@@ -689,9 +746,10 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   .movies-grid {
     gap: 12px;
   }
-  
+
   .movie {
-    width: calc(25% - 9px); /* 4 colunas */
+    width: calc(25% - 9px);
+    /* 4 colunas */
   }
 }
 
@@ -703,31 +761,32 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
-    
+
     gap: 10px;
   }
-  
-  .movies-page > * {
-    margin: 10px; /* Margem menor para mobile */
+
+  .movies-page>* {
+    margin: 10px;
+    /* Margem menor para mobile */
   }
-  
+
   .category-sidebar {
     width: 100%;
     min-width: auto;
     height: auto;
     max-height: 120px;
-    
+
     /* Direção com prefixos */
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
     -webkit-flex-direction: row;
     -ms-flex-direction: row;
     flex-direction: row;
-    
+
     overflow-x: auto;
     overflow-y: hidden;
   }
-  
+
   .category-list {
     /* Direção com prefixos */
     -webkit-box-orient: horizontal;
@@ -735,37 +794,40 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     -webkit-flex-direction: row;
     -ms-flex-direction: row;
     flex-direction: row;
-    
+
     gap: 10px;
     white-space: nowrap;
   }
-  
+
   .category-button {
     white-space: nowrap;
     min-width: 120px;
     font-size: 1.2rem;
   }
-  
+
   .movies-grid {
     gap: 10px;
   }
-  
+
   .movie {
-    width: calc(33.333% - 7px); /* 3 colunas */
+    width: calc(33.333% - 7px);
+    /* 3 colunas */
   }
 }
 
 @media (max-width: 600px) {
   .movie {
-    width: calc(50% - 5px); /* 2 colunas */
+    width: calc(50% - 5px);
+    /* 2 colunas */
   }
-  
+
   .movie-title {
     font-size: 0.9rem;
   }
-  
-  .movies-page > * {
-    margin: 5px; /* Margem ainda menor */
+
+  .movies-page>* {
+    margin: 5px;
+    /* Margem ainda menor */
   }
 }
 
@@ -775,6 +837,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     opacity: 0;
     -webkit-transform: translateY(30px) translateZ(0);
   }
+
   to {
     opacity: 1;
     -webkit-transform: translateY(0) translateZ(0);
@@ -786,6 +849,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     opacity: 0;
     -moz-transform: translateY(30px) translateZ(0);
   }
+
   to {
     opacity: 1;
     -moz-transform: translateY(0) translateZ(0);
@@ -797,6 +861,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     opacity: 0;
     -o-transform: translateY(30px) translateZ(0);
   }
+
   to {
     opacity: 1;
     -o-transform: translateY(0) translateZ(0);
@@ -808,6 +873,7 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
     opacity: 0;
     transform: translateY(30px) translateZ(0);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) translateZ(0);
@@ -822,37 +888,37 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   animation-delay: calc(var(--i, 0) * 0.1s);
 }
 
-.movie:nth-child(1) { 
+.movie:nth-child(1) {
   --i: 0;
   -webkit-animation-delay: 0s;
   animation-delay: 0s;
 }
 
-.movie:nth-child(2) { 
+.movie:nth-child(2) {
   --i: 1;
   -webkit-animation-delay: 0.1s;
   animation-delay: 0.1s;
 }
 
-.movie:nth-child(3) { 
+.movie:nth-child(3) {
   --i: 2;
   -webkit-animation-delay: 0.2s;
   animation-delay: 0.2s;
 }
 
-.movie:nth-child(4) { 
+.movie:nth-child(4) {
   --i: 3;
   -webkit-animation-delay: 0.3s;
   animation-delay: 0.3s;
 }
 
-.movie:nth-child(5) { 
+.movie:nth-child(5) {
   --i: 4;
   -webkit-animation-delay: 0.4s;
   animation-delay: 0.4s;
 }
 
-.movie:nth-child(6) { 
+.movie:nth-child(6) {
   --i: 5;
   -webkit-animation-delay: 0.5s;
   animation-delay: 0.5s;
@@ -871,7 +937,34 @@ div, span, p, h1, h2, h3, h4, h5, h6, button, img {
   transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  
+
   /* Otimização de repaint/reflow */
   will-change: transform, opacity;
-} 
+}
+
+/* ==========================================================================
+   MENSAGEM DE NENHUM FILME ENCONTRADO
+   ========================================================================== */
+
+.no-movies-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+  color: #888;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.no-movies-message p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.no-movies-message p:first-child {
+  font-size: 20px;
+  font-weight: bold;
+  color: #aaa;
+}
