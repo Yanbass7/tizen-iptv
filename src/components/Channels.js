@@ -32,6 +32,11 @@ const Channels = ({ isActive }) => {
   const [epgIndex, setEpgIndex] = useState(null); // { [channelId: string]: Array<{ start: Date, end: Date, title: string }> }
   const [epgLoading, setEpgLoading] = useState(false);
   const [epgLoadedAt, setEpgLoadedAt] = useState(null);
+  
+  // Estados para detalhes do EPG
+  const [showEpgDetails, setShowEpgDetails] = useState(false);
+  const [selectedChannelForEpg, setSelectedChannelForEpg] = useState(null);
+  const [epgDetails, setEpgDetails] = useState([]);
 
   // Estados de paginação (dinâmicos conforme layout)
   const [currentPage, setCurrentPage] = useState(0);
@@ -163,6 +168,27 @@ const Channels = ({ isActive }) => {
       : undefined;
     return { currentProgram, nextProgram };
   }, []);
+
+  // Função para obter detalhes completos do EPG de um canal
+  const getEpgDetailsForChannel = useCallback((channelId) => {
+    if (!epgIndex || !channelId) return [];
+    const list = epgIndex[channelId];
+    if (!list || list.length === 0) return [];
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Filtrar programas de hoje e amanhã
+    const todayPrograms = list.filter(prog => {
+      const progDate = new Date(prog.start);
+      return progDate >= today && progDate < tomorrow;
+    });
+    
+    // Ordenar por horário
+    return todayPrograms.sort((a, b) => a.start - b.start);
+  }, [epgIndex]);
 
   const loadEpg = useCallback(async () => {
     try {
@@ -494,6 +520,34 @@ const Channels = ({ isActive }) => {
     }
   }, [categories, categoryFocus, channels.length, loadLiveChannels]);
 
+  // Função para mostrar detalhes do EPG
+  const showEpgDetailsForChannel = useCallback((channel) => {
+    const epgId = channel.epg_channel_id || channel.epg_channel_id || channel.tvg_id;
+    if (!epgId) {
+      setAlertMessage('Este canal não possui informações de programação disponíveis.');
+      return;
+    }
+    
+    const details = getEpgDetailsForChannel(epgId);
+    if (details.length === 0) {
+      setAlertMessage('Nenhuma programação encontrada para este canal.');
+      return;
+    }
+    
+    setSelectedChannelForEpg(channel);
+    setEpgDetails(details);
+    setShowEpgDetails(true);
+    setFocusArea('epgDetails');
+  }, [getEpgDetailsForChannel]);
+
+  // Função para fechar detalhes do EPG
+  const closeEpgDetails = () => {
+    setShowEpgDetails(false);
+    setSelectedChannelForEpg(null);
+    setEpgDetails([]);
+    setFocusArea('channels');
+  };
+
   // Função de navegação dos canais (lista para ao vivo; grid para demo filmes)
   const handleChannelsNavigationInternal = useCallback((keyCode) => {
     const currentPageChannelsCount = currentPageChannels.length;
@@ -545,50 +599,16 @@ const Channels = ({ isActive }) => {
         }
       }
     } else if (keyCode === 37) { // Esquerda
-      if (GRID_COLUMNS === 1) {
-        // Lista: voltar para categorias se estiver no início
-        if (channelFocus === 0) {
-          setFocusArea('categories');
-          const selectedIndex = categories.findIndex(cat => cat.category_id === selectedCategory);
-          setCategoryFocus(selectedIndex >= 0 ? selectedIndex : 0);
-        } else {
-          setChannelFocus(Math.max(0, channelFocus - 1));
-        }
-      } else {
-        // Grid
-        const currentCol = channelFocus % GRID_COLUMNS;
-        if (currentCol > 0) {
-          setChannelFocus(channelFocus - 1);
-        } else {
-          setFocusArea('categories');
-          const selectedIndex = categories.findIndex(cat => cat.category_id === selectedCategory);
-          setCategoryFocus(selectedIndex >= 0 ? selectedIndex : 0);
-        }
-      }
+      // Voltar direto para categorias independente do canal atual
+      setFocusArea('categories');
+      const selectedIndex = categories.findIndex(cat => cat.category_id === selectedCategory);
+      setCategoryFocus(selectedIndex >= 0 ? selectedIndex : 0);
     } else if (keyCode === 39) { // Direita
-      if (GRID_COLUMNS === 1) {
-        // Lista
-        if (channelFocus < currentPageChannelsCount - 1) {
-          setChannelFocus(channelFocus + 1);
-        } else if (currentPage < totalPages - 1) {
-          setCurrentPage(currentPage + 1);
-          setChannelFocus(0);
-        }
-      } else {
-        // Grid
-        const currentCol = channelFocus % GRID_COLUMNS;
-        if (currentCol < GRID_COLUMNS - 1 && channelFocus < currentPageChannelsCount - 1) {
-          setChannelFocus(channelFocus + 1);
-        } else if (currentCol === GRID_COLUMNS - 1) {
-          const currentRow = Math.floor(channelFocus / GRID_COLUMNS);
-          const maxRow = Math.floor((currentPageChannelsCount - 1) / GRID_COLUMNS);
-          if (currentRow < maxRow) {
-            setChannelFocus((currentRow + 1) * GRID_COLUMNS);
-          } else if (currentPage < totalPages - 1) {
-            setCurrentPage(currentPage + 1);
-            setChannelFocus(0);
-          }
-        }
+      // Mostrar detalhes do EPG do canal atual
+      if (currentPageChannels[channelFocus]) {
+        const actualChannelIndex = currentPage * ITEMS_PER_PAGE + channelFocus;
+        const channel = channels[actualChannelIndex];
+        showEpgDetailsForChannel(channel);
       }
     } else if (keyCode === 13) { // OK - selecionar canal
       if (currentPageChannels[channelFocus]) {
@@ -737,12 +757,17 @@ const Channels = ({ isActive }) => {
         handleCategoriesNavigation(keyCode);
       } else if (focusArea === 'channels') {
         handleChannelsNavigationInternal(keyCode);
+      } else if (focusArea === 'epgDetails') {
+        // Navegação para detalhes do EPG
+        if (keyCode === 37 || keyCode === 8) { // Esquerda ou Back
+          closeEpgDetails();
+        }
       }
     };
 
     window.addEventListener('channelsNavigation', handleChannelsNavigation);
     return () => window.removeEventListener('channelsNavigation', handleChannelsNavigation);
-  }, [isActive, focusArea, handleCategoriesNavigation, handleChannelsNavigationInternal, handleModalNavigation, currentPlayingChannel, channels, handleChannelSelect]);
+  }, [isActive, focusArea, handleCategoriesNavigation, handleChannelsNavigationInternal, handleModalNavigation, currentPlayingChannel, channels, handleChannelSelect, closeEpgDetails]);
 
   // Função para tratar erros de imagem
   const handleImageError = (e) => {
@@ -772,6 +797,49 @@ const Channels = ({ isActive }) => {
           focus={modalFocus}
           showError={showPasswordError}
         />
+      )}
+      
+      {/* Modal de detalhes do EPG */}
+      {showEpgDetails && selectedChannelForEpg && (
+        <div className="epg-details-modal">
+          <div className="epg-details-content">
+            <div className="epg-details-header">
+              <h2>📺 {selectedChannelForEpg.name}</h2>
+              <button 
+                className="epg-close-button"
+                onClick={closeEpgDetails}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="epg-details-body">
+              <h3>📅 Programação do Dia</h3>
+              {epgDetails.length > 0 ? (
+                <div className="epg-program-list">
+                  {epgDetails.map((program, index) => (
+                    <div key={index} className="epg-program-item">
+                      <div className="epg-program-time">
+                        {formatTime(program.start)} - {formatTime(program.end)}
+                      </div>
+                      <div className="epg-program-title">
+                        {program.title}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="epg-no-programs">
+                  Nenhuma programação encontrada para este canal.
+                </p>
+              )}
+            </div>
+            <div className="epg-details-footer">
+              <p className="epg-navigation-hint">
+                Use ← (seta esquerda) ou Back para fechar
+              </p>
+            </div>
+          </div>
+        </div>
       )}
       <div className="category-sidebar">
         {loading ? (
