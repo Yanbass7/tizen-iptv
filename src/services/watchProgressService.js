@@ -93,12 +93,17 @@ class WatchProgressService {
     try {
       const progress = this.getAllProgress();
       
+      console.log(`🔍 getEpisodeProgress - Verificando série ${seriesId}, temporada ${seasonNumber}, episódio ${episodeId}`);
+      console.log(`🔍 getEpisodeProgress - Progresso da série:`, progress[seriesId]);
+      
       if (progress[seriesId] && 
           progress[seriesId].seasons[seasonNumber] && 
           progress[seriesId].seasons[seasonNumber][episodeId]) {
+        console.log(`🔍 getEpisodeProgress - Episódio encontrado:`, progress[seriesId].seasons[seasonNumber][episodeId]);
         return progress[seriesId].seasons[seasonNumber][episodeId];
       }
       
+      console.log(`🔍 getEpisodeProgress - Episódio não encontrado`);
       return null;
     } catch (error) {
       console.error('Erro ao obter progresso do episódio:', error);
@@ -114,7 +119,11 @@ class WatchProgressService {
   getSeriesProgress(seriesId) {
     try {
       const progress = this.getAllProgress();
-      return progress[seriesId] || null;
+      const seriesProgress = progress[seriesId] || null;
+      
+      console.log(`🔍 getSeriesProgress - Série ${seriesId}:`, seriesProgress);
+      
+      return seriesProgress;
     } catch (error) {
       console.error('Erro ao obter progresso da série:', error);
       return null;
@@ -131,11 +140,19 @@ class WatchProgressService {
       const seriesProgress = this.getSeriesProgress(seriesId);
       
       if (!seriesProgress || !seriesProgress.lastEpisode) {
+        console.log(`🔍 getLastWatchedEpisode - Série ${seriesId}: sem progresso ou último episódio`);
         return null;
       }
 
       const { seasonNumber, episodeId } = seriesProgress.lastEpisode;
       const episodeProgress = this.getEpisodeProgress(seriesId, seasonNumber, episodeId);
+
+      if (!episodeProgress) {
+        console.log(`🔍 getLastWatchedEpisode - Série ${seriesId}: episódio ${seasonNumber}x${episodeId} sem progresso`);
+        return null;
+      }
+
+      console.log(`🔍 getLastWatchedEpisode - Série ${seriesId}: episódio ${seasonNumber}x${episodeId} com progresso`, episodeProgress);
 
       return {
         ...seriesProgress.lastEpisode,
@@ -156,11 +173,18 @@ class WatchProgressService {
       const progress = this.getAllProgress();
       const series = [];
 
+      console.log('🔍 getContinueWatchingSeries - Progresso total encontrado:', Object.keys(progress).length);
+      console.log('🔍 getContinueWatchingSeries - Chaves de progresso:', Object.keys(progress));
+
       Object.keys(progress).forEach(seriesId => {
         const seriesData = progress[seriesId];
         const lastEpisode = this.getLastWatchedEpisode(seriesId);
 
+        console.log(`🔍 getContinueWatchingSeries - Verificando série ${seriesId}:`, seriesData);
+        console.log(`🔍 getContinueWatchingSeries - Último episódio da série ${seriesId}:`, lastEpisode);
+
         if (lastEpisode && lastEpisode.progress && !lastEpisode.progress.isCompleted) {
+          console.log(`🔍 getContinueWatchingSeries - Série ${seriesId} adicionada à lista`);
           series.push({
             seriesId,
             seriesName: seriesData.seriesName,
@@ -177,11 +201,28 @@ class WatchProgressService {
             genre: seriesData.genre,
             year: seriesData.year
           });
+        } else {
+          console.log(`🔍 getContinueWatchingSeries - Série ${seriesId} não adicionada:`, {
+            hasLastEpisode: !!lastEpisode,
+            hasProgress: !!(lastEpisode && lastEpisode.progress),
+            isCompleted: !!(lastEpisode && lastEpisode.progress && lastEpisode.progress.isCompleted)
+          });
         }
       });
 
+      console.log('🔍 getContinueWatchingSeries - Séries filtradas:', series.length);
+      console.log('🔍 getContinueWatchingSeries - Séries encontradas:', series);
+      console.log('🔍 getContinueWatchingSeries - Detalhes das séries:', series.map(s => ({
+        seriesId: s.seriesId,
+        seriesName: s.seriesName,
+        lastWatched: s.lastWatched,
+        progressPercent: s.progressPercent
+      })));
+
       // Ordenar por última visualização (mais recente primeiro)
-      return series.sort((a, b) => b.lastWatched - a.lastWatched);
+      const sortedSeries = series.sort((a, b) => b.lastWatched - a.lastWatched);
+      console.log('🔍 getContinueWatchingSeries - Séries ordenadas:', sortedSeries);
+      return sortedSeries;
     } catch (error) {
       console.error('Erro ao obter séries para continuar assistindo:', error);
       return [];
@@ -195,7 +236,13 @@ class WatchProgressService {
   getAllProgress() {
     try {
       const data = localStorage.getItem(SERIES_STORAGE_KEY);
-      return data ? JSON.parse(data) : {};
+      const progress = data ? JSON.parse(data) : {};
+      
+      console.log('🔍 getAllProgress - Dados brutos do localStorage:', data);
+      console.log('🔍 getAllProgress - Progresso parseado:', progress);
+      console.log('🔍 getAllProgress - Número de séries:', Object.keys(progress).length);
+      
+      return progress;
     } catch (error) {
       console.error('Erro ao ler progresso de séries do localStorage:', error);
       return {};
@@ -209,7 +256,13 @@ class WatchProgressService {
   getAllMoviesProgress() {
     try {
       const data = localStorage.getItem(MOVIES_STORAGE_KEY);
-      return data ? JSON.parse(data) : {};
+      const progress = data ? JSON.parse(data) : {};
+      
+      console.log('🔍 getAllMoviesProgress - Dados brutos do localStorage:', data);
+      console.log('🔍 getAllMoviesProgress - Progresso parseado:', progress);
+      console.log('🔍 getAllMoviesProgress - Número de filmes:', Object.keys(progress).length);
+      
+      return progress;
     } catch (error) {
       console.error('Erro ao ler progresso de filmes do localStorage:', error);
       return {};
@@ -357,10 +410,16 @@ class WatchProgressService {
       const progress = this.getAllMoviesProgress();
       const movies = [];
 
+      console.log('🔍 getContinueWatchingMovies - Progresso total encontrado:', Object.keys(progress).length);
+      console.log('🔍 getContinueWatchingMovies - Chaves de progresso:', Object.keys(progress));
+
       Object.keys(progress).forEach(movieId => {
         const movieData = progress[movieId];
 
+        console.log(`🔍 getContinueWatchingMovies - Verificando filme ${movieId}:`, movieData);
+
         if (movieData && !movieData.isCompleted && movieData.currentTime > 30) {
+          console.log(`🔍 getContinueWatchingMovies - Filme ${movieId} adicionado à lista`);
           movies.push({
             movieId,
             movieName: movieData.movieName,
@@ -379,11 +438,23 @@ class WatchProgressService {
             stream_icon: movieData.poster,
             cover: movieData.poster
           });
+        } else {
+          console.log(`🔍 getContinueWatchingMovies - Filme ${movieId} não adicionado:`, {
+            hasMovieData: !!movieData,
+            isCompleted: !!(movieData && movieData.isCompleted),
+            currentTime: movieData ? movieData.currentTime : 'N/A',
+            threshold: 30
+          });
         }
       });
 
+      console.log('🔍 getContinueWatchingMovies - Filmes filtrados:', movies.length);
+      console.log('🔍 getContinueWatchingMovies - Filmes encontrados:', movies);
+
       // Ordenar por última visualização (mais recente primeiro)
-      return movies.sort((a, b) => b.lastWatched - a.lastWatched);
+      const sortedMovies = movies.sort((a, b) => b.lastWatched - a.lastWatched);
+      console.log('🔍 getContinueWatchingMovies - Filmes ordenados:', sortedMovies);
+      return sortedMovies;
     } catch (error) {
       console.error('Erro ao obter filmes para continuar assistindo:', error);
       return [];

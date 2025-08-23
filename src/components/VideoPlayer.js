@@ -55,14 +55,21 @@ const VideoPlayer = ({ isActive, streamUrl, streamInfo, onBack }) => {
 
   // Função para calcular próximo episódio dinamicamente
   const calculateNextEpisode = useCallback((currentEpisode, allEpisodes) => {
-    console.log('🔍 calculateNextEpisode chamada:', {
-      currentEpisode: currentEpisode?.title || currentEpisode?.name,
-      currentEpisodeId: currentEpisode?.id || currentEpisode?.stream_id,
-      allEpisodesCount: allEpisodes?.length || 0
-    });
+    // Só fazer log se for realmente uma série (tem episódios)
+    if (allEpisodes && allEpisodes.length > 0) {
+      console.log('🔍 calculateNextEpisode chamada:', {
+        currentEpisode: currentEpisode?.title || currentEpisode?.name,
+        currentEpisodeId: currentEpisode?.id || currentEpisode?.stream_id,
+        allEpisodesCount: allEpisodes?.length || 0
+      });
+    }
 
     if (!currentEpisode || !allEpisodes || allEpisodes.length === 0) {
-      console.log('❌ calculateNextEpisode: dados insuficientes');
+      // Só exibir erro se for uma série (tem allEpisodes mas está vazio)
+      // Para filmes e canais ao vivo, allEpisodes é undefined, então não exibir erro
+      if (allEpisodes !== undefined && allEpisodes !== null && allEpisodes.length === 0) {
+        console.log('❌ calculateNextEpisode: dados insuficientes para série');
+      }
       return null;
     }
 

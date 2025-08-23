@@ -104,6 +104,7 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus, hasGroupCode }) => {
         console.log('📺 Séries para continuar assistindo:', continuarSeries);
         console.log('🎬 Filmes para continuar assistindo:', continuarFilmes);
         console.log('🎭 Total para continuar assistindo:', continuarTodos);
+        console.log('🔢 Número total de itens para continuar assistindo:', continuarTodos.length);
         
         setContinuarAssistindo(continuarTodos);
 
@@ -125,6 +126,14 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus, hasGroupCode }) => {
 
   // Verificar se está em modo demo
   const isTestMode = localStorage.getItem('testMode') === 'true';
+  
+  // Debug: verificar estado final antes de criar prateleiras
+  console.log('🔍 Estado final antes de criar prateleiras:', {
+    continuarAssistindo: continuarAssistindo.length,
+    lancamentos: lancamentos.length,
+    telenovelas: telenovelas.length,
+    classicos: classicos.length
+  });
   
   // Definir prateleiras com dados carregados
   const shelves = [
@@ -632,6 +641,7 @@ const Home = ({ onMenu, menuFocus, shelfFocus, itemFocus, hasGroupCode }) => {
             <div className="shelf-carousel">
               {shelf.items.length > 0 ? (
                 <div className="carousel-track">
+                  {shelf.type === 'continue-watching' && console.log(`🔍 Renderizando prateleira "${shelf.title}" com ${shelf.items.length} itens:`, shelf.items)}
                   {shelf.items.map((item, itemIndex) => {
                     const isFocused = !onMenu && shelfFocus === shelfIndex && itemFocus === itemIndex;
 

@@ -37,6 +37,8 @@ const Channels = ({ isActive }) => {
   const [showEpgDetails, setShowEpgDetails] = useState(false);
   const [selectedChannelForEpg, setSelectedChannelForEpg] = useState(null);
   const [epgDetails, setEpgDetails] = useState([]);
+  const [epgFocus, setEpgFocus] = useState(0); // Foco no programa do EPG
+  const [epgModalArea, setEpgModalArea] = useState('programs'); // 'programs' ou 'close'
 
   // Estados de paginação (dinâmicos conforme layout)
   const [currentPage, setCurrentPage] = useState(0);
@@ -53,6 +55,8 @@ const Channels = ({ isActive }) => {
   // Referencias para navegação
   const categoriesRef = useRef([]);
   const channelsRef = useRef([]);
+  const epgProgramsRef = useRef([]);
+  const epgCloseButtonRef = useRef(null);
   const containerRef = useRef(null);
   const previewVideoRef = useRef(null);
   const previewHlsRef = useRef(null);
@@ -536,6 +540,8 @@ const Channels = ({ isActive }) => {
     
     setSelectedChannelForEpg(channel);
     setEpgDetails(details);
+    setEpgFocus(0);
+    setEpgModalArea('programs');
     setShowEpgDetails(true);
     setFocusArea('epgDetails');
   }, [getEpgDetailsForChannel]);
@@ -545,8 +551,59 @@ const Channels = ({ isActive }) => {
     setShowEpgDetails(false);
     setSelectedChannelForEpg(null);
     setEpgDetails([]);
+    setEpgFocus(0);
+    setEpgModalArea('programs');
     setFocusArea('channels');
   };
+
+  // Função de navegação do modal EPG
+  const handleEpgNavigation = useCallback((keyCode) => {
+    if (keyCode === 37 || keyCode === 8) { // Esquerda ou Back
+      closeEpgDetails();
+      return;
+    }
+
+    if (epgDetails.length === 0) return;
+
+    if (keyCode === 38) { // Cima
+      if (epgModalArea === 'close') {
+        setEpgModalArea('programs');
+        setEpgFocus(Math.min(epgFocus, epgDetails.length - 1));
+      } else if (epgModalArea === 'programs' && epgFocus > 0) {
+        setEpgFocus(epgFocus - 1);
+      }
+    } else if (keyCode === 40) { // Baixo
+      if (epgModalArea === 'programs') {
+        if (epgFocus < epgDetails.length - 1) {
+          setEpgFocus(epgFocus + 1);
+        } else {
+          setEpgModalArea('close');
+        }
+      }
+    } else if (keyCode === 13) { // OK/Enter
+      if (epgModalArea === 'close') {
+        closeEpgDetails();
+      }
+      // Para programas, poderia implementar ação específica no futuro
+    }
+  }, [epgDetails.length, epgModalArea, epgFocus, closeEpgDetails]);
+
+  // useEffect para scroll automático no modal EPG
+  useEffect(() => {
+    if (!showEpgDetails) return;
+
+    if (epgModalArea === 'programs' && epgProgramsRef.current[epgFocus]) {
+      epgProgramsRef.current[epgFocus].scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
+      });
+    } else if (epgModalArea === 'close' && epgCloseButtonRef.current) {
+      epgCloseButtonRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
+      });
+    }
+  }, [showEpgDetails, epgModalArea, epgFocus]);
 
   // Função de navegação dos canais (lista para ao vivo; grid para demo filmes)
   const handleChannelsNavigationInternal = useCallback((keyCode) => {
@@ -759,15 +816,13 @@ const Channels = ({ isActive }) => {
         handleChannelsNavigationInternal(keyCode);
       } else if (focusArea === 'epgDetails') {
         // Navegação para detalhes do EPG
-        if (keyCode === 37 || keyCode === 8) { // Esquerda ou Back
-          closeEpgDetails();
-        }
+        handleEpgNavigation(keyCode);
       }
     };
 
     window.addEventListener('channelsNavigation', handleChannelsNavigation);
     return () => window.removeEventListener('channelsNavigation', handleChannelsNavigation);
-  }, [isActive, focusArea, handleCategoriesNavigation, handleChannelsNavigationInternal, handleModalNavigation, currentPlayingChannel, channels, handleChannelSelect, closeEpgDetails]);
+  }, [isActive, focusArea, handleCategoriesNavigation, handleChannelsNavigationInternal, handleModalNavigation, currentPlayingChannel, channels, handleChannelSelect, closeEpgDetails, handleEpgNavigation]);
 
   // Função para tratar erros de imagem
   const handleImageError = (e) => {
@@ -806,7 +861,8 @@ const Channels = ({ isActive }) => {
             <div className="epg-details-header">
               <h2>📺 {selectedChannelForEpg.name}</h2>
               <button 
-                className="epg-close-button"
+                ref={epgCloseButtonRef}
+                className={`epg-close-button ${epgModalArea === 'close' ? 'focused' : ''}`}
                 onClick={closeEpgDetails}
               >
                 ✕
@@ -817,7 +873,13 @@ const Channels = ({ isActive }) => {
               {epgDetails.length > 0 ? (
                 <div className="epg-program-list">
                   {epgDetails.map((program, index) => (
-                    <div key={index} className="epg-program-item">
+                    <div 
+                      key={index} 
+                      ref={el => epgProgramsRef.current[index] = el}
+                      className={`epg-program-item ${
+                        epgModalArea === 'programs' && epgFocus === index ? 'focused' : ''
+                      }`}
+                    >
                       <div className="epg-program-time">
                         {formatTime(program.start)} - {formatTime(program.end)}
                       </div>
@@ -835,7 +897,7 @@ const Channels = ({ isActive }) => {
             </div>
             <div className="epg-details-footer">
               <p className="epg-navigation-hint">
-                Use ← (seta esquerda) ou Back para fechar
+                Use ↑↓ (setas) para navegar • ← (esquerda) ou Back para fechar • OK para confirmar
               </p>
             </div>
           </div>
