@@ -38,7 +38,6 @@ const Channels = ({ isActive }) => {
   const [selectedChannelForEpg, setSelectedChannelForEpg] = useState(null);
   const [epgDetails, setEpgDetails] = useState([]);
   const [epgFocus, setEpgFocus] = useState(0); // Foco no programa do EPG
-  const [epgModalArea, setEpgModalArea] = useState('programs'); // 'programs' ou 'close'
 
   // Estados de paginação (dinâmicos conforme layout)
   const [currentPage, setCurrentPage] = useState(0);
@@ -56,7 +55,6 @@ const Channels = ({ isActive }) => {
   const categoriesRef = useRef([]);
   const channelsRef = useRef([]);
   const epgProgramsRef = useRef([]);
-  const epgCloseButtonRef = useRef(null);
   const containerRef = useRef(null);
   const previewVideoRef = useRef(null);
   const previewHlsRef = useRef(null);
@@ -507,7 +505,7 @@ const Channels = ({ isActive }) => {
       setCategoryFocus(prev => Math.max(0, prev - 1));
     } else if (keyCode === 40) { // Baixo
       setCategoryFocus(prev => Math.min(categories.length - 1, prev + 1));
-    } else if (keyCode === 37) { // Esquerda - voltar para sidebar
+    } else if (keyCode === 37 || keyCode === 8) { // Esquerda ou Backspace - voltar para sidebar
       const backEvent = new CustomEvent('backToSidebar');
       window.dispatchEvent(backEvent);
     } else if (keyCode === 39) { // Direita - ir para canais
@@ -541,7 +539,6 @@ const Channels = ({ isActive }) => {
     setSelectedChannelForEpg(channel);
     setEpgDetails(details);
     setEpgFocus(0);
-    setEpgModalArea('programs');
     setShowEpgDetails(true);
     setFocusArea('epgDetails');
   }, [getEpgDetailsForChannel]);
@@ -552,13 +549,12 @@ const Channels = ({ isActive }) => {
     setSelectedChannelForEpg(null);
     setEpgDetails([]);
     setEpgFocus(0);
-    setEpgModalArea('programs');
     setFocusArea('channels');
   };
 
   // Função de navegação do modal EPG
   const handleEpgNavigation = useCallback((keyCode) => {
-    if (keyCode === 37 || keyCode === 8) { // Esquerda ou Back
+    if (keyCode === 37 || keyCode === 8) { // Esquerda ou Backspace
       closeEpgDetails();
       return;
     }
@@ -566,44 +562,27 @@ const Channels = ({ isActive }) => {
     if (epgDetails.length === 0) return;
 
     if (keyCode === 38) { // Cima
-      if (epgModalArea === 'close') {
-        setEpgModalArea('programs');
-        setEpgFocus(Math.min(epgFocus, epgDetails.length - 1));
-      } else if (epgModalArea === 'programs' && epgFocus > 0) {
+      if (epgFocus > 0) {
         setEpgFocus(epgFocus - 1);
       }
     } else if (keyCode === 40) { // Baixo
-      if (epgModalArea === 'programs') {
-        if (epgFocus < epgDetails.length - 1) {
-          setEpgFocus(epgFocus + 1);
-        } else {
-          setEpgModalArea('close');
-        }
+      if (epgFocus < epgDetails.length - 1) {
+        setEpgFocus(epgFocus + 1);
       }
-    } else if (keyCode === 13) { // OK/Enter
-      if (epgModalArea === 'close') {
-        closeEpgDetails();
-      }
-      // Para programas, poderia implementar ação específica no futuro
     }
-  }, [epgDetails.length, epgModalArea, epgFocus, closeEpgDetails]);
+  }, [epgDetails.length, epgFocus, closeEpgDetails]);
 
   // useEffect para scroll automático no modal EPG
   useEffect(() => {
     if (!showEpgDetails) return;
 
-    if (epgModalArea === 'programs' && epgProgramsRef.current[epgFocus]) {
+    if (epgProgramsRef.current[epgFocus]) {
       epgProgramsRef.current[epgFocus].scrollIntoView({
         behavior: 'smooth',
         block: 'nearest'
       });
-    } else if (epgModalArea === 'close' && epgCloseButtonRef.current) {
-      epgCloseButtonRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest'
-      });
     }
-  }, [showEpgDetails, epgModalArea, epgFocus]);
+  }, [showEpgDetails, epgFocus]);
 
   // Função de navegação dos canais (lista para ao vivo; grid para demo filmes)
   const handleChannelsNavigationInternal = useCallback((keyCode) => {
@@ -655,7 +634,7 @@ const Channels = ({ isActive }) => {
           setChannelFocus(channelFocus % GRID_COLUMNS);
         }
       }
-    } else if (keyCode === 37) { // Esquerda
+    } else if (keyCode === 37 || keyCode === 8) { // Esquerda ou Backspace
       // Voltar direto para categorias independente do canal atual
       setFocusArea('categories');
       const selectedIndex = categories.findIndex(cat => cat.category_id === selectedCategory);
@@ -772,7 +751,7 @@ const Channels = ({ isActive }) => {
       } else if (modalFocus === 'cancel') {
         handlePasswordCancel();
       }
-    } else if (keyCode === 10009) { // Voltar
+    } else if (keyCode === 10009 || keyCode === 8) { // Voltar ou Backspace
       handlePasswordCancel();
     }
   }, [isPasswordModalOpen, modalFocus, password, handlePasswordSubmit, handlePasswordCancel]);
@@ -791,7 +770,7 @@ const Channels = ({ isActive }) => {
       // If a channel is currently playing, handle left/right for channel switching
       if (currentPlayingChannel) {
         const currentIndex = channels.findIndex(c => c.stream_id === currentPlayingChannel.stream_id);
-        if (keyCode === 37) { // Left arrow
+        if (keyCode === 37 || keyCode === 8) { // Left arrow ou Backspace
           if (currentIndex > 0) {
             handleChannelSelect(channels[currentIndex - 1]);
           } else if (channels.length > 0) {
@@ -860,13 +839,6 @@ const Channels = ({ isActive }) => {
           <div className="epg-details-content">
             <div className="epg-details-header">
               <h2>📺 {selectedChannelForEpg.name}</h2>
-              <button 
-                ref={epgCloseButtonRef}
-                className={`epg-close-button ${epgModalArea === 'close' ? 'focused' : ''}`}
-                onClick={closeEpgDetails}
-              >
-                ✕
-              </button>
             </div>
             <div className="epg-details-body">
               <h3>📅 Programação do Dia</h3>
@@ -877,7 +849,7 @@ const Channels = ({ isActive }) => {
                       key={index} 
                       ref={el => epgProgramsRef.current[index] = el}
                       className={`epg-program-item ${
-                        epgModalArea === 'programs' && epgFocus === index ? 'focused' : ''
+                        epgFocus === index ? 'focused' : ''
                       }`}
                     >
                       <div className="epg-program-time">
@@ -897,7 +869,7 @@ const Channels = ({ isActive }) => {
             </div>
             <div className="epg-details-footer">
               <p className="epg-navigation-hint">
-                Use ↑↓ (setas) para navegar • ← (esquerda) ou Back para fechar • OK para confirmar
+                Use ↑↓ (setas) para navegar pelos programas • ← (esquerda) ou Back para fechar
               </p>
             </div>
           </div>
@@ -937,6 +909,7 @@ const Channels = ({ isActive }) => {
                   </span>
                 </div>
               )}
+
               {isMoviesDemoCategory ? (
                 <div className="channels-grid">
                   {currentPageChannels.map((channel, index) => (
@@ -992,9 +965,25 @@ const Channels = ({ isActive }) => {
                           />
                         )}
                         <span className="channel-name">{channel.name}</span>
-                        {info.currentProgram && (
-                          <span className="channel-epg">{info.currentProgram.title} • {info.currentProgram.startTime}</span>
-                        )}
+                        <div className="channel-info">
+                          {info.currentProgram && (
+                            <span className="channel-epg">{info.currentProgram.title} • {info.currentProgram.startTime}</span>
+                          )}
+                          {epgId && (
+                            <button 
+                              className="epg-info-button" 
+                              title="Clique para ver a programação completa do canal"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                showEpgDetailsForChannel(channel);
+                              }}
+                            >
+                              <span className="epg-icon">📋</span>
+                              <span className="epg-text">informações</span>
+                              <span className="epg-arrow">→</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     );
                   })}

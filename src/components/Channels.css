@@ -1277,6 +1277,21 @@ img {
   justify-content: space-between;
   align-items: center;
   border-bottom: 2px solid rgba(255, 140, 0, 0.3);
+  position: relative;
+}
+
+.epg-header-info {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.epg-header-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .epg-details-header h2 {
@@ -1407,4 +1422,163 @@ img {
 
 .epg-details-body::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 140, 0, 0.7);
+}
+
+/* ==========================================================================
+   DICA VISUAL DO EPG
+   ========================================================================== */
+
+.epg-hint {
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.1) 0%, rgba(255, 140, 0, 0.05) 100%);
+  border: 1px solid rgba(255, 140, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 10px 0;
+  text-align: center;
+  animation: epgHintPulse 3s ease-in-out infinite;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.epg-hint-text {
+  color: #FF8C00;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.epg-hint-close {
+  background: rgba(255, 140, 0, 0.2);
+  border: 1px solid rgba(255, 140, 0, 0.4);
+  color: #FF8C00;
+  font-size: 0.8rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.epg-hint-close:hover {
+  background: rgba(255, 140, 0, 0.3);
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+}
+
+@keyframes epgHintPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+/* Responsividade para a dica do EPG */
+@media (max-width: 768px) {
+  .epg-hint {
+    padding: 10px 12px;
+    margin: 8px 0;
+  }
+  
+  .epg-hint-text {
+    font-size: 0.9rem;
+  }
+  
+  .epg-info-button {
+    padding: 3px 6px;
+    gap: 3px;
+  }
+  
+  .epg-text {
+    font-size: 0.8rem;
+  }
+  
+  .epg-icon, .epg-arrow {
+    font-size: 0.8rem;
+  }
+}
+
+/* ==========================================================================
+   INDICADOR EPG E LAYOUT DE INFORMAÇÕES DO CANAL
+   ========================================================================== */
+
+.channel-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.epg-info-button {
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.1) 0%, rgba(255, 140, 0, 0.05) 100%);
+  border: 1px solid rgba(255, 140, 0, 0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  color: #FF8C00;
+  opacity: 0.8;
+  min-width: fit-content;
+}
+
+.epg-info-button:hover {
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.2) 0%, rgba(255, 140, 0, 0.1) 100%);
+  border-color: rgba(255, 140, 0, 0.5);
+  opacity: 1;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+}
+
+.channel-row.focused .epg-info-button {
+  opacity: 1;
+  animation: epgButtonGlow 2s ease-in-out infinite;
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.2) 0%, rgba(255, 140, 0, 0.1) 100%);
+  border-color: rgba(255, 140, 0, 0.6);
+}
+
+.epg-icon {
+  font-size: 0.9rem;
+}
+
+.epg-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.epg-arrow {
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.epg-info-button:hover .epg-arrow {
+  transform: translateX(2px);
+}
+
+@keyframes epgButtonGlow {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.2);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+  }
 }

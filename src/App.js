@@ -402,16 +402,22 @@ function App() {
               detail: { keyCode }
             });
             window.dispatchEvent(movieDetailsEvent);
-          } else if (currentSection === SECTIONS.SEARCH_MOVIE_DETAILS) {
-            // Delegar para o componente SearchMovieDetailsPage
-            const searchMovieDetailsEvent = new CustomEvent('searchMovieDetailsNavigation', {
-              detail: { keyCode }
-            });
-            window.dispatchEvent(searchMovieDetailsEvent);
-          } else {
-            // Apenas tenta voltar no histórico, sem fallback para Home
-            navigateBack();
-          }
+                  } else if (currentSection === SECTIONS.SEARCH_MOVIE_DETAILS) {
+          // Delegar para o componente SearchMovieDetailsPage
+          const searchMovieDetailsEvent = new CustomEvent('searchMovieDetailsNavigation', {
+            detail: { keyCode }
+          });
+          window.dispatchEvent(searchMovieDetailsEvent);
+        } else if (currentSection === SECTIONS.CHANNELS) {
+          // Delegar para o componente Channels
+          const channelsEvent = new CustomEvent('channelsNavigation', {
+            detail: { keyCode }
+          });
+          window.dispatchEvent(channelsEvent);
+        } else {
+          // Apenas tenta voltar no histórico, sem fallback para Home
+          navigateBack();
+        }
         }
       }
     };
